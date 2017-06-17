@@ -3,3 +3,19 @@
 ################################################################################
 
 *.opendb
+*.db
+/windows/.vs/windows/v15/Browse.VC.db
+*.ipch
+*.tlog
+/windows/windows/x64/Debug/test.obj
+*.idb
+*.pdb
+*.log
+*.vcxproj
+*.filters
+*.user
+*.exe
+*.ilk
+*.pdb
+/windows/windows.sln
+/windows/.vs/windows/v15/.suo
