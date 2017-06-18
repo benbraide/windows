@@ -11,6 +11,17 @@ namespace winpp{
 		public:
 			typedef structures::enumerations::placement_type placement_type;
 
+			typedef ::D2D1_COLOR_F d2d_color_type;
+
+			typedef ::D2D1_POINT_2F d2d_pointf_type;
+			typedef ::D2D1_POINT_2U d2d_pointu_type;
+
+			typedef ::D2D1_SIZE_F d2d_sizef_type;
+			typedef ::D2D1_SIZE_U d2d_sizeu_type;
+
+			typedef ::D2D1_RECT_F d2d_rectf_type;
+			typedef ::D2D1_RECT_U d2d_rectu_type;
+
 			static bool has_left(placement_type placement);
 
 			static bool has_top(placement_type placement);
@@ -42,6 +53,49 @@ namespace winpp{
 					rect.top -= (size.height() / 2);
 					rect.bottom -= (size.height() / 2);
 				}
+			}
+
+			template <typename color_type>
+			static d2d_color_type to_d2d_color(const color_type &value){
+				return d2d_color_type{ value.relative_red(), value.relative_green(), value.relative_blue(), value.relative_alpha() };
+			}
+
+			template <typename point_type>
+			static d2d_pointf_type to_d2d_pointf(const point_type &value){
+				typedef decltype(d2d_pointf_type::x) field_type;
+				return d2d_pointf_type{ static_cast<field_type>(value.x()), static_cast<field_type>(value.y()) };
+			}
+
+			template <typename point_type>
+			static d2d_pointu_type to_d2d_pointu(const point_type &value){
+				typedef decltype(d2d_pointu_type::x) field_type;
+				return d2d_pointu_type{ static_cast<field_type>(value.x()), static_cast<field_type>(value.y()) };
+			}
+
+			template <typename size_type>
+			static d2d_sizef_type to_d2d_sizef(const size_type &value){
+				typedef decltype(d2d_sizef_type::width) field_type;
+				return d2d_sizef_type{ static_cast<field_type>(value.width()), static_cast<field_type>(value.height()) };
+			}
+
+			template <typename size_type>
+			static d2d_sizeu_type to_d2d_sizeu(const size_type &value){
+				typedef decltype(d2d_sizeu_type::width) field_type;
+				return d2d_sizeu_type{ static_cast<field_type>(value.width()), static_cast<field_type>(value.height()) };
+			}
+
+			template <typename rect_type>
+			static d2d_rectf_type to_d2d_rectf(const rect_type &value){
+				typedef decltype(d2d_rectf_type::left) field_type;
+				return d2d_rectf_type{ static_cast<field_type>(value.left()), static_cast<field_type>(value.top()),
+					static_cast<field_type>(value.right()), static_cast<field_type>(value.bottom()) };
+			}
+
+			template <typename rect_type>
+			static d2d_rectu_type to_d2d_rectu(const rect_type &value){
+				typedef decltype(d2d_rectu_type::left) field_type;
+				return d2d_rectf_type{ static_cast<field_type>(value.left()), static_cast<field_type>(value.top()),
+					static_cast<field_type>(value.right()), static_cast<field_type>(value.bottom()) };
 			}
 		};
 	}

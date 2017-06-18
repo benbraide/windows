@@ -17,5 +17,6 @@
 *.exe
 *.ilk
 *.pdb
+*.obj
 /windows/windows.sln
 /windows/.vs/windows/v15/.suo
