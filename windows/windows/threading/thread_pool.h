@@ -40,10 +40,19 @@ namespace winpp{
 			pool()
 				: free_count_(0), thread_count_(0), destruct_(false){}
 
+			pool(pool &&target)
+				: free_count_(target.free_count_), thread_count_(target.thread_count_), task_list_(std::move(target.task_list_)), thread_list_(std::move(target.thread_list_)),
+				destruct_(target.destruct_), condition_(std::move(target.condition_)), lock_(std::move(target.lock_)){
+				target.free_count_ = target.thread_count_ = 0u;
+				target.destruct_ = true;
+			}
+
 			~pool(){
-				guard_type guard(lock_);
-				destruct_ = true;
-				condition_.notify_all();
+				if (!destruct_){
+					guard_type guard(lock_);
+					destruct_ = true;
+					condition_.notify_all();
+				}
 			}
 
 			bool add(task_type task, option_type option = option_type::nil){
