@@ -363,6 +363,22 @@ namespace winpp{
 				return (value.x() >= base_type::value_.left && value.y() >= base_type::value_.top &&
 					value.x() < base_type::value_.right && value.y() < base_type::value_.bottom);
 			}
+
+			int compare(const_qualified_type value) const{
+				if (base_type::value_.top != value.top)
+					return (base_type::value_.top < value.top) ? -1 : 1;
+
+				if (base_type::value_.bottom != value.bottom)
+					return (base_type::value_.bottom < value.bottom) ? -1 : 1;
+
+				if (base_type::value_.left != value.left)
+					return (base_type::value_.left < value.left) ? -1 : 1;
+
+				if (base_type::value_.right != value.right)
+					return (base_type::value_.right < value.right) ? -1 : 1;
+
+				return 0;
+			}
 		};
 
 		typedef basic_rect<point, size, ::RECT> rect;

@@ -44,7 +44,7 @@ namespace winpp{
 			}
 
 			bool operator <(const_qualified_type value) const{
-				return (static_cast<object_type *>(this)->compare(value) < 0);
+				return (static_cast<const object_type *>(this)->compare(value) < 0);
 			}
 
 			bool operator <=(const_qualified_type value) const{
@@ -52,7 +52,7 @@ namespace winpp{
 			}
 
 			bool operator ==(const_qualified_type value) const{
-				return (static_cast<object_type *>(this)->compare(value) == 0);
+				return (static_cast<const object_type *>(this)->compare(value) == 0);
 			}
 
 			bool operator !=(const_qualified_type value) const{
@@ -68,7 +68,7 @@ namespace winpp{
 			}
 
 			bool operator <(const object_type &value) const{
-				return (static_cast<object_type *>(this)->compare(value) < 0);
+				return (static_cast<const object_type *>(this)->compare(value) < 0);
 			}
 
 			bool operator <=(const object_type &value) const{
@@ -76,7 +76,7 @@ namespace winpp{
 			}
 
 			bool operator ==(const object_type &value) const{
-				return (static_cast<object_type *>(this)->compare(value) == 0);
+				return (static_cast<const object_type *>(this)->compare(value) == 0);
 			}
 
 			bool operator !=(const object_type &value) const{

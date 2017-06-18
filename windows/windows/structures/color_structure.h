@@ -216,6 +216,12 @@ namespace winpp{
 				return (is_opaque() || is_transparent());
 			}
 
+			int compare(const_qualified_type value) const{
+				if (base_type::value_ != value)
+					return (base_type::value_ < value) ? -1 : 1;
+				return 0;
+			}
+
 			static basic_color system(enumerations::system_color_index_type index, alpha_type alpha = alpha_type::opaque){
 				return basic_color(static_cast<value_type>(::GetSysColor(static_cast<int>(index))), alpha);
 			}
