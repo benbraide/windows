@@ -6,9 +6,14 @@
 #include "../structures/enumerations.h"
 
 namespace winpp{
+	namespace application{
+		class object;
+	}
+
 	namespace common{
 		class methods{
 		public:
+			typedef application::object application_type;
 			typedef structures::enumerations::placement_type placement_type;
 
 			typedef ::D2D1_COLOR_F d2d_color_type;
@@ -21,6 +26,8 @@ namespace winpp{
 
 			typedef ::D2D1_RECT_F d2d_rectf_type;
 			typedef ::D2D1_RECT_U d2d_rectu_type;
+
+			static application_type *get_app();
 
 			static bool has_left(placement_type placement);
 
@@ -97,6 +104,18 @@ namespace winpp{
 				return d2d_rectf_type{ static_cast<field_type>(value.left()), static_cast<field_type>(value.top()),
 					static_cast<field_type>(value.right()), static_cast<field_type>(value.bottom()) };
 			}
+
+			template <typename value_type = int>
+			static float pixel_to_dip(value_type value, float scale){
+				return static_cast<float>(value / scale);
+			}
+
+			template <typename value_type = int>
+			static value_type dip_to_pixel(float value, float scale){
+				return static_cast<value_type>(value * scale);
+			}
+
+			static void pixel_scale(d2d_pointf_type &dpi);
 		};
 	}
 }

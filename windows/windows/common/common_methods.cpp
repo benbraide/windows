@@ -1,4 +1,9 @@
 #include "common_methods.h"
+#include "../application/application_object.h"
+
+winpp::common::methods::application_type *winpp::common::methods::get_app(){
+	return (application_type::current_app == nullptr) ? application_type::main_app : application_type::current_app;
+}
 
 bool winpp::common::methods::has_left(placement_type placement){
 	return (placement == placement_type::left || placement == placement_type::top_left || placement == placement_type::bottom_left || placement == placement_type::center_left);
@@ -22,4 +27,9 @@ bool winpp::common::methods::has_horizontal_center(placement_type placement){
 
 bool winpp::common::methods::has_vertical_center(placement_type placement){
 	return (placement == placement_type::center || placement == placement_type::center_left || placement == placement_type::center_right);
+}
+
+void winpp::common::methods::pixel_scale(d2d_pointf_type &dpi){
+	dpi.x /= 96.0f;
+	dpi.y /= 96.0f;
 }
