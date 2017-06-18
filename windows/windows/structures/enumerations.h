@@ -225,6 +225,20 @@ namespace winpp{
 				window_text						= COLOR_WINDOWTEXT,
 			};
 
+			enum class msg_peek_type : ::UINT{
+				nil					= PM_NOREMOVE,
+				remove				= PM_REMOVE,
+				dont_yield			= PM_NOYIELD,
+			};
+
+			enum class msg_sent_type : ::DWORD{
+				nil					= ISMEX_NOSEND,
+				send				= ISMEX_SEND,
+				notify				= ISMEX_NOTIFY,
+				callback			= ISMEX_CALLBACK,
+				replied				= ISMEX_REPLIED,
+			};
+
 			enum class key_state_type : ::UINT{
 				nil				= (0 << 0x0000),
 				left_shift		= (1 << 0x0000),

@@ -3,6 +3,8 @@
 #ifndef WINPP_THREAD_EVENT_OBJECT_H
 #define WINPP_THREAD_EVENT_OBJECT_H
 
+#include <string>
+
 #include "../common/common_headers.h"
 #include "../wrappers/value_wrapper.h"
 
@@ -59,6 +61,10 @@ namespace winpp{
 
 			bool set(){
 				return (is_created() && ::SetEvent(base_type::value_) != FALSE);
+			}
+
+			bool wait(dword_type timeout = INFINITE){
+				return (::WaitForSingleObject(base_type::value_, timeout) == WAIT_OBJECT_0);
 			}
 
 			bool is_created() const{
