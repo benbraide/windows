@@ -18,6 +18,18 @@ namespace winpp{
 			multiple_apps_exception()
 				: exception("Multiple application instances found"){}
 		};
+
+		class unsupported_exception : public std::exception{
+		public:
+			unsupported_exception()
+				: exception("Operation is not supported"){}
+		};
+
+		class invalid_object_exception : public std::exception{
+		public:
+			invalid_object_exception()
+				: exception("Object is invalid"){}
+		};
 	}
 }
 

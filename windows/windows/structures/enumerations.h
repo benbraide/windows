@@ -9,6 +9,15 @@
 namespace winpp{
 	namespace structures{
 		namespace enumerations{
+			enum class random_string_char_set : unsigned int{
+				nil					= (0 << 0x0000),
+				digits				= (1 << 0x0000),
+				alpha				= (1 << 0x0001),
+				uppercase			= (1 << 0x0002),
+				lowercase			= (1 << 0x0003),
+				full_range			= (1 << 0x0004),
+			};
+
 			enum class placement_type{
 				left,
 				top_left,
@@ -24,6 +33,11 @@ namespace winpp{
 				bottom_center,
 				center,
 				unspecified,
+			};
+
+			enum class gui_sibling_type{
+				previous,
+				next,
 			};
 
 			enum class named_color_type : ::COLORREF{
@@ -369,6 +383,7 @@ namespace winpp{
 				all				= LWA_COLORKEY | LWA_ALPHA,
 			};
 
+			WINPP_MAKE_OPERATORS(random_string_char_set);
 			WINPP_MAKE_OPERATORS(key_state_type);
 			WINPP_MAKE_OPERATORS(mouse_key_state_type);
 			WINPP_MAKE_OPERATORS(animation_type);

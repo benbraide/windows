@@ -41,6 +41,22 @@ namespace winpp{
 
 			static bool has_vertical_center(placement_type placement);
 
+			template <typename size_type>
+			static size_type compute_placement_delta(const size_type &parent_size, const size_type &target_size, placement_type placement){
+				size_type delta;
+				if (has_right(placement))
+					delta.width(parent_size.width() - target_size.width());
+				else if (has_horizontal_center(placement))
+					delta.width((parent_size.width() - target_size.width()) / 2);
+
+				if (has_bottom(placement))
+					delta.height(parent_size.height() - target_size.height());
+				else if (has_vertical_center(placement))
+					delta.height((parent_size.height() - target_size.height()) / 2);
+
+				return delta;
+			}
+
 			template <typename rect_type, typename size_type>
 			static void apply_placement(placement_type placement, rect_type &rect, const size_type &size){
 				if (has_right(placement)){

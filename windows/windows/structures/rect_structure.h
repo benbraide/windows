@@ -5,6 +5,7 @@
 
 #include "../common/common_methods.h"
 
+#include "enumerations.h"
 #include "size_structure.h"
 #include "point_structure.h"
 
