@@ -64,7 +64,7 @@ namespace winpp{
 					rect.left -= size.width();
 				}
 				else if (has_horizontal_center(placement)){
-					rect.left -= (size.width() / 2);
+					rect.left += (size.width() / 2);
 					rect.right -= (size.width() / 2);
 				}
 
@@ -73,7 +73,7 @@ namespace winpp{
 					rect.top -= size.height();
 				}
 				else if (has_vertical_center(placement)){
-					rect.top -= (size.height() / 2);
+					rect.top += (size.height() / 2);
 					rect.bottom -= (size.height() / 2);
 				}
 			}

@@ -24,9 +24,12 @@ namespace winpp{
 				events::tunnel<void> destroy;
 			};
 
+			typedef std::shared_ptr<gui_attributes_type> attributes_type;
 			typedef std::shared_ptr<event_tunnel> events_type;
 
 			virtual ~generic_object();
+
+			virtual app_type *app() const override;
 
 			virtual void *handle() const override;
 
@@ -98,6 +101,8 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const override;
 
+			virtual gui_attributes_type &attributes() override;
+
 			virtual event_tunnel &events() override;
 
 			virtual index_and_size_type proposed_index() const override;
@@ -127,7 +132,16 @@ namespace winpp{
 			virtual bool is_sibling(const gui_object_type &object) const override;
 
 		protected:
+			virtual attributes_type get_attributes_();
+
 			virtual events_type get_events_();
+
+			template <typename generic_attributes_type>
+			attributes_type create_attributes_(){
+				if (attributes_ == nullptr)
+					attributes_ = std::make_shared<generic_attributes_type>(*this);
+				return attributes_;
+			}
 
 			template <typename generic_events_type>
 			events_type create_events_(){
@@ -136,7 +150,9 @@ namespace winpp{
 				return events_;
 			}
 
-			gui_object_type *parent_;
+			app_type *app_ = nullptr;
+			gui_object_type *parent_ = nullptr;
+			attributes_type attributes_;
 			events_type events_;
 		};
 	}

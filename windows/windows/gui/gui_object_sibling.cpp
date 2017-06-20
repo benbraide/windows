@@ -9,6 +9,10 @@ winpp::gui::object_sibling::object_sibling(const gui_object_type &object, siblin
 winpp::gui::object_sibling::object_sibling(gui_object_type &object, sibling_type type)
 	: object_(&object), type_(type){}
 
+winpp::gui::object::app_type *winpp::gui::object_sibling::app() const{
+	return object_->app();
+}
+
 void *winpp::gui::object_sibling::handle() const{
 	return object_->handle();
 }
@@ -160,6 +164,10 @@ winpp::gui::object::point_type winpp::gui::object_sibling::convert_from_screen(c
 
 winpp::gui::object::rect_type winpp::gui::object_sibling::convert_from_screen(const rect_type &value) const{
 	return object_->convert_from_screen(value);
+}
+
+winpp::gui::object::gui_attributes_type &winpp::gui::object_sibling::attributes(){
+	return object_->attributes();
 }
 
 winpp::gui::object::event_tunnel &winpp::gui::object_sibling::events(){

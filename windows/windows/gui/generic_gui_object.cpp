@@ -14,6 +14,10 @@ bool winpp::gui::generic_object::event_tunnel::unbind(unsigned __int64 id){
 
 winpp::gui::generic_object::~generic_object() = default;
 
+winpp::gui::object::app_type *winpp::gui::generic_object::app() const{
+	return app_;
+}
+
 void *winpp::gui::generic_object::handle() const{
 	throw common::unsupported_exception();
 }
@@ -174,6 +178,10 @@ winpp::gui::object::rect_type winpp::gui::generic_object::convert_from_screen(co
 	return value;
 }
 
+winpp::gui::object::gui_attributes_type &winpp::gui::generic_object::attributes(){
+	return *get_attributes_();
+}
+
 winpp::gui::generic_object::event_tunnel &winpp::gui::generic_object::events(){
 	return *get_events_();
 }
@@ -234,6 +242,10 @@ bool winpp::gui::generic_object::has_parent() const{
 
 bool winpp::gui::generic_object::is_sibling(const gui_object_type &object) const{
 	return (object.parent() == parent_);
+}
+
+winpp::gui::generic_object::attributes_type winpp::gui::generic_object::get_attributes_(){
+	return create_attributes_<gui_attributes_type>();
 }
 
 winpp::gui::generic_object::events_type winpp::gui::generic_object::get_events_(){

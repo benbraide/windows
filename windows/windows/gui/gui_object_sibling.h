@@ -17,6 +17,8 @@ namespace winpp{
 
 			virtual ~object_sibling() = default;
 
+			virtual app_type *app() const override;
+
 			virtual void *handle() const override;
 
 			virtual object *non_sibling() override;
@@ -86,6 +88,8 @@ namespace winpp{
 			virtual point_type convert_from_screen(const point_type &value) const override;
 
 			virtual rect_type convert_from_screen(const rect_type &value) const override;
+
+			virtual gui_attributes_type &attributes() override;
 
 			virtual event_tunnel &events() override;
 

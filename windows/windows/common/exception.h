@@ -30,6 +30,12 @@ namespace winpp{
 			invalid_object_exception()
 				: exception("Object is invalid"){}
 		};
+
+		class invalid_arg_exception : public std::exception{
+		public:
+			invalid_arg_exception()
+				: exception("Argument is invalid"){}
+		};
 	}
 }
 

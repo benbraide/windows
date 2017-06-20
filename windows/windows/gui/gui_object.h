@@ -7,7 +7,11 @@
 
 #include "../common/exception.h"
 #include "../common/random_number.h"
+
 #include "../structures/rect_structure.h"
+#include "../application/application_object.h"
+
+#include "gui_object_attributes.h"
 
 namespace winpp{
 	namespace gui{
@@ -21,6 +25,9 @@ namespace winpp{
 			typedef object_sibling gui_sibling_type;
 			typedef object_group gui_group_type;
 			typedef object_tree gui_tree_type;
+			typedef object_attributes gui_attributes_type;
+
+			typedef application::object app_type;
 
 			typedef structures::point point_type;
 			typedef structures::size size_type;
@@ -48,6 +55,8 @@ namespace winpp{
 			};
 
 			virtual ~object() = default;
+
+			virtual app_type *app() const = 0;
 
 			virtual void *handle() const = 0;
 
@@ -118,6 +127,8 @@ namespace winpp{
 			virtual point_type convert_from_screen(const point_type &value) const = 0;
 
 			virtual rect_type convert_from_screen(const rect_type &value) const = 0;
+
+			virtual gui_attributes_type &attributes() = 0;
 
 			virtual event_tunnel &events() = 0;
 
