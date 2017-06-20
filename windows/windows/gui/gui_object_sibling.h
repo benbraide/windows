@@ -114,6 +114,12 @@ namespace winpp{
 			virtual bool has_parent() const override;
 
 			virtual bool is_sibling(const gui_object_type &object) const override;
+
+			virtual bool is_previous() const;
+
+		private:
+			gui_object_type *object_;
+			sibling_type type_;
 		};
 	}
 }

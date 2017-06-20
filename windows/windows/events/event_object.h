@@ -19,15 +19,15 @@ namespace winpp{
 
 			explicit object(gui_object_type &target);
 
-			virtual object &prevent();
+			object &prevent();
 
-			virtual object &stop_propagation();
+			object &stop_propagation();
 
-			virtual bool is_prevented() const;
+			bool is_prevented() const;
 
-			virtual bool is_propagating() const;
+			bool is_propagating() const;
 
-			virtual gui_object_type &target() const;
+			gui_object_type &target() const;
 
 		protected:
 			gui_object_type *target_;
