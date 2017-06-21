@@ -57,6 +57,12 @@ namespace winpp{
 
 			virtual bool is_group() const override;
 
+			virtual bool has_children() const override;
+
+			virtual bool is_offspring(const gui_object_type &object) const override;
+
+			virtual bool is_child(const gui_object_type &object) const override;
+
 		protected:
 			virtual void destroyed_() override;
 

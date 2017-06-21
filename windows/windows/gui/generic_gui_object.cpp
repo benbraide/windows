@@ -68,6 +68,10 @@ winpp::gui::object *winpp::gui::generic_object::parent() const{
 	return parent_;
 }
 
+winpp::gui::object *winpp::gui::generic_object::ancestor(index_and_size_type index) const{
+	return (parent_ == nullptr || index == 0u) ? parent_ : parent_->ancestor(index - 1);
+}
+
 winpp::gui::object *winpp::gui::generic_object::child_at_index(index_and_size_type index) const{
 	throw common::unsupported_exception();
 }
@@ -114,6 +118,18 @@ winpp::gui::object &winpp::gui::generic_object::internal_set_parent(gui_object_t
 	if (parent != parent_ && parent_ != nullptr && attributes_ != nullptr)//Stop monitoring current parent's size
 		attributes_->stop_monitoring(gui_attributes_type::type_parent_size);
 	parent_ = parent;
+	return *this;
+}
+
+winpp::gui::object &winpp::gui::generic_object::traverse_ancestors(object_traverser_type traverser){
+	const_cast<const generic_object *>(this)->traverse_ancestors(traverser);
+	return *this;
+}
+
+const winpp::gui::object &winpp::gui::generic_object::traverse_ancestors(object_traverser_type traverser) const{
+	auto ancestor = parent_;
+	while (ancestor != nullptr && traverser(*ancestor))
+		ancestor = ancestor->parent();
 	return *this;
 }
 
@@ -293,6 +309,10 @@ winpp::gui::object::index_and_size_type winpp::gui::generic_object::sibling_coun
 	return (parent_->children_count() - 1u);
 }
 
+winpp::gui::object::index_and_size_type winpp::gui::generic_object::ancestor_count() const{
+	return (parent_ == nullptr) ? 0u : (parent_->ancestor_count() + 1);
+}
+
 bool winpp::gui::generic_object::is_sibling() const{
 	return false;
 }
@@ -309,8 +329,34 @@ bool winpp::gui::generic_object::is_inside_group() const{
 	return (parent_ != nullptr && parent_->is_group());
 }
 
+bool winpp::gui::generic_object::has_children() const{
+	throw common::unsupported_exception();
+}
+
+bool winpp::gui::generic_object::has_siblings() const{
+	return (sibling_count() > 0u);
+}
+
 bool winpp::gui::generic_object::has_parent() const{
 	return (parent_ != nullptr);
+}
+
+bool winpp::gui::generic_object::is_offspring(const gui_object_type &object) const{
+	throw common::unsupported_exception();
+}
+
+bool winpp::gui::generic_object::is_child(const gui_object_type &object) const{
+	throw common::unsupported_exception();
+}
+
+bool winpp::gui::generic_object::is_parent(const gui_object_type &object) const{
+	return (parent_ == &object);
+}
+
+bool winpp::gui::generic_object::is_ancestor(const gui_object_type &object) const{
+	if (parent_ == &object)
+		return true;
+	return (parent_ == nullptr) ? false : parent_->is_ancestor(object);
 }
 
 bool winpp::gui::generic_object::is_sibling(const gui_object_type &object) const{

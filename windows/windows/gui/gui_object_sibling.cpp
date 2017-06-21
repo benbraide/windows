@@ -26,6 +26,10 @@ winpp::gui::object *winpp::gui::object_sibling::parent() const{
 	return object_->parent();
 }
 
+winpp::gui::object *winpp::gui::object_sibling::ancestor(index_and_size_type index) const{
+	return object_->ancestor(index);
+}
+
 winpp::gui::object *winpp::gui::object_sibling::child_at_index(index_and_size_type index) const{
 	return object_->child_at_index(index);
 }
@@ -49,8 +53,23 @@ winpp::gui::object &winpp::gui::object_sibling::traverse_siblings(sibling_traver
 	return *this;
 }
 
+const winpp::gui::object &winpp::gui::object_sibling::traverse_siblings(sibling_traverser_type traverser) const{
+	object_->traverse_siblings(traverser);
+	return *this;
+}
+
 winpp::gui::object &winpp::gui::object_sibling::internal_set_parent(gui_object_type *parent){
 	object_->internal_set_parent(parent);
+	return *this;
+}
+
+winpp::gui::object &winpp::gui::object_sibling::traverse_ancestors(object_traverser_type traverser){
+	object_->traverse_ancestors(traverser);
+	return *this;
+}
+
+const winpp::gui::object &winpp::gui::object_sibling::traverse_ancestors(object_traverser_type traverser) const{
+	object_->traverse_ancestors(traverser);
 	return *this;
 }
 
@@ -60,11 +79,6 @@ winpp::gui::object::index_and_size_type winpp::gui::object_sibling::internal_ins
 
 winpp::gui::object::index_and_size_type winpp::gui::object_sibling::internal_insert_child(gui_object_type &child, index_and_size_type before){
 	return object_->internal_insert_child(child, before);
-}
-
-const winpp::gui::object &winpp::gui::object_sibling::traverse_siblings(sibling_traverser_type traverser) const{
-	object_->traverse_siblings(traverser);
-	return *this;
 }
 
 winpp::gui::object &winpp::gui::object_sibling::outer_rect(const rect_type &value){
@@ -225,6 +239,10 @@ winpp::gui::object::index_and_size_type winpp::gui::object_sibling::sibling_coun
 	return object_->sibling_count();
 }
 
+winpp::gui::object::index_and_size_type winpp::gui::object_sibling::ancestor_count() const{
+	return object_->ancestor_count();
+}
+
 bool winpp::gui::object_sibling::is_sibling() const{
 	return true;
 }
@@ -241,8 +259,32 @@ bool winpp::gui::object_sibling::is_inside_group() const{
 	return object_->is_inside_group();
 }
 
+bool winpp::gui::object_sibling::has_children() const{
+	return object_->has_children();
+}
+
+bool winpp::gui::object_sibling::has_siblings() const{
+	return object_->has_siblings();
+}
+
 bool winpp::gui::object_sibling::has_parent() const{
 	return object_->has_parent();
+}
+
+bool winpp::gui::object_sibling::is_offspring(const gui_object_type &object) const{
+	return object_->is_offspring(object);
+}
+
+bool winpp::gui::object_sibling::is_child(const gui_object_type &object) const{
+	return object_->is_child(object);
+}
+
+bool winpp::gui::object_sibling::is_parent(const gui_object_type &object) const{
+	return object_->is_parent(object);
+}
+
+bool winpp::gui::object_sibling::is_ancestor(const gui_object_type &object) const{
+	return object_->is_ancestor(object);
 }
 
 bool winpp::gui::object_sibling::is_sibling(const gui_object_type &object) const{

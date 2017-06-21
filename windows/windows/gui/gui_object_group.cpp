@@ -163,6 +163,30 @@ bool winpp::gui::object_group::is_group() const{
 	return true;
 }
 
+bool winpp::gui::object_group::has_children() const{
+	return (children_count() > 0u);
+}
+
+bool winpp::gui::object_group::is_offspring(const gui_object_type &object) const{
+	if (object.parent() == nullptr)
+		return false;
+
+	if (object.parent() == this)
+		return true;
+
+	guard_type guard(lock_);
+	for (auto child : children_){
+		if (child->is_offspring(object))
+			return true;
+	}
+
+	return false;
+}
+
+bool winpp::gui::object_group::is_child(const gui_object_type &object) const{
+	return (object.parent() == this);
+}
+
 void winpp::gui::object_group::destroyed_(){
 	guard_type guard(lock_);
 	for (auto child : children_)

@@ -69,6 +69,8 @@ namespace winpp{
 
 			virtual object *parent() const = 0;
 
+			virtual object *ancestor(index_and_size_type index) const = 0;
+
 			virtual object *child_at_index(index_and_size_type index) const = 0;
 
 			virtual object *child_at_absolute_index(index_and_size_type index) const = 0;
@@ -80,6 +82,10 @@ namespace winpp{
 			virtual object &traverse_siblings(sibling_traverser_type traverser) = 0;
 
 			virtual const object &traverse_siblings(sibling_traverser_type traverser) const = 0;
+
+			virtual object &traverse_ancestors(object_traverser_type traverser) = 0;
+
+			virtual const object &traverse_ancestors(object_traverser_type traverser) const = 0;
 
 			virtual object &internal_set_parent(gui_object_type *parent) = 0;
 
@@ -161,6 +167,8 @@ namespace winpp{
 
 			virtual index_and_size_type sibling_count() const = 0;
 
+			virtual index_and_size_type ancestor_count() const = 0;
+
 			virtual bool is_sibling() const = 0;
 
 			virtual bool is_group() const = 0;
@@ -169,9 +177,21 @@ namespace winpp{
 
 			virtual bool is_inside_group() const = 0;
 
+			virtual bool has_children() const = 0;
+
+			virtual bool has_siblings() const = 0;
+
 			virtual bool has_parent() const = 0;
 
+			virtual bool is_offspring(const gui_object_type &object) const = 0;
+
+			virtual bool is_child(const gui_object_type &object) const = 0;
+
 			virtual bool is_sibling(const gui_object_type &object) const = 0;
+
+			virtual bool is_parent(const gui_object_type &object) const = 0;
+
+			virtual bool is_ancestor(const gui_object_type &object) const = 0;
 
 			virtual bool is_created() const = 0;
 
