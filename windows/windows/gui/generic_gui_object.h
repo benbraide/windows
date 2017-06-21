@@ -74,6 +74,8 @@ namespace winpp{
 
 			virtual index_and_size_type internal_insert_child(gui_object_type &child, index_and_size_type before = invalid_index) override;
 
+			virtual object &internal_remove_child(gui_object_type &child, bool force = false) override;
+
 			virtual object &outer_rect(const rect_type &value) override;
 
 			virtual rect_type outer_rect() const override;
@@ -126,7 +128,7 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const override;
 
-			virtual object &destroy(bool no_throw = false) override;
+			virtual object &destroy(bool force = false) override;
 
 			virtual gui_attributes_type &attributes() override;
 

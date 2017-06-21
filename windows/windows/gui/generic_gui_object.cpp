@@ -148,6 +148,10 @@ winpp::gui::object::index_and_size_type winpp::gui::generic_object::internal_ins
 	throw common::unsupported_exception();
 }
 
+winpp::gui::object &winpp::gui::generic_object::internal_remove_child(gui_object_type &child, bool force){
+	throw common::unsupported_exception();
+}
+
 winpp::gui::object &winpp::gui::generic_object::outer_rect(const rect_type &value){
 	throw common::unsupported_exception();
 }
@@ -255,7 +259,7 @@ winpp::gui::object::point_type winpp::gui::generic_object::convert_from_screen(c
 	return value;
 }
 
-winpp::gui::object &winpp::gui::generic_object::destroy(bool no_throw){
+winpp::gui::object &winpp::gui::generic_object::destroy(bool force){
 	throw common::unsupported_exception();
 }
 

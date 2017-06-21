@@ -41,6 +41,8 @@ namespace winpp{
 
 			virtual index_and_size_type internal_insert_child(gui_object_type &child, index_and_size_type before = invalid_index) override;
 
+			virtual object &internal_remove_child(gui_object_type &child, bool force = false) override;
+
 			virtual gui_object_type *hit_target(const point_type &value) const override;
 
 			virtual gui_object_type *deepest_hit_target(const point_type &value) const override;
@@ -67,6 +69,18 @@ namespace winpp{
 			virtual void destroyed_() override;
 
 			virtual attributes_type get_attributes_() override;
+
+			virtual bool pre_insert_(gui_object_type &object, index_and_size_type &index);
+
+			virtual void insert_(gui_object_type &child, index_and_size_type &before);
+
+			virtual index_and_size_type post_insert_(gui_object_type &object, index_and_size_type index);
+
+			virtual bool pre_remove_(gui_object_type &object);
+
+			virtual void remove_(gui_object_type &object);
+
+			virtual void post_remove_(gui_object_type &object);
 
 			list_type children_;
 			mutable lock_type lock_;

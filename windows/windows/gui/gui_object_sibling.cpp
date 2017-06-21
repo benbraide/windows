@@ -81,6 +81,11 @@ winpp::gui::object::index_and_size_type winpp::gui::object_sibling::internal_ins
 	return object_->internal_insert_child(child, before);
 }
 
+winpp::gui::object & winpp::gui::object_sibling::internal_remove_child(gui_object_type &child, bool force){
+	object_->internal_remove_child(child, force);
+	return *this;
+}
+
 winpp::gui::object &winpp::gui::object_sibling::outer_rect(const rect_type &value){
 	object_->outer_rect(value);
 	return *this;
@@ -190,8 +195,8 @@ winpp::gui::object::point_type winpp::gui::object_sibling::convert_from_screen(c
 	return object_->convert_from_screen(value);
 }
 
-winpp::gui::object &winpp::gui::object_sibling::destroy(bool no_throw){
-	object_->destroy(no_throw);
+winpp::gui::object &winpp::gui::object_sibling::destroy(bool force){
+	object_->destroy(force);
 	return *this;
 }
 

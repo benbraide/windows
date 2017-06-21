@@ -97,14 +97,23 @@ winpp::gui::object::rect_type winpp::gui::object_group::content_rect() const{
 
 winpp::gui::object::index_and_size_type winpp::gui::object_group::internal_insert_child(gui_object_type &child, index_and_size_type before){
 	guard_type guard(lock_);
-	if (before >= children_.size()){//Append
-		children_.push_back(child.non_sibling());
-		before = (children_.size() - 1u);
-	}
-	else//Insert
-		children_.insert(std::next(children_.begin(), before), child.non_sibling());
+	if (!pre_insert_(child, before))
+		return invalid_index;
 
-	return before;
+	insert_(child, before);
+	return post_insert_(child, before);
+}
+
+winpp::gui::object &winpp::gui::object_group::internal_remove_child(gui_object_type &child, bool force){
+	if (child.is_parent(*this))
+		throw common::invalid_object_exception();
+
+	guard_type guard(lock_);
+	if (!pre_remove_(child) && !force)
+		return *this;
+
+	remove_(child);
+	return *this;
 }
 
 winpp::gui::object::gui_object_type *winpp::gui::object_group::hit_target(const point_type &value) const{
@@ -196,3 +205,32 @@ void winpp::gui::object_group::destroyed_(){
 winpp::gui::generic_object::attributes_type winpp::gui::object_group::get_attributes_(){
 	return create_attributes_<object_attributes>();
 }
+
+bool winpp::gui::object_group::pre_insert_(gui_object_type &object, index_and_size_type &index){
+	return true;
+}
+
+void winpp::gui::object_group::insert_(gui_object_type &child, index_and_size_type &before){
+	if (before >= children_.size()){//Append
+		children_.push_back(child.non_sibling());
+		before = (children_.size() - 1u);
+	}
+	else//Insert
+		children_.insert(std::next(children_.begin(), before), child.non_sibling());
+}
+
+winpp::gui::object::index_and_size_type winpp::gui::object_group::post_insert_(gui_object_type &object, index_and_size_type index){
+	return index;
+}
+
+bool winpp::gui::object_group::pre_remove_(gui_object_type &object){
+	return true;
+}
+
+void winpp::gui::object_group::remove_(gui_object_type &object){
+	auto entry = std::find(children_.begin(), children_.end(), &object);
+	if (entry != children_.end())
+		children_.erase(entry);
+}
+
+void winpp::gui::object_group::post_remove_(gui_object_type &object){}
