@@ -174,6 +174,10 @@ winpp::gui::object::point_type winpp::gui::generic_object::convert_from_screen(c
 	return value;
 }
 
+winpp::gui::object &winpp::gui::generic_object::destory(bool no_throw){
+	throw common::unsupported_exception();
+}
+
 winpp::gui::object::rect_type winpp::gui::generic_object::convert_from_screen(const rect_type &value) const{
 	return value;
 }
@@ -242,6 +246,10 @@ bool winpp::gui::generic_object::has_parent() const{
 
 bool winpp::gui::generic_object::is_sibling(const gui_object_type &object) const{
 	return (object.parent() == parent_);
+}
+
+bool winpp::gui::generic_object::is_created() const{
+	throw common::unsupported_exception();
 }
 
 winpp::gui::generic_object::attributes_type winpp::gui::generic_object::get_attributes_(){

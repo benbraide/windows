@@ -7,7 +7,14 @@
 
 namespace winpp{
 	namespace gui{
+		class object_group : public generic_object{
+		public:
+			typedef std::recursive_mutex lock_type;
+			typedef std::lock_guard<lock_type> guard_type;
 
+		protected:
+			mutable lock_type lock_;
+		};
 	}
 }
 

@@ -128,6 +128,8 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const = 0;
 
+			virtual object &destory(bool no_throw = false) = 0;
+
 			virtual gui_attributes_type &attributes() = 0;
 
 			virtual event_tunnel &events() = 0;
@@ -157,6 +159,8 @@ namespace winpp{
 			virtual bool has_parent() const = 0;
 
 			virtual bool is_sibling(const gui_object_type &object) const = 0;
+
+			virtual bool is_created() const = 0;
 
 			static const unsigned int state_nil			= (0u << 0x0000u);
 			static const unsigned int state_last_pow	= 0x0000u;

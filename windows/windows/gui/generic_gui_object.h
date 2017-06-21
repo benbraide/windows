@@ -101,6 +101,8 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const override;
 
+			virtual object &destory(bool no_throw = false) override;
+
 			virtual gui_attributes_type &attributes() override;
 
 			virtual event_tunnel &events() override;
@@ -130,6 +132,8 @@ namespace winpp{
 			virtual bool has_parent() const override;
 
 			virtual bool is_sibling(const gui_object_type &object) const override;
+
+			virtual bool is_created() const override;
 
 		protected:
 			virtual attributes_type get_attributes_();
