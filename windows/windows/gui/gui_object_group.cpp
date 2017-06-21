@@ -98,11 +98,11 @@ winpp::gui::object::rect_type winpp::gui::object_group::content_rect() const{
 winpp::gui::object::index_and_size_type winpp::gui::object_group::internal_insert_child(gui_object_type &child, index_and_size_type before){
 	guard_type guard(lock_);
 	if (before >= children_.size()){//Append
-		children_.push_back(&child);
+		children_.push_back(child.non_sibling());
 		before = (children_.size() - 1u);
 	}
 	else//Insert
-		children_.insert(std::next(children_.begin(), before), &child);
+		children_.insert(std::next(children_.begin(), before), child.non_sibling());
 
 	return before;
 }

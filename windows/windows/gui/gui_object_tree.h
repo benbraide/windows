@@ -11,6 +11,12 @@ namespace winpp{
 		public:
 			virtual ~object_tree();
 
+			virtual object *child_at_absolute_index(index_and_size_type index) const override;
+
+			virtual index_and_size_type child_absolute_index(const gui_object_type &object) const override;
+
+			virtual index_and_size_type absolute_index(index_and_size_type index) const override;
+
 			virtual bool is_group() const override;
 
 			virtual bool is_tree() const override;
