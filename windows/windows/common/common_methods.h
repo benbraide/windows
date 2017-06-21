@@ -3,6 +3,9 @@
 #ifndef WINPP_COMMON_METHODS_H
 #define WINPP_COMMON_METHODS_H
 
+#include <string>
+#include <functional>
+
 #include "../structures/enumerations.h"
 
 namespace winpp{
@@ -28,6 +31,24 @@ namespace winpp{
 			typedef ::D2D1_RECT_U d2d_rectu_type;
 
 			static application_type *get_app();
+
+			static std::wstring convert_string(const std::string &value);
+
+			template <typename string_type>
+			static void format_string(string_type &value, std::function<bool(typename string_type::traits_type::char_type &)> formatter){
+				for (auto &c : value){
+					if (!formatter(c))
+						break;
+				}
+			}
+
+			static void to_upper(std::wstring &value);
+
+			static void to_upper(std::string &value);
+
+			static void to_lower(std::wstring &value);
+
+			static void to_lower(std::string &value);
 
 			static bool has_left(placement_type placement);
 

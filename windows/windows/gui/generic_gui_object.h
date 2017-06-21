@@ -3,7 +3,9 @@
 #ifndef WINPP_GENERIC_GUI_OBJECT_H
 #define WINPP_GENERIC_GUI_OBJECT_H
 
+#include <any>
 #include <memory>
+#include <string>
 
 #include "gui_object.h"
 #include "../events/event_tunnel.h"
@@ -18,10 +20,19 @@ namespace winpp{
 
 				virtual ~event_tunnel();
 
+				virtual unsigned __int64 bind(std::wstring e, const std::any &callback);
+
+				virtual unsigned __int64 bind(const std::string &e, const std::any &callback);
+
+				virtual unsigned __int64 bind(event_type e, const std::any &callback);
+
 				virtual bool unbind(unsigned __int64 id);
 
 				events::tunnel<bool> create;
 				events::tunnel<void> destroy;
+
+			protected:
+				virtual unsigned __int64 bind_(const std::wstring &e, const std::any &callback);
 			};
 
 			typedef std::shared_ptr<gui_attributes_type> attributes_type;
@@ -51,6 +62,12 @@ namespace winpp{
 
 			virtual const object &traverse_siblings(sibling_traverser_type traverser) const override;
 
+			virtual object &internal_set_parent(gui_object_type *parent) override;
+
+			virtual index_and_size_type internal_insert_into_parent(gui_object_type &object) override;
+
+			virtual index_and_size_type internal_insert_child(gui_object_type &child, index_and_size_type before = invalid_index) override;
+
 			virtual object &outer_rect(const rect_type &value) override;
 
 			virtual rect_type outer_rect() const override;
@@ -60,6 +77,8 @@ namespace winpp{
 			virtual object &inner_rect(const rect_type &value) override;
 
 			virtual rect_type inner_rect() const override;
+
+			virtual rect_type content_rect() const override;
 
 			virtual object &padding(const rect_type &value) override;
 
@@ -101,7 +120,7 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const override;
 
-			virtual object &destory(bool no_throw = false) override;
+			virtual object &destroy(bool no_throw = false) override;
 
 			virtual gui_attributes_type &attributes() override;
 
@@ -123,6 +142,8 @@ namespace winpp{
 
 			virtual index_and_size_type sibling_count() const override;
 
+			virtual bool is_sibling() const override;
+
 			virtual bool is_group() const override;
 
 			virtual bool is_tree() const override;
@@ -136,6 +157,14 @@ namespace winpp{
 			virtual bool is_created() const override;
 
 		protected:
+			virtual void created_();
+
+			virtual void destroyed_();
+
+			virtual void sized_();
+
+			virtual void moved_();
+
 			virtual attributes_type get_attributes_();
 
 			virtual events_type get_events_();

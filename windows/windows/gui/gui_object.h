@@ -36,6 +36,7 @@ namespace winpp{
 			typedef structures::enumerations::gui_sibling_type sibling_type;
 			typedef structures::enumerations::placement_type placement_type;
 			typedef structures::enumerations::hit_target_type hit_target_type;
+			typedef structures::enumerations::event_type event_type;
 
 			typedef std::size_t index_and_size_type;
 
@@ -44,6 +45,8 @@ namespace winpp{
 
 			class event_tunnel{
 			public:
+				typedef structures::enumerations::event_type event_type;
+
 				virtual ~event_tunnel() = default;
 
 			protected:
@@ -78,6 +81,12 @@ namespace winpp{
 
 			virtual const object &traverse_siblings(sibling_traverser_type traverser) const = 0;
 
+			virtual object &internal_set_parent(gui_object_type *parent) = 0;
+
+			virtual index_and_size_type internal_insert_into_parent(gui_object_type &object) = 0;
+
+			virtual index_and_size_type internal_insert_child(gui_object_type &child, index_and_size_type before = invalid_index) = 0;
+
 			virtual object &outer_rect(const rect_type &value) = 0;
 
 			virtual rect_type outer_rect() const = 0;
@@ -87,6 +96,8 @@ namespace winpp{
 			virtual object &inner_rect(const rect_type &value) = 0;
 
 			virtual rect_type inner_rect() const = 0;
+
+			virtual rect_type content_rect() const = 0;
 
 			virtual object &padding(const rect_type &value) = 0;
 
@@ -128,7 +139,7 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const = 0;
 
-			virtual object &destory(bool no_throw = false) = 0;
+			virtual object &destroy(bool no_throw = false) = 0;
 
 			virtual gui_attributes_type &attributes() = 0;
 
@@ -150,6 +161,8 @@ namespace winpp{
 
 			virtual index_and_size_type sibling_count() const = 0;
 
+			virtual bool is_sibling() const = 0;
+
 			virtual bool is_group() const = 0;
 
 			virtual bool is_tree() const = 0;
@@ -162,8 +175,10 @@ namespace winpp{
 
 			virtual bool is_created() const = 0;
 
-			static const unsigned int state_nil			= (0u << 0x0000u);
-			static const unsigned int state_last_pow	= 0x0000u;
+			static const unsigned int state_nil				= (0u << 0x0000u);
+			static const unsigned int state_last_pow		= 0x0000u;
+
+			static const index_and_size_type invalid_index	= static_cast<index_and_size_type>(-1);
 		};
 	}
 }

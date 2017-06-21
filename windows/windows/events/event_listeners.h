@@ -100,11 +100,11 @@ namespace winpp{
 			unsigned __int64 add_(callback_type callback){
 				guard_type guard(lock_);
 
-				auto id = generator_(1, std::numeric_limits<unsigned __int32>::max());
+				auto id = combine_ids(id_, generator_(1, std::numeric_limits<unsigned __int32>::max()));
 				if (callback_list_.find(id) != callback_list_.end())
 					return 0u;
 
-				callback_list_[id = combine_ids(id_, id)] = callback;
+				callback_list_[id] = callback;
 				return id;
 			}
 

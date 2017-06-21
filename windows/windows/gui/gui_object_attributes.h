@@ -87,7 +87,8 @@ namespace winpp{
 			static const unsigned __int64 type_nil				= (0ull << 0x0000);
 			static const unsigned __int64 type_parent_size		= (1ull << 0x0000);
 			static const unsigned __int64 type_siblings_size	= (1ull << 0x0001);
-			static const unsigned __int64 last_pow				= 0x0001;
+			static const unsigned __int64 type_content			= (1ull << 0x0002);
+			static const unsigned __int64 last_pow				= 0x0002;
 
 		protected:
 			virtual object_attributes &trigger_(unsigned __int64 types);

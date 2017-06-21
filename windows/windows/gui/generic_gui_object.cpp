@@ -8,8 +8,42 @@ winpp::gui::generic_object::event_tunnel::event_tunnel()
 
 winpp::gui::generic_object::event_tunnel::~event_tunnel() = default;
 
+unsigned __int64 winpp::gui::generic_object::event_tunnel::bind(std::wstring e, const std::any &callback){
+	common::methods::to_lower(e);
+	return bind_(e, callback);
+}
+
+unsigned __int64 winpp::gui::generic_object::event_tunnel::bind(const std::string &e, const std::any &callback){
+	auto converted = common::methods::convert_string(e);
+	common::methods::to_lower(converted);
+	return bind_(converted, callback);
+}
+
+unsigned __int64 winpp::gui::generic_object::event_tunnel::bind(event_type e, const std::any &callback){
+	switch (e){
+	case event_type::create:
+		return create(std::any_cast<events::tunnel<bool>::callback_type>(callback));
+	case event_type::destroy:
+		return destroy(std::any_cast<events::tunnel<void>::callback_type>(callback));
+	default:
+		break;
+	}
+
+	return 0u;
+}
+
 bool winpp::gui::generic_object::event_tunnel::unbind(unsigned __int64 id){
 	return (create.unbind(id) || destroy.unbind(id));
+}
+
+unsigned __int64 winpp::gui::generic_object::event_tunnel::bind_(const std::wstring &e, const std::any &callback){
+	if (e == L"create")
+		return create(std::any_cast<events::tunnel<bool>::callback_type>(callback));
+
+	if (e == L"destroy")
+		return destroy(std::any_cast<events::tunnel<void>::callback_type>(callback));
+
+	return 0u;
 }
 
 winpp::gui::generic_object::~generic_object() = default;
@@ -59,6 +93,9 @@ const winpp::gui::object &winpp::gui::generic_object::traverse_siblings(sibling_
 	if (parent_ == nullptr)
 		throw common::unsupported_exception();
 
+	if (traverser == nullptr)
+		throw common::invalid_arg_exception();
+
 	auto type = sibling_type::previous;
 	parent_->traverse_children([&](gui_object_type &child){
 		if (child.non_sibling() == this){
@@ -71,6 +108,28 @@ const winpp::gui::object &winpp::gui::generic_object::traverse_siblings(sibling_
 	});
 
 	return *this;
+}
+
+winpp::gui::object &winpp::gui::generic_object::internal_set_parent(gui_object_type *parent){
+	if (parent != parent_ && parent_ != nullptr && attributes_ != nullptr)//Stop monitoring current parent's size
+		attributes_->stop_monitoring(gui_attributes_type::type_parent_size);
+	parent_ = parent;
+	return *this;
+}
+
+winpp::gui::object::index_and_size_type winpp::gui::generic_object::internal_insert_into_parent(gui_object_type &object){
+	if (!object.is_sibling())
+		return object.internal_insert_child(*this);
+
+	auto parent = object.parent();
+	if (parent == nullptr)//Parent required
+		throw common::invalid_object_exception();
+
+	return parent->internal_insert_child(*this, object.proposed_index());
+}
+
+winpp::gui::object::index_and_size_type winpp::gui::generic_object::internal_insert_child(gui_object_type &child, index_and_size_type before){
+	throw common::unsupported_exception();
 }
 
 winpp::gui::object &winpp::gui::generic_object::outer_rect(const rect_type &value){
@@ -90,6 +149,10 @@ winpp::gui::object &winpp::gui::generic_object::inner_rect(const rect_type &valu
 }
 
 winpp::gui::object::rect_type winpp::gui::generic_object::inner_rect() const{
+	throw common::unsupported_exception();
+}
+
+winpp::gui::object::rect_type winpp::gui::generic_object::content_rect() const{
 	throw common::unsupported_exception();
 }
 
@@ -155,10 +218,12 @@ winpp::structures::enumerations::hit_target_type winpp::gui::generic_object::hit
 }
 
 winpp::gui::object::gui_object_type *winpp::gui::generic_object::hit_target(const point_type &value) const{
+	throw common::unsupported_exception();
 	return (hit_test(value) == hit_target_type::nil) ? nullptr : const_cast<generic_object *>(this);
 }
 
 winpp::gui::object::gui_object_type *winpp::gui::generic_object::deepest_hit_target(const point_type &value) const{
+	throw common::unsupported_exception();
 	return hit_target(value);
 }
 
@@ -174,7 +239,7 @@ winpp::gui::object::point_type winpp::gui::generic_object::convert_from_screen(c
 	return value;
 }
 
-winpp::gui::object &winpp::gui::generic_object::destory(bool no_throw){
+winpp::gui::object &winpp::gui::generic_object::destroy(bool no_throw){
 	throw common::unsupported_exception();
 }
 
@@ -191,7 +256,7 @@ winpp::gui::generic_object::event_tunnel &winpp::gui::generic_object::events(){
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::generic_object::proposed_index() const{
-	throw common::unsupported_exception();
+	return invalid_index;
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::generic_object::index_in_parent() const{
@@ -228,6 +293,10 @@ winpp::gui::object::index_and_size_type winpp::gui::generic_object::sibling_coun
 	return (parent_->children_count() - 1u);
 }
 
+bool winpp::gui::generic_object::is_sibling() const{
+	return false;
+}
+
 bool winpp::gui::generic_object::is_group() const{
 	return false;
 }
@@ -250,6 +319,36 @@ bool winpp::gui::generic_object::is_sibling(const gui_object_type &object) const
 
 bool winpp::gui::generic_object::is_created() const{
 	throw common::unsupported_exception();
+}
+
+void winpp::gui::generic_object::created_(){}
+
+void winpp::gui::generic_object::destroyed_(){
+	if (attributes_ != nullptr)
+		attributes_->stop_monitoring();
+}
+
+void winpp::gui::generic_object::sized_(){
+	if (parent_ != nullptr)//Alert parent of content change
+		parent_->attributes().trigger(object_attributes::type_content);
+
+	if (attributes_ != nullptr){
+		for (auto child : attributes_->dependent_children())//Alert children of size change
+			const_cast<gui_object_type *>(child)->attributes().trigger(object_attributes::type_parent_size);
+
+		for (auto sibling : attributes_->dependent_siblings())//Alert siblings of size change
+			const_cast<gui_object_type *>(sibling)->attributes().trigger(*this);
+	}
+}
+
+void winpp::gui::generic_object::moved_(){
+	if (parent_ != nullptr)//Alert parent of content change
+		parent_->attributes().trigger(object_attributes::type_content);
+
+	if (attributes_ != nullptr){
+		for (auto sibling : attributes_->dependent_siblings())//Alert siblings of position change
+			const_cast<gui_object_type *>(sibling)->attributes().trigger(*this);
+	}
 }
 
 winpp::gui::generic_object::attributes_type winpp::gui::generic_object::get_attributes_(){

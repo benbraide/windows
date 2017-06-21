@@ -9,8 +9,6 @@ namespace winpp{
 	namespace gui{
 		class object_sibling : public object{
 		public:
-			object_sibling();
-
 			object_sibling(const gui_object_type &object, sibling_type type);
 
 			object_sibling(gui_object_type &object, sibling_type type);
@@ -39,6 +37,12 @@ namespace winpp{
 
 			virtual const object &traverse_siblings(sibling_traverser_type traverser) const override;
 
+			virtual object &internal_set_parent(gui_object_type *parent) override;
+
+			virtual index_and_size_type internal_insert_into_parent(gui_object_type &object) override;
+
+			virtual index_and_size_type internal_insert_child(gui_object_type &child, index_and_size_type before = invalid_index) override;
+
 			virtual object &outer_rect(const rect_type &value) override;
 
 			virtual rect_type outer_rect() const override;
@@ -48,6 +52,8 @@ namespace winpp{
 			virtual object &inner_rect(const rect_type &value) override;
 
 			virtual rect_type inner_rect() const override;
+
+			virtual rect_type content_rect() const override;
 
 			virtual object &padding(const rect_type &value) override;
 
@@ -89,7 +95,7 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const override;
 
-			virtual object &destory(bool no_throw = false) override;
+			virtual object &destroy(bool no_throw = false) override;
 
 			virtual gui_attributes_type &attributes() override;
 
@@ -110,6 +116,8 @@ namespace winpp{
 			virtual index_and_size_type children_count() const override;
 
 			virtual index_and_size_type sibling_count() const override;
+
+			virtual bool is_sibling() const override;
 
 			virtual bool is_group() const override;
 

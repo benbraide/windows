@@ -17,12 +17,29 @@ namespace winpp{
 			typedef typename listeners_type::callback_type callback_type;
 			typedef typename listeners_type::guard_type guard_type;
 
+			typedef std::function<return_type(object &)> base_arg_callback_type;
+
 			explicit tunnel(unsigned __int32 id)
 				: listeners_(id){}
 
 			template <typename callback_type>
 			unsigned __int64 operator ()(callback_type callback){
 				return listeners_.add(callback);
+			}
+
+			template <typename unused_type = return_type>
+			std::enable_if_t<!std::is_same_v<std::function<unused_type(object &)>, callback_type>, unsigned __int64> operator ()(base_arg_callback_type callback){
+				return add_base_arg_(callback);
+			}
+
+			template <typename unused_type = return_type, typename... args_types>
+			std::enable_if_t<std::is_same_v<unused_type, void>, unused_type> operator ()(object_type &e, args_types &&... args){
+				fire(e, std::forward<args_types>(args)...);
+			}
+
+			template <typename unused_type = return_type, typename... args_types>
+			std::enable_if_t<!std::is_same_v<unused_type, void>, unused_type> operator ()(object_type &e, unused_type default_value = unused_type(), args_types &&... args){
+				return fire(e, default_value, std::forward<args_types>(args)...);
 			}
 
 			bool unbind(unsigned __int64 id){
@@ -72,6 +89,20 @@ namespace winpp{
 			}
 
 		private:
+			template <typename unused_type = return_type>
+			std::enable_if_t<std::is_same_v<unused_type, void>, unsigned __int64> add_base_arg_(base_arg_callback_type callback){
+				return operator ()([callback](object_type &e, value_types...){
+					callback(e);
+				});
+			}
+
+			template <typename unused_type = return_type>
+			std::enable_if_t<!std::is_same_v<unused_type, void>, unsigned __int64> add_base_arg_(base_arg_callback_type callback){
+				return operator ()([callback](object_type &e, value_types...) -> return_type{
+					return callback(e);
+				});
+			}
+
 			listeners_type listeners_;
 		};
 	}

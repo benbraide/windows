@@ -1,8 +1,5 @@
 #include "gui_object_sibling.h"
 
-winpp::gui::object_sibling::object_sibling()
-	: object_(nullptr), type_(sibling_type::previous){}
-
 winpp::gui::object_sibling::object_sibling(const gui_object_type &object, sibling_type type)
 	: object_(&const_cast<gui_object_type &>(object)), type_(type){}
 
@@ -52,6 +49,19 @@ winpp::gui::object &winpp::gui::object_sibling::traverse_siblings(sibling_traver
 	return *this;
 }
 
+winpp::gui::object &winpp::gui::object_sibling::internal_set_parent(gui_object_type *parent){
+	object_->internal_set_parent(parent);
+	return *this;
+}
+
+winpp::gui::object::index_and_size_type winpp::gui::object_sibling::internal_insert_into_parent(gui_object_type &object){
+	return object_->internal_insert_into_parent(object);
+}
+
+winpp::gui::object::index_and_size_type winpp::gui::object_sibling::internal_insert_child(gui_object_type &child, index_and_size_type before){
+	return object_->internal_insert_child(child, before);
+}
+
 const winpp::gui::object &winpp::gui::object_sibling::traverse_siblings(sibling_traverser_type traverser) const{
 	object_->traverse_siblings(traverser);
 	return *this;
@@ -77,6 +87,10 @@ winpp::gui::object &winpp::gui::object_sibling::inner_rect(const rect_type &valu
 
 winpp::gui::object::rect_type winpp::gui::object_sibling::inner_rect() const{
 	return object_->inner_rect();
+}
+
+winpp::gui::object::rect_type winpp::gui::object_sibling::content_rect() const{
+	return object_->content_rect();
 }
 
 winpp::gui::object &winpp::gui::object_sibling::padding(const rect_type &value){
@@ -162,8 +176,8 @@ winpp::gui::object::point_type winpp::gui::object_sibling::convert_from_screen(c
 	return object_->convert_from_screen(value);
 }
 
-winpp::gui::object &winpp::gui::object_sibling::destory(bool no_throw){
-	object_->destory(no_throw);
+winpp::gui::object &winpp::gui::object_sibling::destroy(bool no_throw){
+	object_->destroy(no_throw);
 	return *this;
 }
 
@@ -209,6 +223,10 @@ winpp::gui::object::index_and_size_type winpp::gui::object_sibling::children_cou
 
 winpp::gui::object::index_and_size_type winpp::gui::object_sibling::sibling_count() const{
 	return object_->sibling_count();
+}
+
+bool winpp::gui::object_sibling::is_sibling() const{
+	return true;
 }
 
 bool winpp::gui::object_sibling::is_group() const{
