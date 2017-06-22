@@ -124,7 +124,7 @@ namespace winpp{
 			}
 
 			virtual bool create(){
-				return (id_ == static_cast<atom_type>(0) && (id_ = ::RegisterClassExW(&base_type::value_)) != static_cast<atom_type>(0));
+				return (id_ == static_cast<atom_type>(0) && (id_ = ::RegisterClassExW(&value_)) != static_cast<atom_type>(0));
 			}
 
 			virtual bool destroy(){
@@ -145,6 +145,8 @@ namespace winpp{
 			std::wstring name_;
 			std::wstring menu_;
 		};
+
+		typedef basic_wnd_class<::WNDCLASSEXW> wnd_class;
 	}
 }
 

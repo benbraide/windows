@@ -213,14 +213,14 @@ namespace winpp{
 			}
 
 			template <typename value_type>
-			value_type data(const value_type &data, data_index index = data_index::user_data){
+			value_type data(const value_type &data, data_index_type index = data_index_type::user_data){
 				if (base_type::value_ == nullptr)
 					return value_type();
 				return (value_type)::SetWindowLongPtrW(base_type::value_, static_cast<int>(index), (lptr_type)data);
 			}
 
 			template <typename value_type>
-			value_type data(data_index index = data_index::user_data) const{
+			value_type data(data_index_type index = data_index_type::user_data) const{
 				if (base_type::value_ == nullptr)
 					return value_type();
 				return (value_type)::GetWindowLongPtrW(base_type::value_, static_cast<int>(index));
@@ -267,7 +267,7 @@ namespace winpp{
 			}
 
 			rect_type adjust_rect(const rect_type &value) const{
-				return adjust_rect(value, get_data<dword_type>(data_index::styles), get_data<dword_type>(data_index::extended_styles), menu() != nullptr);
+				return adjust_rect(value, data<dword_type>(data_index_type::styles), data<dword_type>(data_index_type::extended_styles), menu() != nullptr);
 			}
 
 			bool is_visible() const{

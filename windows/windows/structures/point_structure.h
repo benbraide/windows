@@ -180,7 +180,7 @@ namespace winpp{
 		};
 
 		template <class value_type, class field_type = decltype(value_type::x)>
-		class absolute_basic_point : basic_point<value_type, field_type>{
+		class absolute_basic_point : public basic_point<value_type, field_type>{
 		public:
 			typedef basic_point<value_type, field_type> base_type;
 
@@ -192,7 +192,7 @@ namespace winpp{
 		};
 
 		template <class value_type, class field_type = decltype(value_type::x)>
-		class relative_basic_point : basic_point<value_type, field_type>{
+		class relative_basic_point : public basic_point<value_type, field_type>{
 		public:
 			typedef basic_point<value_type, field_type> base_type;
 

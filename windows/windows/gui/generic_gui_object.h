@@ -16,6 +16,9 @@ namespace winpp{
 		public:
 			class event_tunnel : public object::event_tunnel{
 			public:
+				typedef structures::point point_type;
+				typedef structures::size size_type;
+
 				event_tunnel();
 
 				virtual ~event_tunnel();
@@ -30,6 +33,9 @@ namespace winpp{
 
 				events::tunnel<bool> create;
 				events::tunnel<void> destroy;
+
+				events::tunnel<void, events::object_with_data<point_type>> move;
+				events::tunnel<void, events::object_with_data<size_type>> size;
 
 			protected:
 				virtual unsigned __int64 bind_(const std::wstring &e, const std::any &callback);
@@ -134,6 +140,8 @@ namespace winpp{
 
 			virtual event_tunnel &events() override;
 
+			virtual unsigned int group() const override;
+
 			virtual index_and_size_type proposed_index() const override;
 
 			virtual index_and_size_type index_in_parent() const override;
@@ -165,6 +173,8 @@ namespace winpp{
 			virtual bool has_siblings() const override;
 
 			virtual bool has_parent() const override;
+
+			virtual bool is_group(unsigned int value) const override;
 
 			virtual bool is_offspring(const gui_object_type &object) const override;
 

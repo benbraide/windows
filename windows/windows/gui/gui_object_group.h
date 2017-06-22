@@ -10,6 +10,7 @@ namespace winpp{
 		class object_group : public generic_object{
 		public:
 			typedef std::list<gui_object_type *> list_type;
+			typedef std::unordered_map<unsigned int, list_type> group_list_type;
 
 			typedef std::recursive_mutex lock_type;
 			typedef std::lock_guard<lock_type> guard_type;
@@ -82,7 +83,10 @@ namespace winpp{
 
 			virtual void post_remove_(gui_object_type &object);
 
+			virtual bool cache_group_(unsigned int value) const;
+
 			list_type children_;
+			group_list_type group_list_;
 			mutable lock_type lock_;
 		};
 	}

@@ -1,10 +1,13 @@
 #include "event_object.h"
 
-winpp::events::object::object(gui_object_type &target)
-	: target_(&target), states_(state_type::nil){}
+winpp::events::object::object(gui_object_type &target, bool preventable)
+	: target_(&target), states_(preventable ? state_type::preventable : state_type::nil){}
+
+winpp::events::object::~object() = default;
 
 winpp::events::object &winpp::events::object::prevent(){
-	WINPP_SET(states_, state_type::prevented);
+	if (WINPP_IS(states_, state_type::preventable))
+		WINPP_SET(states_, state_type::prevented);
 	return *this;
 }
 

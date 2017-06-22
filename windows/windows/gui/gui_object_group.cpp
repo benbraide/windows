@@ -220,6 +220,8 @@ void winpp::gui::object_group::insert_(gui_object_type &child, index_and_size_ty
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::object_group::post_insert_(gui_object_type &object, index_and_size_type index){
+	if (cache_group_(object.group()))
+		group_list_[object.group()].push_back(&object);
 	return index;
 }
 
@@ -233,4 +235,21 @@ void winpp::gui::object_group::remove_(gui_object_type &object){
 		children_.erase(entry);
 }
 
-void winpp::gui::object_group::post_remove_(gui_object_type &object){}
+void winpp::gui::object_group::post_remove_(gui_object_type &object){
+	if (group_list_.empty())
+		return;
+
+	auto entry = group_list_.find(object.group());
+	if (entry != group_list_.end()){
+		auto item = std::find(entry->second.begin(), entry->second.end(), &object);
+		if (item != entry->second.end()){
+			entry->second.erase(item);
+			if (entry->second.empty())
+				group_list_.erase(entry);
+		}
+	}
+}
+
+bool winpp::gui::object_group::cache_group_(unsigned int value) const{
+	return false;
+}

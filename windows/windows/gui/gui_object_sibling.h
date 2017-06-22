@@ -109,6 +109,8 @@ namespace winpp{
 
 			virtual event_tunnel &events() override;
 
+			virtual unsigned int group() const override;
+
 			virtual index_and_size_type proposed_index() const override;
 
 			virtual index_and_size_type index_in_parent() const override;
@@ -140,6 +142,8 @@ namespace winpp{
 			virtual bool has_siblings() const override;
 
 			virtual bool has_parent() const override;
+
+			virtual bool is_group(unsigned int value) const override;
 
 			virtual bool is_offspring(const gui_object_type &object) const override;
 

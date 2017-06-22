@@ -383,7 +383,7 @@ namespace winpp{
 		};
 
 		template <class point_type, class size_type, class value_type, class field_type = decltype(value_type::left)>
-		class outer_basic_rect : basic_rect<point_type, size_type, value_type, field_type>{
+		class outer_basic_rect : public basic_rect<point_type, size_type, value_type, field_type>{
 		public:
 			typedef basic_rect<point_type, size_type, value_type, field_type> base_type;
 
@@ -395,7 +395,7 @@ namespace winpp{
 		};
 
 		template <class point_type, class size_type, class value_type, class field_type = decltype(value_type::left)>
-		class inner_basic_rect : basic_rect<point_type, size_type, value_type, field_type>{
+		class inner_basic_rect : public basic_rect<point_type, size_type, value_type, field_type>{
 		public:
 			typedef basic_rect<point_type, size_type, value_type, field_type> base_type;
 

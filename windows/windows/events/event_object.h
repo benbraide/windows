@@ -13,11 +13,14 @@ namespace winpp{
 
 			enum class state_type : unsigned int{
 				nil				= (0 << 0x0000),
-				prevented		= (1 << 0x0000),
-				stopped			= (1 << 0x0001),
+				preventable		= (1 << 0x0000),
+				prevented		= (1 << 0x0001),
+				stopped			= (1 << 0x0002),
 			};
 
-			explicit object(gui_object_type &target);
+			explicit object(gui_object_type &target, bool preventable = true);
+
+			virtual ~object();
 
 			object &prevent();
 
@@ -32,6 +35,25 @@ namespace winpp{
 		protected:
 			gui_object_type *target_;
 			state_type states_;
+		};
+
+		template <class value_type>
+		class object_with_data : public object{
+		public:
+			typedef value_type value_type;
+			typedef std::conditional_t<std::is_object_v<value_type>, const value_type &, value_type> const_qualified_type;
+
+			object_with_data(gui_object_type &target, const_qualified_type data, bool preventable = true)
+				: object(target, preventable), data_(data){}
+
+			virtual ~object_with_data() = default;
+
+			const_qualified_type data() const{
+				return data_;
+			}
+
+		private:
+			value_type data_;
 		};
 
 		WINPP_MAKE_OPERATORS(object::state_type);

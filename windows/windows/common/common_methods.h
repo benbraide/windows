@@ -30,6 +30,8 @@ namespace winpp{
 			typedef ::D2D1_RECT_F d2d_rectf_type;
 			typedef ::D2D1_RECT_U d2d_rectu_type;
 
+			typedef ::HWND hwnd_type;
+
 			static application_type *get_app();
 
 			static std::wstring convert_string(const std::string &value);
@@ -153,6 +155,16 @@ namespace winpp{
 			}
 
 			static void pixel_scale(d2d_pointf_type &dpi);
+
+			template <typename object_type>
+			static auto hwnd_owner(hwnd_type value, object_type *object){
+				return ::SetWindowLongPtrW(value, static_cast<int>(structures::enumerations::data_index_type::user_data), reinterpret_cast<::LONG_PTR>((typename object_type::gui_object_type *)object));
+			}
+
+			template <typename object_type>
+			static object_type *hwnd_owner(hwnd_type value){
+				return (object_type *)reinterpret_cast<typename object_type::gui_object_type *>(::GetWindowLongPtrW(value, static_cast<int>(structures::enumerations::data_index_type::user_data)));
+			}
 		};
 	}
 }

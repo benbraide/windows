@@ -153,6 +153,8 @@ namespace winpp{
 
 			virtual event_tunnel &events() = 0;
 
+			virtual unsigned int group() const = 0;
+
 			virtual index_and_size_type proposed_index() const = 0;
 
 			virtual index_and_size_type index_in_parent() const = 0;
@@ -185,6 +187,8 @@ namespace winpp{
 
 			virtual bool has_parent() const = 0;
 
+			virtual bool is_group(unsigned int value) const = 0;
+
 			virtual bool is_offspring(const gui_object_type &object) const = 0;
 
 			virtual bool is_child(const gui_object_type &object) const = 0;
@@ -196,6 +200,12 @@ namespace winpp{
 			virtual bool is_ancestor(const gui_object_type &object) const = 0;
 
 			virtual bool is_created() const = 0;
+
+			static const unsigned int default_group			= 0x0000u;
+			static const unsigned int menu_group			= 0x0001u;
+			static const unsigned int menu_item_group		= 0x0002u;
+			static const unsigned int window_group			= 0x0003u;
+			static const unsigned int non_window_group		= 0x0004u;
 
 			static const unsigned int state_nil				= (0u << 0x0000u);
 			static const unsigned int state_last_pow		= 0x0000u;

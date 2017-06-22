@@ -2,7 +2,7 @@
 #include "gui_object.h"
 
 winpp::gui::object_attributes::object_attributes(object &object)
-	: object_(&object), active_(type_nil){}
+	: object_(&object), active_(type_nil), disabled_(type_nil){}
 
 winpp::gui::object_attributes::~object_attributes(){
 	if (/*#TODO: Check if application is torn down*/true)
@@ -288,10 +288,20 @@ const winpp::gui::object_attributes::object_list_type &winpp::gui::object_attrib
 }
 
 winpp::gui::object_attributes &winpp::gui::object_attributes::trigger_(unsigned __int64 types){
-	auto resolved_last_pow = last_pow_();
+	unsigned __int64 resolved_last_pow = last_pow_(), flag;
 	for (auto pow = 0ull; pow <= resolved_last_pow; ++pow){//Traverse flags
-		if (WINPP_IS(types, (1ull << pow)) && WINPP_IS(active_, (1ull << pow)))
-			(callback_list_[(1ull << pow)])((1ull << pow));
+		flag = (1ull << pow);
+		if (WINPP_IS(types, flag) && WINPP_IS(active_, flag) && !WINPP_IS(disabled_, flag)){
+			WINPP_SET(disabled_, flag);
+			try{
+				(callback_list_[flag])(flag);
+				WINPP_REMOVE(disabled_, flag);
+			}
+			catch (...){
+				WINPP_REMOVE(disabled_, flag);
+				throw;//Re-throw exception
+			}
+		}
 	}
 
 	return *this;

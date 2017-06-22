@@ -212,6 +212,10 @@ winpp::gui::object::event_tunnel &winpp::gui::object_sibling::events(){
 	return object_->events();
 }
 
+unsigned int winpp::gui::object_sibling::group() const{
+	return object_->group();
+}
+
 winpp::gui::object::index_and_size_type winpp::gui::object_sibling::proposed_index() const{
 	return (object_->index_in_parent() + ((type_ == sibling_type::previous) ? 1u : 0u));
 }
@@ -274,6 +278,10 @@ bool winpp::gui::object_sibling::has_siblings() const{
 
 bool winpp::gui::object_sibling::has_parent() const{
 	return object_->has_parent();
+}
+
+bool winpp::gui::object_sibling::is_group(unsigned int value) const{
+	return object_->is_group(value);
 }
 
 bool winpp::gui::object_sibling::is_offspring(const gui_object_type &object) const{

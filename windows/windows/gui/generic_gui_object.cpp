@@ -4,7 +4,7 @@
 #include "../common/common_methods.h"
 
 winpp::gui::generic_object::event_tunnel::event_tunnel()
-	: create(id_()), destroy(id_()){}
+	: create(id_()), destroy(id_()), move(id_()), size(id_()){}
 
 winpp::gui::generic_object::event_tunnel::~event_tunnel() = default;
 
@@ -22,9 +22,13 @@ unsigned __int64 winpp::gui::generic_object::event_tunnel::bind(const std::strin
 unsigned __int64 winpp::gui::generic_object::event_tunnel::bind(event_type e, const std::any &callback){
 	switch (e){
 	case event_type::create:
-		return create(std::any_cast<events::tunnel<bool>::callback_type>(callback));
+		return create(callback);
 	case event_type::destroy:
-		return destroy(std::any_cast<events::tunnel<void>::callback_type>(callback));
+		return destroy(callback);
+	case event_type::move:
+		return move(callback);
+	case event_type::size:
+		return size(callback);
 	default:
 		break;
 	}
@@ -33,15 +37,21 @@ unsigned __int64 winpp::gui::generic_object::event_tunnel::bind(event_type e, co
 }
 
 bool winpp::gui::generic_object::event_tunnel::unbind(unsigned __int64 id){
-	return (create.unbind(id) || destroy.unbind(id));
+	return (create.unbind(id) || destroy.unbind(id) || move.unbind(id) || size.unbind(id));
 }
 
 unsigned __int64 winpp::gui::generic_object::event_tunnel::bind_(const std::wstring &e, const std::any &callback){
 	if (e == L"create")
-		return create(std::any_cast<events::tunnel<bool>::callback_type>(callback));
+		return create(callback);
 
 	if (e == L"destroy")
-		return destroy(std::any_cast<events::tunnel<void>::callback_type>(callback));
+		return destroy(callback);
+
+	if (e == L"move")
+		return move(callback);
+
+	if (e == L"size")
+		return size(callback);
 
 	return 0u;
 }
@@ -275,6 +285,10 @@ winpp::gui::generic_object::event_tunnel &winpp::gui::generic_object::events(){
 	return *get_events_();
 }
 
+unsigned int winpp::gui::generic_object::group() const{
+	return default_group;
+}
+
 winpp::gui::object::index_and_size_type winpp::gui::generic_object::proposed_index() const{
 	return invalid_index;
 }
@@ -343,6 +357,10 @@ bool winpp::gui::generic_object::has_siblings() const{
 
 bool winpp::gui::generic_object::has_parent() const{
 	return (parent_ != nullptr);
+}
+
+bool winpp::gui::generic_object::is_group(unsigned int value) const{
+	return (group() == value);
 }
 
 bool winpp::gui::generic_object::is_offspring(const gui_object_type &object) const{

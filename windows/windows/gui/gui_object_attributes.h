@@ -107,6 +107,7 @@ namespace winpp{
 
 			object *object_;
 			unsigned __int64 active_;
+			unsigned __int64 disabled_;
 			callback_list_type callback_list_;
 			sibling_callback_list_type sibling_callback_list_;
 			object_list_type dependent_children_;

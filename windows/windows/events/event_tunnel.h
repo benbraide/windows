@@ -3,6 +3,8 @@
 #ifndef WINPP_EVENT_TUNNEL_H
 #define WINPP_EVENT_TUNNEL_H
 
+#include <any>
+
 #include "event_listeners.h"
 #include "event_object.h"
 
@@ -13,6 +15,7 @@ namespace winpp{
 		public:
 			typedef listeners<return_type, object_type &, value_types...> listeners_type;
 
+			typedef typename listeners_type::no_args_callback_type no_args_callback_type;
 			typedef typename listeners_type::native_callback_type native_callback_type;
 			typedef typename listeners_type::callback_type callback_type;
 			typedef typename listeners_type::guard_type guard_type;
@@ -42,12 +45,39 @@ namespace winpp{
 				return fire(e, default_value, std::forward<args_types>(args)...);
 			}
 
+			unsigned __int64 operator ()(const std::any &callback){
+				try{
+					return operator ()(std::any_cast<callback_type>(callback));
+				}
+				catch (const std::bad_any_cast &){
+					try{
+						return operator ()(std::any_cast<native_callback_type>(callback));
+					}
+					catch (const std::bad_any_cast &){
+						return operator ()(std::any_cast<no_args_callback_type>(callback));
+					}
+				}
+
+				return 0u;
+			}
+
 			bool unbind(unsigned __int64 id){
 				return listeners_.remove(id);
 			}
 
 			bool unbind(native_callback_type callback){
 				return listeners_.remove(callback);
+			}
+
+			bool unbind(const std::any &value){
+				try{
+					return unbind(std::any_cast<unsigned __int64>(value));
+				}
+				catch (const std::bad_any_cast &){
+					return unbind(std::any_cast<native_callback_type>(value));
+				}
+
+				return false;
 			}
 
 			template <typename unused_type = return_type, typename... args_types>
