@@ -52,6 +52,8 @@ namespace winpp{
 			basic_point(const size_type<size_value_type> &value)
 				: basic_point(value.width(), value.height()){}
 
+			virtual ~basic_point() = default;
+
 			basic_point &operator =(field_type xy){
 				base_type::value_ = { xy, xy };
 				return *this;
@@ -177,8 +179,38 @@ namespace winpp{
 			}
 		};
 
+		template <class value_type, class field_type = decltype(value_type::x)>
+		class absolute_basic_point : basic_point<value_type, field_type>{
+		public:
+			typedef basic_point<value_type, field_type> base_type;
+
+			template <typename... args_types>
+			absolute_basic_point(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual ~absolute_basic_point() = default;
+		};
+
+		template <class value_type, class field_type = decltype(value_type::x)>
+		class relative_basic_point : basic_point<value_type, field_type>{
+		public:
+			typedef basic_point<value_type, field_type> base_type;
+
+			template <typename... args_types>
+			relative_basic_point(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual ~relative_basic_point() = default;
+		};
+
 		typedef basic_point<::POINT> point;
 		typedef basic_point<default_point_native_value<float>, float> pointf;
+
+		typedef absolute_basic_point<::POINT> absolute_point;
+		typedef absolute_basic_point<default_point_native_value<float>, float> absolute_pointf;
+
+		typedef relative_basic_point<::POINT> relative_point;
+		typedef relative_basic_point<default_point_native_value<float>, float> relative_pointf;
 	}
 }
 

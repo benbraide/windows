@@ -382,8 +382,38 @@ namespace winpp{
 			}
 		};
 
+		template <class point_type, class size_type, class value_type, class field_type = decltype(value_type::left)>
+		class outer_basic_rect : basic_rect<point_type, size_type, value_type, field_type>{
+		public:
+			typedef basic_rect<point_type, size_type, value_type, field_type> base_type;
+
+			template <typename... args_types>
+			outer_basic_rect(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual ~outer_basic_rect() = default;
+		};
+
+		template <class point_type, class size_type, class value_type, class field_type = decltype(value_type::left)>
+		class inner_basic_rect : basic_rect<point_type, size_type, value_type, field_type>{
+		public:
+			typedef basic_rect<point_type, size_type, value_type, field_type> base_type;
+
+			template <typename... args_types>
+			inner_basic_rect(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual ~inner_basic_rect() = default;
+		};
+
 		typedef basic_rect<point, size, ::RECT> rect;
 		typedef basic_rect<pointf, sizef, default_rect_native_value<float>, float> rectf;
+
+		typedef outer_basic_rect<point, size, ::RECT> outer_rect;
+		typedef outer_basic_rect<pointf, sizef, default_rect_native_value<float>, float> outer_rectf;
+
+		typedef inner_basic_rect<point, size, ::RECT> inner_rect;
+		typedef inner_basic_rect<pointf, sizef, default_rect_native_value<float>, float> inner_rectf;
 	}
 }
 
