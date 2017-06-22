@@ -405,12 +405,9 @@ namespace winpp{
 				styles					= GWL_STYLE,
 				extended_styles			= GWL_EXSTYLE,
 				user_data				= GWLP_USERDATA,
-			};
-
-			enum class dialog_data_index_type{
-				message_result			= DWLP_MSGRESULT,
-				procedure				= DWLP_DLGPROC,
-				user_data				= DWLP_USER,
+				dlg_message_result		= DWLP_MSGRESULT,
+				dlg_procedure			= DWLP_DLGPROC,
+				dlg_user_data			= DWLP_USER,
 			};
 
 			enum class layered_attributes_option : ::DWORD{
