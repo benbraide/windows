@@ -208,10 +208,10 @@ namespace winpp{
 				return attributes_;
 			}
 
-			template <typename generic_events_type>
-			events_type create_events_(){
+			template <typename generic_events_type, typename... args_types>
+			events_type create_events_(args_types &&...args){
 				if (events_ == nullptr)
-					events_ = std::make_shared<generic_events_type>();
+					events_ = std::make_shared<generic_events_type>(std::forward<args_types>(args)...);
 				return events_;
 			}
 

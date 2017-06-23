@@ -48,6 +48,7 @@ namespace winpp{
 				if (extract_group_id(id) != id_)
 					return false;
 
+				guard_type guard(lock_);
 				auto item = callback_list_.find(id);
 				if (item == callback_list_.end())
 					return false;
@@ -57,6 +58,7 @@ namespace winpp{
 			}
 
 			bool remove(native_callback_type callback){
+				guard_type guard(lock_);
 				for (auto item = callback_list_.begin(); item != callback_list_.end(); ++item){
 					if (std::holds_alternative<native_callback_type>(item->second) && std::get<native_callback_type>(item->second) == callback){
 						callback_list_.erase(item);

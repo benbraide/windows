@@ -1,7 +1,7 @@
 #include "window_object.h"
 
-winpp::window::object::event_tunnel::event_tunnel()
-	: close(id_()), maximize(id_()), minimize(id_()), restore(id_()), show(id_()), hide(id_()), erase_background(id_()), paint(id_()), timer(id_()), interval(id_()){}
+winpp::window::object::event_tunnel::event_tunnel(gui_object_type &object)
+	: close(id_()), maximize(id_()), minimize(id_()), restore(id_()), show(id_()), hide(id_()), erase_background(id_()), paint(id_()), timer(id_(), object), interval(id_(), object){}
 
 winpp::window::object::event_tunnel::~event_tunnel() = default;
 
@@ -23,10 +23,6 @@ unsigned __int64 winpp::window::object::event_tunnel::bind(event_type e, const s
 		return erase_background(callback);
 	case event_type::paint:
 		return paint(callback);
-	case event_type::timer:
-		return timer(callback);
-	case event_type::interval:
-		return interval(callback);
 	default:
 		break;
 	}
@@ -63,12 +59,6 @@ unsigned __int64 winpp::window::object::event_tunnel::bind_(const std::wstring &
 
 	if (e == L"paint")
 		return paint(callback);
-
-	if (e == L"timer")
-		return timer(callback);
-
-	if (e == L"interval")
-		return interval(callback);
 
 	return base_type::bind_(e, callback);
 }
@@ -165,7 +155,7 @@ winpp::window::object &winpp::window::object::destroy(bool force){
 }
 
 winpp::window::object::event_tunnel &winpp::window::object::events(){
-	throw common::no_app_exception();
+	return *dynamic_cast<event_tunnel *>(get_events_().get());
 }
 
 unsigned int winpp::window::object::group() const{
@@ -178,6 +168,10 @@ bool winpp::window::object::is_created() const{
 
 winpp::window::object::procedure_type winpp::window::object::previous_procedure() const{
 	return previous_procedure_;
+}
+
+winpp::gui::generic_object::events_type winpp::window::object::get_events_(){
+	return create_events_<event_tunnel>(*this);
 }
 
 bool winpp::window::object::cache_group_(unsigned int value) const{

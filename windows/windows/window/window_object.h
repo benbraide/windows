@@ -50,7 +50,7 @@ namespace winpp{
 
 				using base_type::bind;
 
-				event_tunnel();
+				explicit event_tunnel(gui_object_type &object);
 
 				virtual ~event_tunnel();
 
@@ -70,8 +70,8 @@ namespace winpp{
 				events::tunnel<void> erase_background;
 				events::tunnel<void> paint;
 
-				events::tunnel<void> timer;
-				events::tunnel<void> interval;
+				events::timer_tunnel<false> timer;
+				events::timer_tunnel<true> interval;
 
 			protected:
 				virtual unsigned __int64 bind_(const std::wstring &e, const std::any &callback) override;
@@ -122,6 +122,8 @@ namespace winpp{
 			virtual procedure_type previous_procedure() const;
 
 		protected:
+			virtual events_type get_events_() override;
+
 			bool cache_group_(unsigned int value) const override;
 
 			hwnd_type value_;
