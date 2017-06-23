@@ -5,6 +5,49 @@ winpp::common::methods::application_type *winpp::common::methods::get_app(){
 	return (application_type::current_app == nullptr) ? application_type::main_app : application_type::current_app;
 }
 
+winpp::common::methods::hwnd_type winpp::common::methods::create_window(const create_info_type &info, window_type &owner, application_type *&app){
+	if (app == nullptr && (app = get_app()) == nullptr)
+		throw common::no_app_exception();
+
+	hwnd_type value = nullptr;
+	if (app == application_type::current_app){
+		value = ::CreateWindowExW(
+			info.dwExStyle,
+			info.lpszClass,
+			info.lpszName,
+			static_cast<dword_type>(info.style),
+			info.x,
+			info.y,
+			info.cx,
+			info.cy,
+			info.hwndParent,
+			info.hMenu,
+			info.hInstance,
+			info.lpCreateParams
+		);
+	}
+	else{//Add to thread queue
+		value = app->execute_task<hwnd_type>([&info]{
+			return ::CreateWindowExW(
+				info.dwExStyle,
+				info.lpszClass,
+				info.lpszName,
+				static_cast<dword_type>(info.style),
+				info.x,
+				info.y,
+				info.cx,
+				info.cy,
+				info.hwndParent,
+				info.hMenu,
+				info.hInstance,
+				info.lpCreateParams
+			);
+		});
+	}
+
+	return value;
+}
+
 std::wstring winpp::common::methods::convert_string(const std::string &value){
 	if (value.empty())
 		return L"";

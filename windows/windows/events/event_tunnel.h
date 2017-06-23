@@ -172,7 +172,13 @@ namespace winpp{
 				: base_type(id), object_(&object){}
 
 			virtual ~timer_tunnel(){
-				
+				if (!application::object::main_is_exiting()){
+					guard_type guard(base_type::listeners_.lock());
+					if (!handle_list_.empty()){
+						for (auto &item : handle_list_)
+							::DeleteTimerQueueEx(item.second.handle, nullptr);
+					}
+				}
 			}
 
 			template <typename callback_type>

@@ -79,6 +79,8 @@ namespace winpp{
 
 			virtual ~object();
 
+			virtual operator hwnd_value_type() const;
+
 			virtual void *handle() const override;
 
 			virtual object &outer_rect(const rect_type &value) override;
@@ -125,6 +127,10 @@ namespace winpp{
 			virtual events_type get_events_() override;
 
 			bool cache_group_(unsigned int value) const override;
+
+			virtual void create_(const std::wstring &caption, const point_type &offset, const size_type &size, dword_type styles, dword_type extended_styles, const wchar_t *class_name, app_type *app);
+
+			virtual void create_(const create_info_type &info, app_type *app);
 
 			hwnd_type value_;
 			procedure_type previous_procedure_;

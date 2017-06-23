@@ -33,6 +33,11 @@ namespace winpp{
 			typedef structures::size size_type;
 			typedef structures::rect rect_type;
 
+			typedef structures::absolute_point absolute_point_type;
+			typedef structures::relative_point relative_point_type;
+			typedef structures::outer_rect outer_rect_type;
+			typedef structures::inner_rect inner_rect_type;
+
 			typedef structures::enumerations::gui_sibling_type sibling_type;
 			typedef structures::enumerations::placement_type placement_type;
 			typedef structures::enumerations::hit_target_type hit_target_type;

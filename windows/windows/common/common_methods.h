@@ -13,10 +13,16 @@ namespace winpp{
 		class object;
 	}
 
+	namespace window{
+		class object;
+	}
+
 	namespace common{
 		class methods{
 		public:
 			typedef application::object application_type;
+			typedef window::object window_type;
+
 			typedef structures::enumerations::placement_type placement_type;
 
 			typedef ::D2D1_COLOR_F d2d_color_type;
@@ -31,8 +37,12 @@ namespace winpp{
 			typedef ::D2D1_RECT_U d2d_rectu_type;
 
 			typedef ::HWND hwnd_type;
+			typedef ::CREATESTRUCTW create_info_type;
+			typedef ::DWORD dword_type;
 
 			static application_type *get_app();
+
+			static hwnd_type create_window(const create_info_type &info, window_type &owner, application_type *&app);
 
 			static std::wstring convert_string(const std::string &value);
 

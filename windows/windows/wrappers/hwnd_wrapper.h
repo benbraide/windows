@@ -45,7 +45,7 @@ namespace winpp{
 			typedef value<basic_hwnd<value_type>, value_type> base_type;
 
 			basic_hwnd(value_type value = nullptr)
-				: basic_hwnd(value){}
+				: base_type(value){}
 
 			basic_hwnd(const basic_hwnd &) = default;
 

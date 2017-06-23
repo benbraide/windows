@@ -67,6 +67,10 @@ winpp::window::object::~object(){
 	destroy(true);
 }
 
+winpp::window::object::operator hwnd_value_type() const{
+	return value_;
+}
+
 void *winpp::window::object::handle() const{
 	return value_.native_value();
 }
@@ -176,4 +180,63 @@ winpp::gui::generic_object::events_type winpp::window::object::get_events_(){
 
 bool winpp::window::object::cache_group_(unsigned int value) const{
 	return (value == non_window_group);
+}
+
+void winpp::window::object::create_(const std::wstring &caption, const point_type &offset, const size_type &size, dword_type styles, dword_type extended_styles, const wchar_t *class_name, app_type *app){
+	point_type computed_offset;
+	hwnd_value_type parent_handle;
+
+	if (parent_ != nullptr){
+		//if (dynamic_cast<modal_dialog *>(this) == nullptr)
+		WINPP_SET(styles, WS_CHILD);//Set child flag
+
+		/*if (dynamic_cast<dialog *>(this) != nullptr){
+			auto window_parent = dynamic_cast<object *>(parent_);
+			if (window_parent != nullptr && window_parent->is_dialog())
+				WINPP_SET(extended_styles, WS_EX_CONTROLPARENT);
+		}*/
+
+		auto absolute_offset = dynamic_cast<const absolute_point_type *>(&offset);
+		if (absolute_offset == nullptr)//Relative offset
+			computed_offset = offset;
+		else//Convert absolute to relative
+			computed_offset = parent_->convert_from_screen(offset);
+
+		parent_handle = static_cast<hwnd_value_type>(parent_->handle());
+	}
+	else{//No parent
+		computed_offset = offset;
+		parent_handle = nullptr;
+	}
+
+	//WINPP_SET(styles, persistent_styles_.basic);
+	//WINPP_SET(extended_styles, persistent_styles_.extended);
+
+	create_(create_info_type{
+		nullptr,									//Params
+		nullptr,									//Instance
+		nullptr,									//Menu
+		parent_handle,								//Parent
+		size.height(),								//Height
+		size.width(),								//Width
+		computed_offset.y(),						//y-offset
+		computed_offset.x(),						//x-offset
+		static_cast<long>(styles),					//Styles
+		caption.c_str(),							//Window name
+		class_name,									//Class name
+		extended_styles								//Extended styles
+	}, app);
+}
+
+void winpp::window::object::create_(const create_info_type &info, app_type *app){
+	if ((value_ = common::methods::create_window(info, *this, app_ = app)) == nullptr){
+		if (parent_ != nullptr){
+			parent_->internal_remove_child(*this, true);
+			parent_ = nullptr;
+		}
+
+		throw common::windows_error();
+	}
+	else
+		created_();
 }

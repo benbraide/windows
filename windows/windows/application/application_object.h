@@ -12,9 +12,22 @@ namespace winpp{
 		public:
 			typedef threading::message_loop base_type;
 
+			enum class state_type : unsigned int{
+				nil				= (0 << 0x0000),
+				exiting			= (1 << 0x0000),
+			};
+
 			object();
 
 			virtual ~object();
+
+			virtual int run() override;
+
+			virtual void exit();
+
+			virtual bool is_exiting() const;
+
+			static bool main_is_exiting();
 
 			static object *main_app;
 			static thread_local object *current_app;
@@ -27,7 +40,11 @@ namespace winpp{
 			virtual bool is_stopped_() const override;
 
 			virtual bool is_dialog_message_();
+
+			state_type states_;
 		};
+
+		WINPP_MAKE_OPERATORS(object::state_type);
 	}
 }
 
