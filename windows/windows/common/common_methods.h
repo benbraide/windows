@@ -18,6 +18,35 @@ namespace winpp{
 	}
 
 	namespace common{
+		template <class type>
+		struct type_tree{};
+
+		template <>
+		struct type_tree<unsigned __int8>{
+			typedef unsigned __int16 bigger;
+			static const unsigned __int64 mask = 0;
+		};
+
+		template <>
+		struct type_tree<unsigned __int16>{
+			typedef unsigned __int8 smaller;
+			typedef unsigned __int32 bigger;
+			static const unsigned __int64 mask = 0;
+		};
+
+		template <>
+		struct type_tree<unsigned __int32>{
+			typedef unsigned __int16 smaller;
+			typedef unsigned __int64 bigger;
+			static const unsigned __int64 mask = 0xffff0000u;
+		};
+
+		template <>
+		struct type_tree<unsigned __int64>{
+			typedef unsigned __int32 smaller;
+			static const unsigned __int64 mask = 0xffffffff00000000ull;
+		};
+
 		class methods{
 		public:
 			typedef application::object application_type;
@@ -174,6 +203,24 @@ namespace winpp{
 			template <typename object_type>
 			static object_type *hwnd_owner(hwnd_type value){
 				return (object_type *)reinterpret_cast<typename object_type::gui_object_type *>(::GetWindowLongPtrW(value, static_cast<int>(structures::enumerations::data_index_type::user_data)));
+			}
+
+			template <typename value_type>
+			static auto combine(value_type low, value_type high){
+				typedef typename type_tree<value_type>::bigger bigger_type;
+				return ((static_cast<bigger_type>(low) << static_cast<bigger_type>(sizeof value_type)) | static_cast<bigger_type>(high));
+			}
+
+			template <typename value_type>
+			static auto low(value_type value){
+				typedef typename type_tree<value_type>::smaller smaller_type;
+				return static_cast<smaller_type>(value);
+			}
+
+			template <typename value_type>
+			static auto high(value_type value){
+				typedef typename type_tree<value_type>::smaller smaller_type;
+				return static_cast<smaller_type>((value & value_type::mask) >> static_cast<value_type>(sizeof value_type));
 			}
 		};
 	}

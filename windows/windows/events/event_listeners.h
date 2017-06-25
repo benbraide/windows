@@ -8,6 +8,7 @@
 #include <functional>
 #include <unordered_map>
 
+#include "../common/common_methods.h"
 #include "../common/common_headers.h"
 #include "../common/random_number.h"
 
@@ -82,15 +83,15 @@ namespace winpp{
 			}
 
 			static unsigned __int32 extract_group_id(unsigned __int64 id){
-				return static_cast<unsigned __int32>((id & 0xffffffff00000000ull) >> 32);
+				return common::methods::low(id);
 			}
 
 			static unsigned __int32 extract_item_id(unsigned __int64 id){
-				return static_cast<unsigned __int32>(id & 0xffffffffull);
+				return common::methods::high(id);
 			}
 
 			static unsigned __int64 combine_ids(unsigned __int32 group_id, unsigned __int32 item_id){
-				return ((static_cast<unsigned __int64>(item_id) << 32) | static_cast<unsigned __int64>(group_id));
+				return common::methods::combine(group_id, item_id);
 			}
 
 			static bool is_valid_id(unsigned __int64 id){
