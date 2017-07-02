@@ -170,8 +170,37 @@ bool winpp::window::object::is_created() const{
 	return (value_ != nullptr);
 }
 
+winpp::window::object::styles_type &winpp::window::object::styles(){
+	return *get_styles_();
+}
+
 winpp::window::object::procedure_type winpp::window::object::previous_procedure() const{
 	return previous_procedure_;
+}
+
+bool winpp::window::object::is_dialog() const{
+	return false;
+}
+
+bool winpp::window::object::is_modal() const{
+	return false;
+}
+
+bool winpp::window::object::is_control() const{
+	return false;
+}
+
+winpp::window::object::dword_type winpp::window::object::filter_styles(dword_type value, bool is_extended) const{
+	auto black_listed = WINPP_REMOVE_V(black_listed_styles(is_extended), white_listed_styles(is_extended));
+	return WINPP_REMOVE_V(value, black_listed);
+}
+
+winpp::window::object::dword_type winpp::window::object::white_listed_styles(bool is_extended) const{
+	return (is_extended ? 0 : (CS_DBLCLKS | CS_DROPSHADOW | WS_BORDER | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_TABSTOP | WS_DISABLED | WS_VISIBLE));
+}
+
+winpp::window::object::dword_type winpp::window::object::black_listed_styles(bool is_extended) const{
+	return (is_extended ? WS_EX_LEFTSCROLLBAR : (WS_HSCROLL | WS_VSCROLL));
 }
 
 winpp::gui::generic_object::events_type winpp::window::object::get_events_(){
@@ -182,19 +211,27 @@ bool winpp::window::object::cache_group_(unsigned int value) const{
 	return (value == non_window_group);
 }
 
+winpp::window::object::styles_ptr_type winpp::window::object::get_styles_(){
+	return create_styles_<styles_type>(*this, persistent_styles_);
+}
+
+void winpp::window::object::reset_persistent_styles_(){
+	persistent_styles_ = styles_info_type{ WS_CLIPCHILDREN | WS_CLIPSIBLINGS };
+}
+
 void winpp::window::object::create_(const std::wstring &caption, const point_type &offset, const size_type &size, dword_type styles, dword_type extended_styles, const wchar_t *class_name, app_type *app){
 	point_type computed_offset;
 	hwnd_value_type parent_handle;
 
 	if (parent_ != nullptr){
-		//if (dynamic_cast<modal_dialog *>(this) == nullptr)
-		WINPP_SET(styles, WS_CHILD);//Set child flag
-
-		/*if (dynamic_cast<dialog *>(this) != nullptr){
+		if (is_dialog()){
 			auto window_parent = dynamic_cast<object *>(parent_);
 			if (window_parent != nullptr && window_parent->is_dialog())
 				WINPP_SET(extended_styles, WS_EX_CONTROLPARENT);
-		}*/
+
+			if (!is_modal())//Set child flag
+				WINPP_SET(styles, WS_CHILD);
+		}
 
 		auto absolute_offset = dynamic_cast<const absolute_point_type *>(&offset);
 		if (absolute_offset == nullptr)//Relative offset
@@ -209,8 +246,8 @@ void winpp::window::object::create_(const std::wstring &caption, const point_typ
 		parent_handle = nullptr;
 	}
 
-	//WINPP_SET(styles, persistent_styles_.basic);
-	//WINPP_SET(extended_styles, persistent_styles_.extended);
+	WINPP_SET(styles, persistent_styles_.basic);
+	WINPP_SET(extended_styles, persistent_styles_.extended);
 
 	create_(create_info_type{
 		nullptr,									//Params
@@ -229,7 +266,7 @@ void winpp::window::object::create_(const std::wstring &caption, const point_typ
 }
 
 void winpp::window::object::create_(const create_info_type &info, app_type *app){
-	if ((value_ = common::methods::create_window(info, *this, app_ = app)) == nullptr){
+	if ((value_ = common::methods::create_window(info, is_control(), app_ = app)) == nullptr){
 		if (parent_ != nullptr){
 			parent_->internal_remove_child(*this, true);
 			parent_ = nullptr;

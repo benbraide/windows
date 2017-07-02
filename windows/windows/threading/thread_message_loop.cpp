@@ -42,6 +42,10 @@ void winpp::threading::message_loop::add_task(task_type task){
 	task_stack_.add(task);
 }
 
+void winpp::threading::message_loop::execute_task(std::function<void()> task){
+	execute_task_<void>(std::true_type(), task);
+}
+
 bool winpp::threading::message_loop::is_filtered_message_() const{
 	return false;
 }

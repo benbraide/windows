@@ -75,7 +75,7 @@ namespace winpp{
 
 			static application_type *get_app();
 
-			static hwnd_type create_window(const create_info_type &info, procedure_type *previous_procedure, application_type *&app);
+			static hwnd_type create_window(const create_info_type &info, bool replace_procedure, application_type *&app);
 
 			static std::string uuid();
 

@@ -59,7 +59,7 @@ namespace winpp{
 
 			object &app();
 
-			hwnd_type create(const create_info_type &info, procedure_type *previous_procedure = nullptr);
+			hwnd_type create(const create_info_type &info, bool replace_procedure = false);
 
 			static uint_type register_message(const std::wstring &name);
 
@@ -72,7 +72,7 @@ namespace winpp{
 			hwnd_value_list_type hwnd_value_list_;
 
 			void *recent_params_;
-			procedure_type *previous_procedure_;
+			bool replace_procedure_;
 
 			static wnd_class_type class_;
 			static wnd_class_type dialog_class_;

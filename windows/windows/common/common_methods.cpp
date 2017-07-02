@@ -5,15 +5,15 @@ winpp::common::methods::application_type *winpp::common::methods::get_app(){
 	return (application_type::current_app == nullptr) ? application_type::main_app : application_type::current_app;
 }
 
-winpp::common::methods::hwnd_type winpp::common::methods::create_window(const create_info_type &info, procedure_type *previous_procedure, application_type *&app){
+winpp::common::methods::hwnd_type winpp::common::methods::create_window(const create_info_type &info, bool replace_procedure, application_type *&app){
 	if (app == nullptr && (app = get_app()) == nullptr)
 		throw common::no_app_exception();
 
 	if (app == application_type::current_app)
-		return app->window_manager().create(info, previous_procedure);
+		return app->window_manager().create(info, replace_procedure);
 
-	return app->execute_task<hwnd_type>([app, &info, &previous_procedure]{
-		return app->window_manager().create(info, previous_procedure);
+	return app->execute_task<hwnd_type>([app, &info, replace_procedure]{
+		return app->window_manager().create(info, replace_procedure);
 	});
 }
 

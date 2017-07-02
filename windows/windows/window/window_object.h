@@ -8,11 +8,17 @@
 #include "../wrappers/hwnd_wrapper.h"
 #include "../wrappers/wnd_class_wrapper.h"
 
+#include "window_styles.h"
+
 namespace winpp{
 	namespace window{
 		class object : public gui::object_tree{
 		public:
 			typedef gui::object_tree tree_base_type;
+
+			typedef window::styles styles_type;
+			typedef styles_type::info_type styles_info_type;
+			typedef std::shared_ptr<styles_type> styles_ptr_type;
 
 			typedef ::UINT uint_type;
 			typedef ::WORD word_type;
@@ -121,12 +127,37 @@ namespace winpp{
 
 			virtual bool is_created() const override;
 
+			virtual styles_type &styles();
+
 			virtual procedure_type previous_procedure() const;
+
+			virtual bool is_dialog() const;
+
+			virtual bool is_modal() const;
+
+			virtual bool is_control() const;
+
+			virtual dword_type filter_styles(dword_type value, bool is_extended) const;
+
+			virtual dword_type white_listed_styles(bool is_extended) const;
+
+			virtual dword_type black_listed_styles(bool is_extended) const;
 
 		protected:
 			virtual events_type get_events_() override;
 
-			bool cache_group_(unsigned int value) const override;
+			virtual bool cache_group_(unsigned int value) const override;
+
+			template <typename generic_styles_type, typename... args_types>
+			styles_ptr_type create_styles_(args_types &&...args){
+				if (styles_ == nullptr)
+					styles_ = std::make_shared<generic_styles_type>(std::forward<args_types>(args)...);
+				return styles_;
+			}
+
+			virtual styles_ptr_type get_styles_();
+
+			virtual void reset_persistent_styles_();
 
 			virtual void create_(const std::wstring &caption, const point_type &offset, const size_type &size, dword_type styles, dword_type extended_styles, const wchar_t *class_name, app_type *app);
 
@@ -134,6 +165,8 @@ namespace winpp{
 
 			hwnd_type value_;
 			procedure_type previous_procedure_;
+			styles_info_type persistent_styles_;
+			styles_ptr_type styles_;
 		};
 	}
 }

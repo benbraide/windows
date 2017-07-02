@@ -1,7 +1,7 @@
 #include "window_manager.h"
 
 winpp::application::window_manager::window_manager()
-	: app_(nullptr), recent_params_(nullptr), previous_procedure_(nullptr){}
+	: app_(nullptr), recent_params_(nullptr), replace_procedure_(false){}
 
 winpp::application::window_manager::~window_manager() = default;
 
@@ -32,9 +32,12 @@ winpp::application::object &winpp::application::window_manager::app(){
 	return *app_;
 }
 
-winpp::application::window_manager::hwnd_type winpp::application::window_manager::create(const create_info_type &info, procedure_type *previous_procedure){
+winpp::application::window_manager::hwnd_type winpp::application::window_manager::create(const create_info_type &info, bool replace_procedure){
+	if (object::current_app == nullptr)
+		return nullptr;
+
 	recent_params_ = info.lpCreateParams;
-	previous_procedure_ = previous_procedure;
+	replace_procedure_ = replace_procedure;
 
 	auto hook = ::SetWindowsHookExW(WH_CBT, hook_, nullptr, app_->id());//Install hook to intercept window creation
 	if (hook == nullptr)
@@ -74,11 +77,11 @@ winpp::application::window_manager::lresult_type CALLBACK winpp::application::wi
 			hwnd_type target_hwnd(reinterpret_cast<hwnd_value_type>(wparam));
 
 			target_hwnd.data(reinterpret_cast<gui::object *>(manager.recent_params_));//Store window object in handle
-			if (manager.previous_procedure_ != nullptr)//Replace window procedure
-				*manager.previous_procedure_ = target_hwnd.data<procedure_type>(&window_manager::entry, hwnd_type::data_index_type::procedure);
+			if (manager.replace_procedure_)//Replace window procedure
+				target_hwnd.data<procedure_type>(&window_manager::entry, hwnd_type::data_index_type::procedure);
 
 			manager.recent_params_ = nullptr;//Reset
-			manager.previous_procedure_ = nullptr;
+			manager.replace_procedure_ = false;
 		}
 	}
 

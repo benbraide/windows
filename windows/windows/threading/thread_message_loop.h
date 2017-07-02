@@ -46,6 +46,8 @@ namespace winpp{
 				return execute_task_(std::integral_constant<bool, std::is_same<return_type, void>::value>(), task);
 			}
 
+			void execute_task(std::function<void()> task);
+
 		protected:
 			virtual bool is_filtered_message_() const;
 
