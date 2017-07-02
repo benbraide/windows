@@ -1,49 +1,48 @@
 #include "common_methods.h"
-#include "../application/application_object.h"
+#include "../application/window_manager.h"
 
 winpp::common::methods::application_type *winpp::common::methods::get_app(){
 	return (application_type::current_app == nullptr) ? application_type::main_app : application_type::current_app;
 }
 
-winpp::common::methods::hwnd_type winpp::common::methods::create_window(const create_info_type &info, window_type &owner, application_type *&app){
+winpp::common::methods::hwnd_type winpp::common::methods::create_window(const create_info_type &info, procedure_type *previous_procedure, application_type *&app){
 	if (app == nullptr && (app = get_app()) == nullptr)
 		throw common::no_app_exception();
 
-	hwnd_type value = nullptr;
-	if (app == application_type::current_app){
-		value = ::CreateWindowExW(
-			info.dwExStyle,
-			info.lpszClass,
-			info.lpszName,
-			static_cast<dword_type>(info.style),
-			info.x,
-			info.y,
-			info.cx,
-			info.cy,
-			info.hwndParent,
-			info.hMenu,
-			info.hInstance,
-			info.lpCreateParams
-		);
-	}
-	else{//Add to thread queue
-		value = app->execute_task<hwnd_type>([&info]{
-			return ::CreateWindowExW(
-				info.dwExStyle,
-				info.lpszClass,
-				info.lpszName,
-				static_cast<dword_type>(info.style),
-				info.x,
-				info.y,
-				info.cx,
-				info.cy,
-				info.hwndParent,
-				info.hMenu,
-				info.hInstance,
-				info.lpCreateParams
-			);
-		});
-	}
+	if (app == application_type::current_app)
+		return app->window_manager().create(info, previous_procedure);
+
+	return app->execute_task<hwnd_type>([app, &info, &previous_procedure]{
+		return app->window_manager().create(info, previous_procedure);
+	});
+}
+
+std::string winpp::common::methods::uuid(){
+	uuid_type uuid;
+	if (::UuidCreate(&uuid) == RPC_S_UUID_NO_ADDRESS)
+		return "";
+
+	::RPC_CSTR buffer;
+	if (::UuidToStringA(&uuid, &buffer) != RPC_S_OK)
+		return "";
+
+	std::string value((char *)buffer);
+	::RpcStringFreeA(&buffer);
+
+	return value;
+}
+
+std::wstring winpp::common::methods::wuuid(){
+	uuid_type uuid;
+	if (::UuidCreate(&uuid) == RPC_S_UUID_NO_ADDRESS)
+		return L"";
+
+	::RPC_WSTR buffer;
+	if (::UuidToStringW(&uuid, &buffer) != RPC_S_OK)
+		return L"";
+
+	std::wstring value((wchar_t *)buffer);
+	::RpcStringFreeW(&buffer);
 
 	return value;
 }

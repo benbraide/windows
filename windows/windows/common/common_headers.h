@@ -4,6 +4,7 @@
 #define WINPP_COMMON_HEADERS_H
 
 #define NOMINMAX
+#define RPC_USE_NATIVE_WCHAR
 
 #include <windows.h>
 #include <windowsx.h>
@@ -32,6 +33,8 @@
 
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "wmvcore.lib")
+
+#pragma comment(lib, "Rpcrt4.lib")
 
 #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 

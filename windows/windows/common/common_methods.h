@@ -49,6 +49,8 @@ namespace winpp{
 
 		class methods{
 		public:
+			typedef ::WNDPROC procedure_type;
+
 			typedef application::object application_type;
 			typedef window::object window_type;
 
@@ -67,11 +69,17 @@ namespace winpp{
 
 			typedef ::HWND hwnd_type;
 			typedef ::CREATESTRUCTW create_info_type;
+
 			typedef ::DWORD dword_type;
+			typedef ::UUID uuid_type;
 
 			static application_type *get_app();
 
-			static hwnd_type create_window(const create_info_type &info, window_type &owner, application_type *&app);
+			static hwnd_type create_window(const create_info_type &info, procedure_type *previous_procedure, application_type *&app);
+
+			static std::string uuid();
+
+			static std::wstring wuuid();
 
 			static std::wstring convert_string(const std::string &value);
 

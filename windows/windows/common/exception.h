@@ -51,43 +51,47 @@ namespace winpp{
 			typedef ::DWORD dword_type;
 
 			windows_error()
-				: code_(GetLastError()){
-				if (code_ != ERROR_SUCCESS){
-					void *allocated_buffer = nullptr;
-					auto count = ::FormatMessageW(
-						FORMAT_MESSAGE_ALLOCATE_BUFFER |
-						FORMAT_MESSAGE_FROM_SYSTEM |
-						FORMAT_MESSAGE_IGNORE_INSERTS,
-						nullptr,
-						code_,
-						MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-						reinterpret_cast<wchar_t *>(&allocated_buffer),
-						0u,
-						nullptr
-					);
-
-					if (allocated_buffer != nullptr){
-						if (count > 0u)
-							text_ = std::move(std::wstring(reinterpret_cast<wchar_t *>(allocated_buffer), count));
-
-						::LocalFree(allocated_buffer);
-					}
-				}
-				else
-					text_ = L"Success";
-			}
+				: code_(GetLastError()), text_formatted_(false){}
 
 			dword_type code() const{
 				return code_;
 			}
 
-			const std::wstring &text() const{
+			const std::wstring &text(){
+				if (!text_formatted_){
+					text_formatted_ = true;
+					if (code_ != ERROR_SUCCESS){
+						void *allocated_buffer = nullptr;
+						auto count = ::FormatMessageW(
+							FORMAT_MESSAGE_ALLOCATE_BUFFER |
+							FORMAT_MESSAGE_FROM_SYSTEM |
+							FORMAT_MESSAGE_IGNORE_INSERTS,
+							nullptr,
+							code_,
+							MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+							reinterpret_cast<wchar_t *>(&allocated_buffer),
+							0u,
+							nullptr
+						);
+
+						if (allocated_buffer != nullptr){
+							if (count > 0u)
+								text_ = std::move(std::wstring(reinterpret_cast<wchar_t *>(allocated_buffer), count));
+
+							::LocalFree(allocated_buffer);
+						}
+					}
+					else
+						text_ = L"Success";
+				}
+
 				return text_;
 			}
 
 		private:
 			dword_type code_;
 			std::wstring text_;
+			bool text_formatted_;
 		};
 	}
 }
