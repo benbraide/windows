@@ -63,6 +63,11 @@ unsigned __int64 winpp::window::object::event_tunnel::bind_(const std::wstring &
 	return base_type::bind_(e, callback);
 }
 
+winpp::window::object::object(procedure_type previous_procedure)
+	: previous_procedure_(previous_procedure){
+
+}
+
 winpp::window::object::~object(){
 	destroy(true);
 }
@@ -250,7 +255,7 @@ void winpp::window::object::create_(const std::wstring &caption, const point_typ
 	WINPP_SET(extended_styles, persistent_styles_.extended);
 
 	create_(create_info_type{
-		nullptr,									//Params
+		static_cast<gui_object_type *>(this),		//Params
 		nullptr,									//Instance
 		nullptr,									//Menu
 		parent_handle,								//Parent
@@ -266,7 +271,10 @@ void winpp::window::object::create_(const std::wstring &caption, const point_typ
 }
 
 void winpp::window::object::create_(const create_info_type &info, app_type *app){
-	if ((value_ = common::methods::create_window(info, is_control(), app_ = app)) == nullptr){
+	if (is_created())
+		throw common::unsupported_exception();
+
+	if ((value_ = common::methods::create_window(info, is_dialog(), is_control(), app_ = app)) == nullptr){
 		if (parent_ != nullptr){
 			parent_->internal_remove_child(*this, true);
 			parent_ = nullptr;

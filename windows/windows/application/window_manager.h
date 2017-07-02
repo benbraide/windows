@@ -59,7 +59,7 @@ namespace winpp{
 
 			object &app();
 
-			hwnd_type create(const create_info_type &info, bool replace_procedure = false);
+			hwnd_type create(const create_info_type &info, bool is_dialog, bool replace_procedure = false);
 
 			static uint_type register_message(const std::wstring &name);
 

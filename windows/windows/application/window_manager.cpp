@@ -32,7 +32,7 @@ winpp::application::object &winpp::application::window_manager::app(){
 	return *app_;
 }
 
-winpp::application::window_manager::hwnd_type winpp::application::window_manager::create(const create_info_type &info, bool replace_procedure){
+winpp::application::window_manager::hwnd_type winpp::application::window_manager::create(const create_info_type &info, bool is_dialog, bool replace_procedure){
 	if (object::current_app == nullptr)
 		return nullptr;
 
@@ -43,9 +43,15 @@ winpp::application::window_manager::hwnd_type winpp::application::window_manager
 	if (hook == nullptr)
 		return nullptr;
 
+	const wchar_t *class_name = nullptr;
+	if (info.lpszClass == nullptr)//Use default class
+		class_name = is_dialog ? dialog_class_.name().c_str() : class_.name().c_str();
+	else//Use class
+		class_name = info.lpszClass;
+
 	auto value = ::CreateWindowExW(
 		info.dwExStyle,
-		class_,
+		class_name,
 		info.lpszName,
 		static_cast<dword_type>(info.style),
 		info.x,
@@ -54,7 +60,7 @@ winpp::application::window_manager::hwnd_type winpp::application::window_manager
 		info.cy,
 		info.hwndParent,
 		info.hMenu,
-		class_.instance(),
+		(info.hInstance == nullptr) ? class_.instance() : info.hInstance,
 		info.lpCreateParams
 	);
 

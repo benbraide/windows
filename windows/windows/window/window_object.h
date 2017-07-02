@@ -144,6 +144,8 @@ namespace winpp{
 			virtual dword_type black_listed_styles(bool is_extended) const;
 
 		protected:
+			explicit object(procedure_type previous_procedure = ::DefWindowProcW);
+
 			virtual events_type get_events_() override;
 
 			virtual bool cache_group_(unsigned int value) const override;

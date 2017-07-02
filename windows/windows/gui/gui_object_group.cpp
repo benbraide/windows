@@ -96,6 +96,9 @@ winpp::gui::object::rect_type winpp::gui::object_group::content_rect() const{
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::object_group::internal_insert_child(gui_object_type &child, index_and_size_type before){
+	if (child.has_parent())
+		throw common::unsupported_exception();
+
 	guard_type guard(lock_);
 	if (!pre_insert_(child, before))
 		return invalid_index;
