@@ -24,6 +24,7 @@ namespace winpp{
 			typedef ::HHOOK hook_type;
 			typedef ::FLASHWINFO flash_info_type;
 
+			typedef ::CWPRETSTRUCT call_return_info_type;
 			typedef ::CBT_CREATEWND create_hook_info_type;
 			typedef ::CREATESTRUCTW create_info_type;
 
@@ -61,6 +62,8 @@ namespace winpp{
 
 			hwnd_type create(const create_info_type &info, bool is_dialog, bool replace_procedure = false);
 
+			bool has_top_level() const;
+
 			static uint_type register_message(const std::wstring &name);
 
 			static lresult_type CALLBACK entry(hwnd_value_type window_handle, uint_type msg, wparam_type wparam, lparam_type lparam);
@@ -68,11 +71,18 @@ namespace winpp{
 		private:
 			static lresult_type CALLBACK hook_(int code, wparam_type wparam, lparam_type lparam);
 
+			static lresult_type CALLBACK call_return_hook_(int code, wparam_type wparam, lparam_type lparam);
+
 			object *app_;
 			hwnd_value_list_type hwnd_value_list_;
 
 			void *recent_params_;
 			bool replace_procedure_;
+
+			hwnd_value_list_type list_;
+			hwnd_value_list_type top_levels_;
+
+			hook_type call_return_hook_value_;
 
 			static wnd_class_type class_;
 			static wnd_class_type dialog_class_;

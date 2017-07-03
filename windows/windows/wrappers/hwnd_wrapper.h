@@ -150,6 +150,11 @@ namespace winpp{
 				return (::SetWindowPos(base_type::value_, after, offset.x(), offset.y(), size.width(), size.height(), static_cast<uint_type>(type)) != FALSE);
 			}
 
+			bool refresh(){
+				return position(point_type{}, size_type{}, position_type::no_activate | position_type::no_move | position_type::no_size | position_type::no_z_order |
+					position_type::no_owner_z_order | position_type::no_send_changing | position_type::draw_frame, nullptr);
+			}
+
 			bool place(const placement_info_type &info){
 				return (::SetWindowPlacement(base_type::value_, &info) != FALSE);
 			}

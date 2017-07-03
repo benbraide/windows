@@ -1,9 +1,12 @@
 #include "window_manager.h"
 
 winpp::application::window_manager::window_manager()
-	: app_(nullptr), recent_params_(nullptr), replace_procedure_(false){}
+	: app_(nullptr), recent_params_(nullptr), replace_procedure_(false), call_return_hook_value_(nullptr){}
 
-winpp::application::window_manager::~window_manager() = default;
+winpp::application::window_manager::~window_manager(){
+	if (call_return_hook_value_ != nullptr)
+		::UnhookWindowsHookEx(call_return_hook_value_);//Uninstall hook
+}
 
 void winpp::application::window_manager::initialize(object &app){
 	if (app_ != nullptr)
@@ -25,6 +28,8 @@ void winpp::application::window_manager::initialize(object &app){
 		class_.cursor(dialog_class_.cursor());
 		class_.instance(dialog_class_.instance());
 		class_.create();
+
+		call_return_hook_value_ = ::SetWindowsHookExW(WH_CBT, call_return_hook_, nullptr, app_->id());//Install hook to intercept procedure call return
 	}
 }
 
@@ -68,6 +73,10 @@ winpp::application::window_manager::hwnd_type winpp::application::window_manager
 	return value;
 }
 
+bool winpp::application::window_manager::has_top_level() const{
+	return !top_levels_.empty();
+}
+
 winpp::application::window_manager::uint_type winpp::application::window_manager::register_message(const std::wstring &name){
 	return ::RegisterWindowMessageW(name.c_str());
 }
@@ -88,6 +97,29 @@ winpp::application::window_manager::lresult_type CALLBACK winpp::application::wi
 
 			manager.recent_params_ = nullptr;//Reset
 			manager.replace_procedure_ = false;
+		}
+	}
+
+	return ::CallNextHookEx(nullptr, code, wparam, lparam);
+}
+
+winpp::application::window_manager::lresult_type CALLBACK winpp::application::window_manager::call_return_hook_(int code, wparam_type wparam, lparam_type lparam){
+	if (code == HC_ACTION){
+		auto &manager = object::current_app->window_manager();
+		auto info = reinterpret_cast<call_return_info_type *>(lparam);
+
+		switch (info->message){
+		case WM_CREATE:
+			if (info->lResult != static_cast<lresult_type>(-1)){//Successful creation
+
+			}
+			break;
+		case WM_NCDESTROY:
+			break;
+		case WM_CLOSE:
+			break;
+		default:
+			break;
 		}
 	}
 

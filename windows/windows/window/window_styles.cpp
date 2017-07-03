@@ -9,60 +9,25 @@ winpp::window::styles::styles(object &object, info_type &info)
 winpp::window::styles::~styles() = default;
 
 winpp::window::styles &winpp::window::styles::begin(){
-	if (update_info_.active)
-		return *this;
-
-	auto app = object_->app();
-	if (app != nullptr){
-		auto thread = thread_id_type::current();
-		app->execute_task([this, thread]{
-			update_info_.active = true;
-			update_info_.locking_thread = thread;
-		});
-	}
-	else//No synchronization
+	lock_.lock();
+	if (!update_info_.active){
 		update_info_.active = true;
-
+		update_info_.locking_thread = thread_id_type::current();
+	}
+	
 	return *this;
 }
 
 winpp::window::styles &winpp::window::styles::end(){
-	if (!update_info_.active)
-		return *this;
-
-	auto app = object_->app();
-	if (app != nullptr){
-		auto thread = thread_id_type::current();
-		app->execute_task([this, thread]{
-			if (update_info_.locking_thread == thread){
-				write_changes_();
-				update_info_ = update_info{ false, thread_id_type(), info_type{}, info_type{} };//Reset
-			}
-		});
-	}
-	else{//No synchronization
-		write_changes_();
-		update_info_ = update_info{ false, thread_id_type(), info_type{}, info_type{} };//Reset
-	}
-
+	write_changes_();
+	update_info_ = update_info{ false, thread_id_type(), info_type{}, info_type{} };//Reset
+	lock_.unlock();
 	return *this;
 }
 
 winpp::window::styles &winpp::window::styles::cancel(){
-	if (!update_info_.active)
-		return *this;
-
-	auto app = object_->app();
-	if (app != nullptr){
-		auto thread = thread_id_type::current();
-		app->execute_task([this, thread]{
-			if (update_info_.locking_thread == thread)
-				update_info_ = update_info{ false, thread_id_type(), info_type{}, info_type{} };//Reset
-		});
-	}
-	else//No synchronization
-		update_info_ = update_info{ false, thread_id_type(), info_type{}, info_type{} };//Reset
-
+	update_info_ = update_info{ false, thread_id_type(), info_type{}, info_type{} };//Reset
+	lock_.unlock();
 	return *this;
 }
 
@@ -434,15 +399,19 @@ void winpp::window::styles::write_(dword_type value, bool extended, bool add){
 void winpp::window::styles::final_write_(dword_type value, bool extended){
 	auto object_value = object_value_();
 	if (extended){
-		if (object_value == nullptr)
-			info_->extended = object_->filter_styles(value, true);
-		else//Valid handle
+		if (object_value != nullptr){
 			object_value.data(value, data_index_type::extended_styles);
+			object_value.refresh();
+		}
+		else//Invalid handle
+			info_->extended = object_->filter_styles(value, true);
 	}
-	else if (object_value == nullptr)//Basic
-		info_->basic = object_->filter_styles(value, false);
-	else//Valid handle
+	else if (object_value != nullptr){//Basic
 		object_value.data(value, data_index_type::styles);
+		object_value.refresh();
+	}
+	else//Invalid handle
+		info_->basic = object_->filter_styles(value, false);
 }
 
 winpp::window::styles &winpp::window::styles::update_(dword_type value, bool enabled, bool extended){
@@ -502,4 +471,27 @@ bool winpp::window::styles::has_(dword_type value, bool extended) const{
 	if (update_info_.active)//Merge changes
 		return WINPP_IS(merge_changes_(extended), value);
 	return WINPP_IS(retrieve_(extended), value);
+}
+
+winpp::window::styles_batch::styles_batch(styles &target)
+	: target_(&target){
+	target_->begin();
+}
+
+winpp::window::styles_batch::~styles_batch(){
+	end();
+}
+
+void winpp::window::styles_batch::end(){
+	if (target_ != nullptr){
+		target_->end();
+		target_ = nullptr;
+	}
+}
+
+void winpp::window::styles_batch::cancel(){
+	if (target_ != nullptr){
+		target_->cancel();
+		target_ = nullptr;
+	}
 }

@@ -3,6 +3,8 @@
 #ifndef WINPP_WINDOW_STYLES_H
 #define WINPP_WINDOW_STYLES_H
 
+#include <mutex>
+
 #include "../wrappers/hwnd_wrapper.h"
 #include "../threading/thread_id.h"
 
@@ -18,6 +20,9 @@ namespace winpp{
 			typedef wrappers::hwnd::data_index_type data_index_type;
 
 			typedef threading::id thread_id_type;
+
+			typedef std::recursive_mutex lock_type;
+			typedef std::lock_guard<lock_type> guard_type;
 
 			struct info_type{
 				dword_type basic;
@@ -227,6 +232,25 @@ namespace winpp{
 			object *object_;
 			info_type *info_;
 			update_info update_info_;
+			lock_type lock_;
+		};
+
+		class styles_batch{
+		public:
+			explicit styles_batch(styles &target);
+
+			~styles_batch();
+
+			styles_batch(const styles_batch &) = delete;
+			
+			styles_batch &operator =(const styles_batch &) = delete;
+
+			void end();
+
+			void cancel();
+
+		private:
+			styles *target_;
 		};
 	}
 }
