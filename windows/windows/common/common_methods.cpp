@@ -1,5 +1,5 @@
 #include "common_methods.h"
-#include "../application/window_manager.h"
+#include "../application/object_manager.h"
 
 winpp::common::methods::application_type *winpp::common::methods::get_app(){
 	return (application_type::current_app == nullptr) ? application_type::main_app : application_type::current_app;
@@ -10,10 +10,10 @@ winpp::common::methods::hwnd_type winpp::common::methods::create_window(const cr
 		throw common::no_app_exception();
 
 	if (app == application_type::current_app)
-		return app->window_manager().create(info, is_dialog, replace_procedure);
+		return app->object_manager().create(info, is_dialog, replace_procedure);
 
 	return app->execute_task<hwnd_type>([app, &info, is_dialog, replace_procedure]{
-		return app->window_manager().create(info, is_dialog, replace_procedure);
+		return app->object_manager().create(info, is_dialog, replace_procedure);
 	});
 }
 

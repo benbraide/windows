@@ -389,6 +389,10 @@ bool winpp::gui::generic_object::is_created() const{
 	throw common::unsupported_exception();
 }
 
+bool winpp::gui::generic_object::is_top_level() const{
+	return false;
+}
+
 void winpp::gui::generic_object::created_(){}
 
 void winpp::gui::generic_object::destroyed_(){

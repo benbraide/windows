@@ -206,6 +206,8 @@ namespace winpp{
 
 			virtual bool is_created() const = 0;
 
+			virtual bool is_top_level() const = 0;
+
 			static const unsigned int default_group			= 0x0000u;
 			static const unsigned int menu_group			= 0x0001u;
 			static const unsigned int menu_item_group		= 0x0002u;

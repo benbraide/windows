@@ -175,6 +175,10 @@ bool winpp::window::object::is_created() const{
 	return (value_ != nullptr);
 }
 
+bool winpp::window::object::is_top_level() const{
+	return !has_parent();
+}
+
 winpp::window::object::styles_type &winpp::window::object::styles(){
 	return *get_styles_();
 }

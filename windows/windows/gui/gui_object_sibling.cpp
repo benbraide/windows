@@ -308,6 +308,10 @@ bool winpp::gui::object_sibling::is_created() const{
 	return object_->is_created();
 }
 
+bool winpp::gui::object_sibling::is_top_level() const{
+	return object_->is_top_level();
+}
+
 bool winpp::gui::object_sibling::is_previous() const{
 	return (type_ == sibling_type::previous);
 }

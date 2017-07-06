@@ -127,6 +127,8 @@ namespace winpp{
 
 			virtual bool is_created() const override;
 
+			virtual bool is_top_level() const override;
+
 			virtual styles_type &styles();
 
 			virtual procedure_type previous_procedure() const;

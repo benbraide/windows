@@ -14,12 +14,12 @@
 
 namespace winpp{
 	namespace application{
-		class window_manager;
+		class object_manager;
 
 		class object : public threading::message_loop{
 		public:
-			typedef window_manager window_manager_type;
-			typedef std::shared_ptr<window_manager_type> window_manager_ptr_type;
+			typedef object_manager object_manager_type;
+			typedef std::shared_ptr<object_manager_type> object_manager_ptr_type;
 
 			typedef threading::message_loop base_type;
 			typedef threading::id::value_type dword_type;
@@ -42,7 +42,7 @@ namespace winpp{
 
 			virtual void exit();
 
-			virtual window_manager_type &window_manager();
+			virtual object_manager_type &object_manager();
 
 			virtual bool is_exiting() const;
 
@@ -63,7 +63,7 @@ namespace winpp{
 			virtual bool is_dialog_message_();
 
 			state_type states_;
-			window_manager_ptr_type window_manager_;
+			object_manager_ptr_type object_manager_;
 
 			static dword_type process_id_;
 			static uint_type message_id_;

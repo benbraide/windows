@@ -1,8 +1,8 @@
 #include "application_object.h"
-#include "window_manager.h"
+#include "object_manager.h"
 
 winpp::application::object::object()
-	: states_(state_type::nil){
+	: states_(state_type::nil), object_manager_(std::make_shared<object_manager_type>(*this)){
 	guard_type guard(lock_);
 	if (current_app != nullptr)
 		throw common::multiple_apps_exception();
@@ -32,8 +32,8 @@ void winpp::application::object::exit(){
 	WINPP_SET(states_, state_type::exiting);
 }
 
-winpp::application::object::window_manager_type &winpp::application::object::window_manager(){
-	return *window_manager_;
+winpp::application::object::object_manager_type &winpp::application::object::object_manager(){
+	return *object_manager_;
 }
 
 bool winpp::application::object::is_exiting() const{

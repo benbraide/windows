@@ -188,6 +188,8 @@ namespace winpp{
 
 			virtual bool is_created() const override;
 
+			virtual bool is_top_level() const override;
+
 		protected:
 			virtual void created_();
 
