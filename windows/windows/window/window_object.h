@@ -41,7 +41,6 @@ namespace winpp{
 			typedef structures::enumerations::position_type position_type;
 			typedef structures::enumerations::window_placement_type window_placement_type;
 
-			typedef wnd_class_type::procedure_type procedure_type;
 			typedef wnd_class_type::instance_type instance_type;
 
 			typedef hwnd_type::create_info_type create_info_type;
@@ -119,7 +118,7 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const override;
 
-			virtual object &destroy(bool force = false) override;
+			virtual object &destroy(force_type force = force_type::dont_force) override;
 
 			virtual event_tunnel &events() override;
 
@@ -129,15 +128,11 @@ namespace winpp{
 
 			virtual bool is_top_level() const override;
 
+			virtual bool is_window() const override;
+
+			virtual procedure_type procedure() const override;
+
 			virtual styles_type &styles();
-
-			virtual procedure_type previous_procedure() const;
-
-			virtual bool is_dialog() const;
-
-			virtual bool is_modal() const;
-
-			virtual bool is_control() const;
 
 			virtual dword_type filter_styles(dword_type value, bool is_extended) const;
 
@@ -146,7 +141,7 @@ namespace winpp{
 			virtual dword_type black_listed_styles(bool is_extended) const;
 
 		protected:
-			explicit object(procedure_type previous_procedure = ::DefWindowProcW);
+			explicit object(procedure_type procedure = ::DefWindowProcW);
 
 			virtual events_type get_events_() override;
 
@@ -168,7 +163,7 @@ namespace winpp{
 			virtual void create_(const create_info_type &info, app_type *app);
 
 			hwnd_type value_;
-			procedure_type previous_procedure_;
+			procedure_type procedure_;
 			styles_info_type persistent_styles_;
 			styles_ptr_type styles_;
 		};

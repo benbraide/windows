@@ -81,7 +81,7 @@ winpp::gui::object::index_and_size_type winpp::gui::object_sibling::internal_ins
 	return object_->internal_insert_child(child, before);
 }
 
-winpp::gui::object & winpp::gui::object_sibling::internal_remove_child(gui_object_type &child, bool force){
+winpp::gui::object & winpp::gui::object_sibling::internal_remove_child(gui_object_type &child, force_type force){
 	object_->internal_remove_child(child, force);
 	return *this;
 }
@@ -195,7 +195,7 @@ winpp::gui::object::point_type winpp::gui::object_sibling::convert_from_screen(c
 	return object_->convert_from_screen(value);
 }
 
-winpp::gui::object &winpp::gui::object_sibling::destroy(bool force){
+winpp::gui::object &winpp::gui::object_sibling::destroy(force_type force){
 	object_->destroy(force);
 	return *this;
 }
@@ -310,6 +310,38 @@ bool winpp::gui::object_sibling::is_created() const{
 
 bool winpp::gui::object_sibling::is_top_level() const{
 	return object_->is_top_level();
+}
+
+bool winpp::gui::object_sibling::is_menu() const{
+	return object_->is_menu();
+}
+
+bool winpp::gui::object_sibling::is_menu_item() const{
+	return object_->is_menu_item();
+}
+
+bool winpp::gui::object_sibling::is_non_window() const{
+	return object_->is_non_window();
+}
+
+bool winpp::gui::object_sibling::is_window() const{
+	return object_->is_window();
+}
+
+bool winpp::gui::object_sibling::is_dialog() const{
+	return object_->is_dialog();
+}
+
+bool winpp::gui::object_sibling::is_modal() const{
+	return object_->is_modal();
+}
+
+bool winpp::gui::object_sibling::is_control() const{
+	return object_->is_control();
+}
+
+winpp::gui::object::procedure_type winpp::gui::object_sibling::procedure() const{
+	return object_->procedure();
 }
 
 bool winpp::gui::object_sibling::is_previous() const{

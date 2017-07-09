@@ -2,6 +2,7 @@
 #include "gui_object_sibling.h"
 
 #include "../common/common_methods.h"
+#include "../application/object_manager.h"
 
 winpp::gui::generic_object::event_tunnel::event_tunnel()
 	: create(id_()), destroy(id_()), move(id_()), size(id_()){}
@@ -158,7 +159,7 @@ winpp::gui::object::index_and_size_type winpp::gui::generic_object::internal_ins
 	throw common::unsupported_exception();
 }
 
-winpp::gui::object &winpp::gui::generic_object::internal_remove_child(gui_object_type &child, bool force){
+winpp::gui::object &winpp::gui::generic_object::internal_remove_child(gui_object_type &child, force_type force){
 	throw common::unsupported_exception();
 }
 
@@ -269,7 +270,7 @@ winpp::gui::object::point_type winpp::gui::generic_object::convert_from_screen(c
 	return value;
 }
 
-winpp::gui::object &winpp::gui::generic_object::destroy(bool force){
+winpp::gui::object &winpp::gui::generic_object::destroy(force_type force){
 	throw common::unsupported_exception();
 }
 
@@ -393,9 +394,44 @@ bool winpp::gui::generic_object::is_top_level() const{
 	return false;
 }
 
-void winpp::gui::generic_object::created_(){}
+bool winpp::gui::generic_object::is_menu() const{
+	return false;
+}
+
+bool winpp::gui::generic_object::is_menu_item() const{
+	return false;
+}
+
+bool winpp::gui::generic_object::is_non_window() const{
+	return false;
+}
+
+bool winpp::gui::generic_object::is_window() const{
+	return false;
+}
+
+bool winpp::gui::generic_object::is_dialog() const{
+	return false;
+}
+
+bool winpp::gui::generic_object::is_modal() const{
+	return false;
+}
+
+bool winpp::gui::generic_object::is_control() const{
+	return false;
+}
+
+winpp::gui::object::procedure_type winpp::gui::generic_object::procedure() const{
+	throw common::unsupported_exception();
+}
+
+void winpp::gui::generic_object::created_(){
+	app_->object_manager().update(application::object_manager::update_object_created, this);
+}
 
 void winpp::gui::generic_object::destroyed_(){
+	app_->object_manager().update(application::object_manager::update_object_destroyed, this);
 	if (attributes_ != nullptr)
 		attributes_->stop_monitoring();
 }

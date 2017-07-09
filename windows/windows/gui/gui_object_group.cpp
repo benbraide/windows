@@ -4,7 +4,7 @@ winpp::gui::object_group::object_attributes::object_attributes(object &object)
 	: base_type(object){}
 
 winpp::gui::object_group::object_attributes::~object_attributes(){
-	if (/*#TODO: Check if application is torn down*/true)
+	if (!object_->app()->is_exiting())
 		stop_monitoring();
 }
 
@@ -107,12 +107,12 @@ winpp::gui::object::index_and_size_type winpp::gui::object_group::internal_inser
 	return post_insert_(child, before);
 }
 
-winpp::gui::object &winpp::gui::object_group::internal_remove_child(gui_object_type &child, bool force){
+winpp::gui::object &winpp::gui::object_group::internal_remove_child(gui_object_type &child, force_type force){
 	if (child.is_parent(*this))
 		throw common::invalid_object_exception();
 
 	guard_type guard(lock_);
-	if (!pre_remove_(child) && !force)
+	if (!pre_remove_(child) && force == force_type::dont_force)
 		return *this;
 
 	remove_(child);

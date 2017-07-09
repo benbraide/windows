@@ -48,6 +48,13 @@ namespace winpp{
 			typedef std::function<bool(gui_object_type &)> object_traverser_type;
 			typedef std::function<bool(gui_sibling_type &)> sibling_traverser_type;
 
+			typedef ::WNDPROC procedure_type;
+
+			enum class force_type{
+				dont_force,
+				force,
+			};
+
 			class event_tunnel{
 			public:
 				typedef structures::enumerations::event_type event_type;
@@ -98,7 +105,7 @@ namespace winpp{
 
 			virtual index_and_size_type internal_insert_child(gui_object_type &child, index_and_size_type before = invalid_index) = 0;
 
-			virtual object &internal_remove_child(gui_object_type &child, bool force = false) = 0;
+			virtual object &internal_remove_child(gui_object_type &child, force_type force = force_type::dont_force) = 0;
 
 			virtual object &outer_rect(const rect_type &value) = 0;
 
@@ -152,7 +159,7 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const = 0;
 
-			virtual object &destroy(bool force = false) = 0;
+			virtual object &destroy(force_type force = force_type::dont_force) = 0;
 
 			virtual gui_attributes_type &attributes() = 0;
 
@@ -207,6 +214,48 @@ namespace winpp{
 			virtual bool is_created() const = 0;
 
 			virtual bool is_top_level() const = 0;
+
+			virtual bool is_menu() const = 0;
+
+			virtual bool is_menu_item() const = 0;
+
+			virtual bool is_non_window() const = 0;
+
+			virtual bool is_window() const = 0;
+
+			virtual bool is_dialog() const = 0;
+
+			virtual bool is_modal() const = 0;
+
+			virtual bool is_control() const = 0;
+
+			virtual procedure_type procedure() const = 0;
+
+			template <typename target_type>
+			target_type &cast(){
+				auto value = try_cast<target_type>();
+				if (value == nullptr)
+					throw common::cast_exception();
+				return *value;
+			}
+
+			template <typename target_type>
+			const target_type &cast() const{
+				auto value = try_cast<target_type>();
+				if (value == nullptr)
+					throw common::cast_exception();
+				return *value;
+			}
+
+			template <typename target_type>
+			target_type *try_cast(){
+				return dynamic_cast<target_type *>(non_sibling());
+			}
+
+			template <typename target_type>
+			const target_type *try_cast() const{
+				return dynamic_cast<const target_type *>(non_sibling());
+			}
 
 			static const unsigned int default_group			= 0x0000u;
 			static const unsigned int menu_group			= 0x0001u;

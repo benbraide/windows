@@ -10,6 +10,12 @@
 
 namespace winpp{
 	namespace common{
+		class cast_exception : public std::exception{
+		public:
+			cast_exception()
+				: exception("Failed to cast object to target type"){}
+		};
+
 		class no_app_exception : public std::exception{
 		public:
 			no_app_exception()

@@ -49,7 +49,7 @@ namespace winpp{
 
 			virtual index_and_size_type internal_insert_child(gui_object_type &child, index_and_size_type before = invalid_index) override;
 
-			virtual object &internal_remove_child(gui_object_type &child, bool force = false) override;
+			virtual object &internal_remove_child(gui_object_type &child, force_type force = force_type::dont_force) override;
 
 			virtual object &outer_rect(const rect_type &value) override;
 
@@ -103,7 +103,7 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const override;
 
-			virtual object &destroy(bool force = false) override;
+			virtual object &destroy(force_type force = force_type::dont_force) override;
 
 			virtual gui_attributes_type &attributes() override;
 
@@ -158,6 +158,22 @@ namespace winpp{
 			virtual bool is_created() const override;
 
 			virtual bool is_top_level() const override;
+
+			virtual bool is_menu() const override;
+
+			virtual bool is_menu_item() const override;
+
+			virtual bool is_non_window() const override;
+
+			virtual bool is_window() const override;
+
+			virtual bool is_dialog() const override;
+
+			virtual bool is_modal() const override;
+
+			virtual bool is_control() const override;
+
+			virtual procedure_type procedure() const override;
 
 			virtual bool is_previous() const;
 

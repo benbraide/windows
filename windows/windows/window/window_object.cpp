@@ -63,13 +63,11 @@ unsigned __int64 winpp::window::object::event_tunnel::bind_(const std::wstring &
 	return base_type::bind_(e, callback);
 }
 
-winpp::window::object::object(procedure_type previous_procedure)
-	: previous_procedure_(previous_procedure){
-
-}
+winpp::window::object::object(procedure_type procedure)
+	: procedure_(procedure){}
 
 winpp::window::object::~object(){
-	destroy(true);
+	destroy(force_type::force);
 }
 
 winpp::window::object::operator hwnd_value_type() const{
@@ -153,7 +151,7 @@ winpp::window::object::rect_type winpp::window::object::convert_from_screen(cons
 	return value_.screen_to_client(value);
 }
 
-winpp::window::object &winpp::window::object::destroy(bool force){
+winpp::window::object &winpp::window::object::destroy(force_type force){
 	if (value_ == nullptr)
 		return *this;
 
@@ -179,24 +177,16 @@ bool winpp::window::object::is_top_level() const{
 	return !has_parent();
 }
 
+bool winpp::window::object::is_window() const{
+	return true;
+}
+
+winpp::window::object::procedure_type winpp::window::object::procedure() const{
+	return procedure_;
+}
+
 winpp::window::object::styles_type &winpp::window::object::styles(){
 	return *get_styles_();
-}
-
-winpp::window::object::procedure_type winpp::window::object::previous_procedure() const{
-	return previous_procedure_;
-}
-
-bool winpp::window::object::is_dialog() const{
-	return false;
-}
-
-bool winpp::window::object::is_modal() const{
-	return false;
-}
-
-bool winpp::window::object::is_control() const{
-	return false;
 }
 
 winpp::window::object::dword_type winpp::window::object::filter_styles(dword_type value, bool is_extended) const{
@@ -280,7 +270,7 @@ void winpp::window::object::create_(const create_info_type &info, app_type *app)
 
 	if ((value_ = common::methods::create_window(info, is_dialog(), is_control(), app_ = app)) == nullptr){
 		if (parent_ != nullptr){
-			parent_->internal_remove_child(*this, true);
+			parent_->internal_remove_child(*this, force_type::force);
 			parent_ = nullptr;
 		}
 
