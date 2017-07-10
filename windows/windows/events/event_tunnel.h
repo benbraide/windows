@@ -23,9 +23,6 @@ namespace winpp{
 
 			typedef std::function<return_type(object &)> base_arg_callback_type;
 
-			explicit tunnel(unsigned __int32 id)
-				: listeners_(id){}
-
 			template <typename callback_type>
 			unsigned __int64 operator ()(callback_type callback){
 				return listeners_.add(callback);
@@ -169,8 +166,8 @@ namespace winpp{
 			typedef gui::object gui_object_type;
 			typedef std::unordered_map<unsigned __int64, handler_info> handle_list_type;
 
-			timer_tunnel(unsigned __int32 id, gui_object_type &object)
-				: base_type(id), object_(&object){}
+			explicit timer_tunnel(gui_object_type &object)
+				: object_(&object){}
 
 			virtual ~timer_tunnel(){
 				if (!application::object::main_is_exiting()){

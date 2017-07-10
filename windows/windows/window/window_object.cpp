@@ -1,13 +1,20 @@
 #include "window_object.h"
 
 winpp::window::object::event_tunnel::event_tunnel(gui_object_type &object)
-	: pre_create(id_()), post_destroy(id_()), close(id_()), maximize(id_()), minimize(id_()), restore(id_()), show(id_()), hide(id_()),
-	erase_background(id_()), paint(id_()), timer(id_(), object), interval(id_(), object){}
+	: timer(object), interval(object){}
 
 winpp::window::object::event_tunnel::~event_tunnel() = default;
 
 unsigned __int64 winpp::window::object::event_tunnel::bind(event_type e, const std::any &callback){
 	switch (e){
+	case event_type::pre_create:
+		return pre_create(callback);
+	case event_type::post_destroy:
+		return post_destroy(callback);
+	case event_type::pre_activate:
+		return pre_activate(callback);
+	case event_type::activate:
+		return activate(callback);
 	case event_type::close:
 		return close(callback);
 	case event_type::maximize:
@@ -31,12 +38,19 @@ unsigned __int64 winpp::window::object::event_tunnel::bind(event_type e, const s
 	return base_type::bind(e, callback);
 }
 
-bool winpp::window::object::event_tunnel::unbind(unsigned __int64 id){
-	return (base_type::unbind(id) || close.unbind(id) || maximize.unbind(id) || minimize.unbind(id) || restore.unbind(id) || show.unbind(id) || hide.unbind(id) ||
-		erase_background.unbind(id) || paint.unbind(id) || timer.unbind(id) || interval.unbind(id));
-}
-
 unsigned __int64 winpp::window::object::event_tunnel::bind_(const std::wstring &e, const std::any &callback){
+	if (e == L"pre_create")
+		return pre_create(callback);
+
+	if (e == L"post_destroy")
+		return post_destroy(callback);
+
+	if (e == L"pre_activate")
+		return pre_activate(callback);
+
+	if (e == L"activate")
+		return activate(callback);
+
 	if (e == L"close")
 		return close(callback);
 

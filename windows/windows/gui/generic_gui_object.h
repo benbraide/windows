@@ -19,8 +19,6 @@ namespace winpp{
 				typedef structures::point point_type;
 				typedef structures::size size_type;
 
-				event_tunnel();
-
 				virtual ~event_tunnel();
 
 				virtual unsigned __int64 bind(std::wstring e, const std::any &callback);
@@ -28,8 +26,6 @@ namespace winpp{
 				virtual unsigned __int64 bind(const std::string &e, const std::any &callback);
 
 				virtual unsigned __int64 bind(event_type e, const std::any &callback);
-
-				virtual bool unbind(unsigned __int64 id);
 
 				events::tunnel<void> create;
 				events::tunnel<void> destroy;

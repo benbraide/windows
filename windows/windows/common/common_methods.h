@@ -228,7 +228,7 @@ namespace winpp{
 			template <typename value_type>
 			static auto high(value_type value){
 				typedef typename type_tree<value_type>::smaller smaller_type;
-				return static_cast<smaller_type>((value & value_type::mask) >> static_cast<value_type>(sizeof value_type));
+				return static_cast<smaller_type>((value & type_tree<value_type>::mask) >> static_cast<value_type>(sizeof value_type));
 			}
 		};
 	}

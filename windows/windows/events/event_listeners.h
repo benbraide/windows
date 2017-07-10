@@ -3,19 +3,38 @@
 #ifndef WINPP_EVENT_LISTENERS_H
 #define WINPP_EVENT_LISTENERS_H
 
-#include <mutex>
 #include <variant>
 #include <functional>
-#include <unordered_map>
 
-#include "../common/common_methods.h"
-#include "../common/common_headers.h"
-#include "../common/random_number.h"
+#include "event_listeners_manager.h"
 
 namespace winpp{
 	namespace events{
+		class listeners_base{
+		public:
+			virtual ~listeners_base() = default;
+
+			virtual bool remove(unsigned __int64 id) = 0;
+
+			static unsigned __int32 extract_group_id(unsigned __int64 id){
+				return common::methods::low(id);
+			}
+
+			static unsigned __int32 extract_item_id(unsigned __int64 id){
+				return common::methods::high(id);
+			}
+
+			static unsigned __int64 combine_ids(unsigned __int32 group_id, unsigned __int32 item_id){
+				return common::methods::combine(group_id, item_id);
+			}
+
+			static bool is_valid_id(unsigned __int64 id){
+				return (extract_item_id(id) != 0u);
+			}
+		};
+
 		template <class return_type, class... value_types>
-		class listeners{
+		class listeners : public listeners_base{
 		public:
 			typedef std::function<return_type(value_types...)> callback_type;
 			typedef std::function<return_type()> no_args_callback_type;
@@ -26,11 +45,16 @@ namespace winpp{
 			typedef std::recursive_mutex lock_type;
 			typedef std::lock_guard<lock_type> guard_type;
 
-			typedef std::unordered_map<unsigned __int64, variant_callback_type> callback_list_type;
+			typedef std::unordered_map<unsigned __int32, variant_callback_type> callback_list_type;
 			typedef common::random_uint32 random_number_type;
 
-			explicit listeners(unsigned __int32 id)
-				: id_(id){}
+			listeners(){
+				id_ = listeners_manager::add(*this);
+			}
+
+			virtual ~listeners(){
+				listeners_manager::remove(id_);
+			}
 
 			unsigned __int64 add(native_callback_type callback){
 				return add_(callback);
@@ -45,12 +69,12 @@ namespace winpp{
 				return add_no_args_(callback);
 			}
 
-			bool remove(unsigned __int64 id){
+			virtual bool remove(unsigned __int64 id) override{
 				if (extract_group_id(id) != id_)
 					return false;
 
 				guard_type guard(lock_);
-				auto item = callback_list_.find(id);
+				auto item = callback_list_.find(extract_item_id(id));
 				if (item == callback_list_.end())
 					return false;
 
@@ -82,33 +106,17 @@ namespace winpp{
 				return lock_;
 			}
 
-			static unsigned __int32 extract_group_id(unsigned __int64 id){
-				return common::methods::low(id);
-			}
-
-			static unsigned __int32 extract_item_id(unsigned __int64 id){
-				return common::methods::high(id);
-			}
-
-			static unsigned __int64 combine_ids(unsigned __int32 group_id, unsigned __int32 item_id){
-				return common::methods::combine(group_id, item_id);
-			}
-
-			static bool is_valid_id(unsigned __int64 id){
-				return (extract_item_id(id) != 0u);
-			}
-
 		protected:
 			template <typename callback_type>
 			unsigned __int64 add_(callback_type callback){
 				guard_type guard(lock_);
 
-				auto id = combine_ids(id_, generator_(1, std::numeric_limits<unsigned __int32>::max()));
+				auto id = generator_(1, std::numeric_limits<unsigned __int32>::max());
 				if (callback_list_.find(id) != callback_list_.end())
 					return 0u;
 
 				callback_list_[id] = callback;
-				return id;
+				return combine_ids(id_, id);
 			}
 
 			template <typename unused_type = return_type>

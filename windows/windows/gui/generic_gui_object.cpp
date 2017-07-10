@@ -4,9 +4,6 @@
 #include "../common/common_methods.h"
 #include "../application/object_manager.h"
 
-winpp::gui::generic_object::event_tunnel::event_tunnel()
-	: create(id_()), destroy(id_()), move(id_()), size(id_()){}
-
 winpp::gui::generic_object::event_tunnel::~event_tunnel() = default;
 
 unsigned __int64 winpp::gui::generic_object::event_tunnel::bind(std::wstring e, const std::any &callback){
@@ -35,10 +32,6 @@ unsigned __int64 winpp::gui::generic_object::event_tunnel::bind(event_type e, co
 	}
 
 	return 0u;
-}
-
-bool winpp::gui::generic_object::event_tunnel::unbind(unsigned __int64 id){
-	return (create.unbind(id) || destroy.unbind(id) || move.unbind(id) || size.unbind(id));
 }
 
 unsigned __int64 winpp::gui::generic_object::event_tunnel::bind_(const std::wstring &e, const std::any &callback){

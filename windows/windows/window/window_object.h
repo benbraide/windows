@@ -66,10 +66,11 @@ namespace winpp{
 
 				virtual unsigned __int64 bind(event_type e, const std::any &callback) override;
 
-				virtual bool unbind(unsigned __int64 id) override;
-
 				events::tunnel<void> pre_create;
 				events::tunnel<void> post_destroy;
+
+				events::tunnel<void> pre_activate;
+				events::tunnel<void> activate;
 
 				events::tunnel<void> close;
 

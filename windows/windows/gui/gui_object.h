@@ -57,16 +57,7 @@ namespace winpp{
 
 			class event_tunnel{
 			public:
-				typedef structures::enumerations::event_type event_type;
-
 				virtual ~event_tunnel() = default;
-
-			protected:
-				unsigned __int32 id_(){
-					return generator_(1, std::numeric_limits<unsigned __int32>::max());
-				}
-
-				common::random_uint32 generator_;
 			};
 
 			virtual ~object() = default;

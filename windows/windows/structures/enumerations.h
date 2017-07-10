@@ -42,8 +42,12 @@ namespace winpp{
 
 			enum class event_type{
 				nil,
+				pre_create,
 				create,
 				destroy,
+				post_destroy,
+				pre_activate,
+				activate,
 				close,
 				move,
 				size,
