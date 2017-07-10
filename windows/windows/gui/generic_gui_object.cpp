@@ -57,10 +57,17 @@ unsigned __int64 winpp::gui::generic_object::event_tunnel::bind_(const std::wstr
 	return 0u;
 }
 
+winpp::gui::generic_object::generic_object()
+	: app_(nullptr), scope_app_(&app_type::get()), parent_(nullptr){}
+
 winpp::gui::generic_object::~generic_object() = default;
 
 winpp::gui::object::app_type *winpp::gui::generic_object::app() const{
 	return app_;
+}
+
+winpp::gui::object::app_type *winpp::gui::generic_object::scope_app() const{
+	return scope_app_;
 }
 
 void *winpp::gui::generic_object::handle() const{

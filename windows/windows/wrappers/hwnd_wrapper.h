@@ -51,7 +51,7 @@ namespace winpp{
 
 			basic_hwnd &operator =(const basic_hwnd &) = default;
 
-			bool create(const create_info_type &info, basic_hwnd parent){
+			bool create(const create_info_type &info){
 				return ((base_type::value_ = ::CreateWindowExW(
 					info.dwExStyle,
 					info.lpszClass,
@@ -61,28 +61,10 @@ namespace winpp{
 					info.y,
 					info.cx,
 					info.cy,
-					parent,
+					info.hwndParent,
 					info.hMenu,
 					info.hInstance,
 					info.lpCreateParams
-				)) != nullptr);
-			}
-
-			template <typename params_type>
-			bool create(const create_info_type &info, params_type params, value_type parent){
-				return ((base_type::value_ = ::CreateWindowExW(
-					info.dwExStyle,
-					info.lpszClass,
-					info.lpszName,
-					info.style,
-					info.x,
-					info.y,
-					info.cx,
-					info.cy,
-					parent,
-					info.hMenu,
-					info.hInstance,
-					(vptr_type)params
 				)) != nullptr);
 			}
 

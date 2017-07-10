@@ -268,7 +268,7 @@ void winpp::window::object::create_(const create_info_type &info, app_type *app)
 	if (is_created())
 		throw common::unsupported_exception();
 
-	if ((value_ = common::methods::create_window(info, is_dialog(), is_control(), app_ = app)) == nullptr){
+	if ((value_ = common::methods::create_window(info, app_ = ((app == nullptr) ? scope_app_ : app))) == nullptr){
 		if (parent_ != nullptr){
 			parent_->internal_remove_child(*this, force_type::force);
 			parent_ = nullptr;

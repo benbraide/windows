@@ -73,6 +73,8 @@ namespace winpp{
 
 			virtual app_type *app() const = 0;
 
+			virtual app_type *scope_app() const = 0;
+
 			virtual void *handle() const = 0;
 
 			virtual object *non_sibling() = 0;
@@ -232,28 +234,28 @@ namespace winpp{
 			virtual procedure_type procedure() const = 0;
 
 			template <typename target_type>
-			target_type &cast(){
-				auto value = try_cast<target_type>();
+			target_type &query(){
+				auto value = try_query<target_type>();
 				if (value == nullptr)
 					throw common::cast_exception();
 				return *value;
 			}
 
 			template <typename target_type>
-			const target_type &cast() const{
-				auto value = try_cast<target_type>();
+			const target_type &query() const{
+				auto value = try_query<target_type>();
 				if (value == nullptr)
 					throw common::cast_exception();
 				return *value;
 			}
 
 			template <typename target_type>
-			target_type *try_cast(){
+			target_type *try_query(){
 				return dynamic_cast<target_type *>(non_sibling());
 			}
 
 			template <typename target_type>
-			const target_type *try_cast() const{
+			const target_type *try_query() const{
 				return dynamic_cast<const target_type *>(non_sibling());
 			}
 

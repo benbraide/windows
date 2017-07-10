@@ -4,6 +4,7 @@
 #define WINPP_APPLICATION_OBJECT_H
 
 #include <mutex>
+#include <memory>
 #include <unordered_map>
 
 #include "../common/exception.h"
@@ -24,7 +25,8 @@ namespace winpp{
 			typedef threading::message_loop base_type;
 			typedef threading::id::value_type dword_type;
 
-			typedef std::unordered_map<dword_type, object *> list_type;
+			typedef std::shared_ptr<object> object_ptr_type;
+			typedef std::unordered_map<dword_type, object_ptr_type> list_type;
 
 			typedef std::mutex lock_type;
 			typedef std::lock_guard<lock_type> guard_type;
@@ -48,8 +50,15 @@ namespace winpp{
 
 			static bool main_is_exiting();
 
+			static object &get();
+
+			static object &get(dword_type id);
+
 			static object *find(dword_type id);
 
+			static int run_app();
+
+			static dword_type main_thread;
 			static object *main_app;
 			static thread_local object *current_app;
 
@@ -64,9 +73,6 @@ namespace winpp{
 
 			state_type states_;
 			object_manager_ptr_type object_manager_;
-
-			static dword_type process_id_;
-			static uint_type message_id_;
 
 			static list_type list_;
 			static lock_type lock_;

@@ -79,7 +79,7 @@ namespace winpp{
 
 			object &app();
 
-			hwnd_type create(const create_info_type &info, bool is_dialog, bool replace_procedure = false);
+			hwnd_type create(const create_info_type &info);
 
 			bool has_top_level() const;
 
@@ -127,6 +127,7 @@ namespace winpp{
 			static lresult_type CALLBACK hook_(int code, wparam_type wparam, lparam_type lparam);
 
 			object *app_;
+			hwnd_value_type message_handle_;
 
 			void *recent_params_;
 			bool replace_procedure_;

@@ -2,7 +2,22 @@
 #include "../window/window_object.h"
 
 winpp::application::object_manager::object_manager(object &app)
-	: app_(&app), recent_params_(nullptr), replace_procedure_(false){}
+	: app_(&app), recent_params_(nullptr), replace_procedure_(false){
+	message_handle_ = ::CreateWindowExW(
+		0,
+		class_.name().c_str(),
+		L"WINPP_MSG_WND_" WINPP_WUUID,
+		0,
+		0,
+		0,
+		0,
+		0,
+		HWND_MESSAGE,
+		nullptr,
+		nullptr,
+		nullptr
+	);
+}
 
 winpp::application::object_manager::~object_manager() = default;
 
@@ -10,22 +25,24 @@ winpp::application::object &winpp::application::object_manager::app(){
 	return *app_;
 }
 
-winpp::application::object_manager::hwnd_type winpp::application::object_manager::create(const create_info_type &info, bool is_dialog, bool replace_procedure){
+winpp::application::object_manager::hwnd_type winpp::application::object_manager::create(const create_info_type &info){
 	if (object::current_app == nullptr)
 		return nullptr;
 
 	recent_params_ = info.lpCreateParams;
-	replace_procedure_ = replace_procedure;
-
 	auto hook = ::SetWindowsHookExW(WH_CBT, hook_, nullptr, app_->id());//Install hook to intercept window creation
 	if (hook == nullptr)
 		return nullptr;
 
 	const wchar_t *class_name = nullptr;
-	if (info.lpszClass == nullptr)//Use default class
-		class_name = is_dialog ? dialog_class_.name().c_str() : class_.name().c_str();
-	else//Use class
+	if (info.lpszClass == nullptr){//Use default class
+		class_name = static_cast<gui_object_type *>(recent_params_)->is_dialog() ? dialog_class_.name().c_str() : class_.name().c_str();
+		replace_procedure_ = false;
+	}
+	else{//Use class
 		class_name = info.lpszClass;
+		replace_procedure_ = true;
+	}
 
 	auto value = ::CreateWindowExW(
 		info.dwExStyle,
@@ -129,7 +146,7 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 		if (manager.recent_params_ != nullptr && reinterpret_cast<create_hook_info_type *>(lparam)->lpcs->lpCreateParams == manager.recent_params_){//Ensure target is valid
 			hwnd_type target_hwnd(reinterpret_cast<hwnd_value_type>(wparam));
 
-			target_hwnd.data(reinterpret_cast<gui_object_type *>(manager.recent_params_));//Store window object in handle
+			target_hwnd.data(static_cast<gui_object_type *>(manager.recent_params_));//Store window object in handle
 			if (manager.replace_procedure_)//Replace window procedure
 				target_hwnd.data<procedure_type>(&object_manager::entry, hwnd_type::data_index_type::procedure);
 

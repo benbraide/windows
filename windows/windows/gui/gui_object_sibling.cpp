@@ -10,6 +10,10 @@ winpp::gui::object::app_type *winpp::gui::object_sibling::app() const{
 	return object_->app();
 }
 
+winpp::gui::object::app_type * winpp::gui::object_sibling::scope_app() const{
+	return object_->scope_app();
+}
+
 void *winpp::gui::object_sibling::handle() const{
 	return object_->handle();
 }

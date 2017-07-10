@@ -17,6 +17,8 @@ namespace winpp{
 
 			virtual app_type *app() const override;
 
+			virtual app_type *scope_app() const override;
+
 			virtual void *handle() const override;
 
 			virtual object *non_sibling() override;

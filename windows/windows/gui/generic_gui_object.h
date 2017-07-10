@@ -44,9 +44,13 @@ namespace winpp{
 			typedef std::shared_ptr<gui_attributes_type> attributes_type;
 			typedef std::shared_ptr<event_tunnel> events_type;
 
+			generic_object();
+
 			virtual ~generic_object();
 
 			virtual app_type *app() const override;
+
+			virtual app_type *scope_app() const override;
 
 			virtual void *handle() const override;
 
@@ -233,8 +237,9 @@ namespace winpp{
 				return events_;
 			}
 
-			app_type *app_ = nullptr;
-			gui_object_type *parent_ = nullptr;
+			app_type *app_;
+			app_type *scope_app_;
+			gui_object_type *parent_;
 			attributes_type attributes_;
 			events_type events_;
 		};

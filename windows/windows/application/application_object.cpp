@@ -8,13 +8,8 @@ winpp::application::object::object()
 		throw common::multiple_apps_exception();
 
 	current_app = this;
-	if (main_app == nullptr){
+	if (threading::id::current() == main_thread)
 		main_app = this;
-		process_id_ = ::GetCurrentProcessId();
-		message_id_ = ::RegisterWindowMessageW(L"WINPP_WM_" WINPP_WUUID);
-	}
-
-	list_[threading::id::current()] = this;
 }
 
 winpp::application::object::~object(){
@@ -44,11 +39,31 @@ bool winpp::application::object::main_is_exiting(){
 	return (main_app == nullptr) ? main_app->is_exiting() : false;
 }
 
+winpp::application::object &winpp::application::object::get(){
+	if (current_app != nullptr)
+		return *current_app;
+
+	guard_type guard(lock_);
+	return *(list_[threading::id::current()] = std::make_shared<object>());
+}
+
+winpp::application::object &winpp::application::object::get(dword_type id){
+	guard_type guard(lock_);
+	auto entry = list_.find(id);
+	return (entry == list_.end()) ? *(list_[id] = std::make_shared<object>()) : *entry->second;
+}
+
 winpp::application::object *winpp::application::object::find(dword_type id){
 	guard_type guard(lock_);
 	auto entry = list_.find(id);
-	return (entry == list_.end()) ? nullptr : entry->second;
+	return (entry == list_.end()) ? nullptr : entry->second.get();
 }
+
+int winpp::application::object::run_app(){
+	return get().run();
+}
+
+winpp::application::object::dword_type winpp::application::object::main_thread = threading::id::current();
 
 winpp::application::object *winpp::application::object::main_app = nullptr;
 
@@ -70,10 +85,6 @@ bool winpp::application::object::is_stopped_() const{
 bool winpp::application::object::is_dialog_message_(){
 	return false;
 }
-
-winpp::application::object::dword_type winpp::application::object::process_id_;
-
-winpp::threading::message_loop::uint_type winpp::application::object::message_id_;
 
 winpp::application::object::list_type winpp::application::object::list_;
 
