@@ -9,11 +9,16 @@
 
 #include "../common/exception.h"
 #include "../threading/thread_message_loop.h"
+#include "../wrappers/hwnd_wrapper.h"
 
 #define WINPP_UUID	 "{DABED3E8-D8A5-48FC-B80B-B17C167FA9B0}"
 #define WINPP_WUUID	L"{DABED3E8-D8A5-48FC-B80B-B17C167FA9B0}"
 
 namespace winpp{
+	namespace gui{
+		class object;
+	}
+
 	namespace application{
 		class object_manager;
 
@@ -21,6 +26,9 @@ namespace winpp{
 		public:
 			typedef object_manager object_manager_type;
 			typedef std::shared_ptr<object_manager_type> object_manager_ptr_type;
+
+			typedef wrappers::hwnd hwnd_type;
+			typedef gui::object gui_object_type;
 
 			typedef threading::message_loop base_type;
 			typedef threading::id::value_type dword_type;
@@ -69,7 +77,7 @@ namespace winpp{
 
 			virtual bool is_stopped_() const override;
 
-			virtual bool is_dialog_message_();
+			virtual bool is_pre_processed_();
 
 			state_type states_;
 			object_manager_ptr_type object_manager_;

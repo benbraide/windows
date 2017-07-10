@@ -8,11 +8,15 @@
 #include "../wrappers/hwnd_wrapper.h"
 #include "../wrappers/wnd_class_wrapper.h"
 
+#include "../application/object_manager.h"
+
+#include "../messaging/message_target.h"
+
 #include "window_styles.h"
 
 namespace winpp{
 	namespace window{
-		class object : public gui::object_tree{
+		class object : public gui::object_tree, public messaging::target{
 		public:
 			typedef gui::object_tree tree_base_type;
 
@@ -23,6 +27,7 @@ namespace winpp{
 			typedef ::UINT uint_type;
 			typedef ::WORD word_type;
 			typedef ::DWORD dword_type;
+			typedef ::WNDPROC procedure_type;
 
 			typedef wrappers::wnd_class wnd_class_type;
 			typedef wrappers::hwnd hwnd_type;
@@ -63,7 +68,10 @@ namespace winpp{
 
 				virtual bool unbind(unsigned __int64 id) override;
 
-				events::tunnel<bool> close;
+				events::tunnel<void> pre_create;
+				events::tunnel<void> post_destroy;
+
+				events::tunnel<void> close;
 
 				events::tunnel<void> maximize;
 				events::tunnel<void> minimize;
@@ -132,6 +140,8 @@ namespace winpp{
 
 			virtual procedure_type procedure() const override;
 
+			virtual bool pre_translate(msg_type &msg) override;
+
 			virtual styles_type &styles();
 
 			virtual dword_type filter_styles(dword_type value, bool is_extended) const;
@@ -146,6 +156,10 @@ namespace winpp{
 			virtual events_type get_events_() override;
 
 			virtual bool cache_group_(unsigned int value) const override;
+
+			virtual target *target_parent_() const override;
+
+			virtual void *find_event_() override;
 
 			template <typename generic_styles_type, typename... args_types>
 			styles_ptr_type create_styles_(args_types &&...args){

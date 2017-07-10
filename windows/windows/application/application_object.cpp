@@ -1,6 +1,8 @@
 #include "application_object.h"
 #include "object_manager.h"
 
+#include "../window/window_object.h"
+
 winpp::application::object::object()
 	: states_(state_type::nil), object_manager_(std::make_shared<object_manager_type>(*this)){
 	guard_type guard(lock_);
@@ -74,7 +76,7 @@ bool winpp::application::object::is_filtered_message_() const{
 }
 
 void winpp::application::object::dispatch_(){
-	if (!is_dialog_message_())
+	if (!is_pre_processed_())
 		base_type::dispatch_();
 }
 
@@ -82,8 +84,9 @@ bool winpp::application::object::is_stopped_() const{
 	return false;
 }
 
-bool winpp::application::object::is_dialog_message_(){
-	return false;
+bool winpp::application::object::is_pre_processed_(){
+	auto target = hwnd_type(cache_.owner()).data<gui_object_type *>();
+	return (target == nullptr) ? false : target->query<messaging::target>().pre_translate(cache_);
 }
 
 winpp::application::object::list_type winpp::application::object::list_;

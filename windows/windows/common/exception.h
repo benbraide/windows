@@ -57,7 +57,9 @@ namespace winpp{
 			typedef ::DWORD dword_type;
 
 			windows_error()
-				: code_(GetLastError()), text_formatted_(false){}
+				: code_(::GetLastError()), text_formatted_(false){
+				::SetLastError(ERROR_SUCCESS);
+			}
 
 			dword_type code() const{
 				return code_;

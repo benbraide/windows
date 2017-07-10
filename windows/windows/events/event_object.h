@@ -13,12 +13,11 @@ namespace winpp{
 
 			enum class state_type : unsigned int{
 				nil				= (0 << 0x0000),
-				preventable		= (1 << 0x0000),
-				prevented		= (1 << 0x0001),
-				stopped			= (1 << 0x0002),
+				prevented		= (1 << 0x0000),
+				stopped			= (1 << 0x0001),
 			};
 
-			explicit object(gui_object_type &target, bool preventable = true);
+			explicit object(gui_object_type &target);
 
 			virtual ~object();
 
@@ -43,8 +42,8 @@ namespace winpp{
 			typedef value_type value_type;
 			typedef std::conditional_t<std::is_object_v<value_type>, const value_type &, value_type> const_qualified_type;
 
-			object_with_data(gui_object_type &target, const_qualified_type data, bool preventable = true)
-				: object(target, preventable), data_(data){}
+			object_with_data(gui_object_type &target, const_qualified_type data)
+				: object(target), data_(data){}
 
 			virtual ~object_with_data() = default;
 

@@ -31,7 +31,7 @@ namespace winpp{
 
 				virtual bool unbind(unsigned __int64 id);
 
-				events::tunnel<bool> create;
+				events::tunnel<void> create;
 				events::tunnel<void> destroy;
 
 				events::tunnel<void, events::object_with_data<point_type>> move;

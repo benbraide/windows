@@ -1,7 +1,8 @@
 #include "window_object.h"
 
 winpp::window::object::event_tunnel::event_tunnel(gui_object_type &object)
-	: close(id_()), maximize(id_()), minimize(id_()), restore(id_()), show(id_()), hide(id_()), erase_background(id_()), paint(id_()), timer(id_(), object), interval(id_(), object){}
+	: pre_create(id_()), post_destroy(id_()), close(id_()), maximize(id_()), minimize(id_()), restore(id_()), show(id_()), hide(id_()),
+	erase_background(id_()), paint(id_()), timer(id_(), object), interval(id_(), object){}
 
 winpp::window::object::event_tunnel::~event_tunnel() = default;
 
@@ -185,6 +186,17 @@ winpp::window::object::procedure_type winpp::window::object::procedure() const{
 	return procedure_;
 }
 
+bool winpp::window::object::pre_translate(msg_type &msg){
+	if (!is_dialog())
+		return target::pre_translate(msg);
+
+	auto code = msg.code();
+	if (code < WM_KEYFIRST || code > WM_KEYLAST)
+		return target::pre_translate(msg);
+
+	return (::IsDialogMessageW(value_, msg) == FALSE) ? target::pre_translate(msg) : true;
+}
+
 winpp::window::object::styles_type &winpp::window::object::styles(){
 	return *get_styles_();
 }
@@ -210,6 +222,27 @@ bool winpp::window::object::cache_group_(unsigned int value) const{
 	return (value == non_window_group);
 }
 
+winpp::messaging::target *winpp::window::object::target_parent_() const{
+	return dynamic_cast<target *>(parent_);
+}
+
+void *winpp::window::object::find_event_(){
+	switch (msg_.code()){
+	case WM_NCCREATE:
+		return &events().pre_create;
+	case WM_CREATE:
+		return &events().create;
+	case WM_DESTROY:
+		return &events().destroy;
+	case WM_NCDESTROY:
+		return &events().post_destroy;
+	default:
+		break;
+	}
+
+	return nullptr;
+}
+
 winpp::window::object::styles_ptr_type winpp::window::object::get_styles_(){
 	return create_styles_<styles_type>(*this, persistent_styles_);
 }
@@ -223,15 +256,6 @@ void winpp::window::object::create_(const std::wstring &caption, const point_typ
 	hwnd_value_type parent_handle;
 
 	if (parent_ != nullptr){
-		if (is_dialog()){
-			auto window_parent = dynamic_cast<object *>(parent_);
-			if (window_parent != nullptr && window_parent->is_dialog())
-				WINPP_SET(extended_styles, WS_EX_CONTROLPARENT);
-
-			if (!is_modal())//Set child flag
-				WINPP_SET(styles, WS_CHILD);
-		}
-
 		auto absolute_offset = dynamic_cast<const absolute_point_type *>(&offset);
 		if (absolute_offset == nullptr)//Relative offset
 			computed_offset = offset;
@@ -239,6 +263,7 @@ void winpp::window::object::create_(const std::wstring &caption, const point_typ
 			computed_offset = parent_->convert_from_screen(offset);
 
 		parent_handle = static_cast<hwnd_value_type>(parent_->handle());
+		WINPP_SET(styles, WS_CHILD);//Set child flag
 	}
 	else{//No parent
 		computed_offset = offset;
@@ -268,13 +293,14 @@ void winpp::window::object::create_(const create_info_type &info, app_type *app)
 	if (is_created())
 		throw common::unsupported_exception();
 
-	if ((value_ = common::methods::create_window(info, app_ = ((app == nullptr) ? scope_app_ : app))) == nullptr){
+	if ((value_ = (app_ = ((app == nullptr) ? scope_app_ : app))->object_manager().create(info)) == nullptr){
 		if (parent_ != nullptr){
 			parent_->internal_remove_child(*this, force_type::force);
 			parent_ = nullptr;
 		}
 
-		throw common::windows_error();
+		if (::GetLastError() != ERROR_SUCCESS)
+			throw common::windows_error();
 	}
 	else
 		created_();

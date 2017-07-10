@@ -9,7 +9,9 @@ winpp::messaging::object::object(const msg_type &info, bool is_sent, procedure_t
 		WINPP_SET(states_, state_type::skipped);
 }
 
-winpp::messaging::object::~object() = default;
+winpp::messaging::object::~object(){
+	handle(false);
+}
 
 winpp::messaging::object &winpp::messaging::object::modify(const msg_type &value){
 	info_ = value;

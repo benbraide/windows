@@ -13,6 +13,7 @@ namespace winpp{
 		template <class return_type, class object_type = object, class... value_types>
 		class tunnel{
 		public:
+			typedef object_type object_type;
 			typedef listeners<return_type, object_type &, value_types...> listeners_type;
 
 			typedef typename listeners_type::no_args_callback_type no_args_callback_type;
