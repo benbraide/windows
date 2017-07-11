@@ -7,11 +7,11 @@
 
 #include "../wrappers/hwnd_wrapper.h"
 #include "../wrappers/msg_wrapper.h"
-#include "../wrappers/wnd_class_wrapper.h"
 
 #include "../gui/gui_object.h"
+#include "../messaging/message_map.h"
 
-#include "application_object.h"
+#include "application_classes.h"
 
 #define WINPP_WM_MARSHALLED_MSG (WM_APP + 1)
 
@@ -58,6 +58,7 @@ namespace winpp{
 
 			typedef gui::object gui_object_type;
 			typedef window::object window_type;
+			typedef messaging::map messaging_map_type;
 
 			typedef std::list<gui_object_type *> object_list_type;
 
@@ -112,6 +113,8 @@ namespace winpp{
 
 			static lresult_type CALLBACK entry(hwnd_value_type window_handle, uint_type msg, wparam_type wparam, lparam_type lparam);
 
+			static messaging_map_type messaging_map;
+
 			static const uint_type update_object_created		= 0x00000001u;
 			static const uint_type update_object_destroyed		= 0x00000002u;
 
@@ -121,8 +124,6 @@ namespace winpp{
 			void update_object_created_(gui_object_type *object);
 
 			void update_object_destroyed_(gui_object_type *object);
-
-			static bool create_classes_();
 
 			static lresult_type CALLBACK hook_(int code, wparam_type wparam, lparam_type lparam);
 
@@ -136,10 +137,7 @@ namespace winpp{
 			object_list_type top_levels_;
 			window_state window_state_{};
 
-			static wnd_class_type class_;
-			static wnd_class_type dialog_class_;
-			static bool classes_created_;
-
+			static classes classes_;
 			static uint_type non_window_message_id_;
 		};
 	}

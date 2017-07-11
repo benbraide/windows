@@ -17,3 +17,9 @@ void winpp::messaging::handler::on_ncdestroy(const message_object_type &e){}
 bool winpp::messaging::handler::on_close(const message_object_type &e){
 	return true;
 }
+
+bool winpp::messaging::handler::on_ncactivate(const ncactivate_message_type &e){
+	return true;
+}
+
+void winpp::messaging::handler::on_activate(const activate_message_type &e){}

@@ -53,6 +53,10 @@ winpp::messaging::object &winpp::messaging::object::value(bool value, bool overw
 	return this->value(value ? TRUE : FALSE, overwrite);
 }
 
+winpp::messaging::object::lresult_type winpp::messaging::object::result() const{
+	return value_;
+}
+
 bool winpp::messaging::object::is_sent() const{
 	return WINPP_IS(states_, state_type::sent);
 }
@@ -91,4 +95,24 @@ const winpp::messaging::object::msg_type &winpp::messaging::object::info() const
 
 winpp::messaging::object::gui_object_type *winpp::messaging::object::target() const{
 	return hwnd_type(info_.owner()).data<gui_object_type *>();
+}
+
+winpp::messaging::ncactivate::~ncactivate() = default;
+
+bool winpp::messaging::ncactivate::is_activating() const{
+	return (info_.wparam<::BOOL>() != FALSE);
+}
+
+winpp::messaging::activate::~activate() = default;
+
+bool winpp::messaging::activate::is_activated() const{
+	return (info_.wparam() != WA_INACTIVE);
+}
+
+bool winpp::messaging::activate::click_activated() const{
+	return (info_.wparam() == WA_CLICKACTIVE);
+}
+
+winpp::messaging::object::hwnd_type winpp::messaging::activate::other_window() const{
+	return info_.lparam<hwnd_value_type>();
 }

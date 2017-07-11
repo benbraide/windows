@@ -5,7 +5,7 @@ winpp::application::object_manager::object_manager(object &app)
 	: app_(&app), recent_params_(nullptr), replace_procedure_(false){
 	message_handle_ = ::CreateWindowExW(
 		0,
-		class_.name().c_str(),
+		classes_.general().name().c_str(),
 		L"WINPP_MSG_WND_" WINPP_WUUID,
 		0,
 		0,
@@ -36,7 +36,7 @@ winpp::application::object_manager::hwnd_type winpp::application::object_manager
 
 	const wchar_t *class_name = nullptr;
 	if (info.lpszClass == nullptr){//Use default class
-		class_name = static_cast<gui_object_type *>(recent_params_)->is_dialog() ? dialog_class_.name().c_str() : class_.name().c_str();
+		class_name = static_cast<gui_object_type *>(recent_params_)->is_dialog() ? classes_.dialog().name().c_str() : classes_.general().name().c_str();
 		replace_procedure_ = false;
 	}
 	else{//Use class
@@ -55,7 +55,7 @@ winpp::application::object_manager::hwnd_type winpp::application::object_manager
 		info.cy,
 		info.hwndParent,
 		info.hMenu,
-		(info.hInstance == nullptr) ? class_.instance() : info.hInstance,
+		(info.hInstance == nullptr) ? ::GetModuleHandleW(nullptr) : info.hInstance,
 		info.lpCreateParams
 	);
 
@@ -82,14 +82,14 @@ winpp::application::object_manager::uint_type winpp::application::object_manager
 }
 
 winpp::application::object_manager::lresult_type CALLBACK winpp::application::object_manager::entry(hwnd_value_type window_handle, uint_type msg, wparam_type wparam, lparam_type lparam){
-	if (window_handle == nullptr){//Thread message
-		if (msg == non_window_message_id_){//Forward to non-window
-			auto info = reinterpret_cast<non_window_message_info *>(wparam);
-		}
-	}
+	auto target = hwnd_type(window_handle).data<gui_object_type *>();
+	if (target == nullptr)//Unidentified handle
+		return ::DefWindowProcW(window_handle, msg, wparam, lparam);
 
-	return 0;
+	return target->query<messaging::target>().procedure(msg_type({ window_handle, msg, wparam, lparam }), false);
 }
+
+winpp::application::object_manager::messaging_map_type winpp::application::object_manager::messaging_map;
 
 void winpp::application::object_manager::update_(uint_type code, void *args){
 	switch (code){
@@ -118,26 +118,6 @@ void winpp::application::object_manager::update_object_destroyed_(gui_object_typ
 	entry = std::find(top_levels_.begin(), top_levels_.end(), object);
 	if (entry != top_levels_.end())//Remove from list
 		top_levels_.erase(entry);
-}
-
-bool winpp::application::object_manager::create_classes_(){
-	auto uuid = common::methods::wuuid();
-	::GetClassInfoExW(nullptr, WC_DIALOG, dialog_class_);
-
-	dialog_class_.styles(dialog_class_.styles() | CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS);
-	dialog_class_.procedure(object_manager::entry);
-	dialog_class_.name(L"WINPP_DLG_CLS_" + uuid);
-	dialog_class_.instance(::GetModuleHandleW(nullptr));
-	dialog_class_.create();
-
-	class_.styles(dialog_class_.styles());
-	class_.procedure(dialog_class_.procedure());
-	class_.name(L"WINPP_CLS_" + uuid);
-	class_.cursor(dialog_class_.cursor());
-	class_.instance(dialog_class_.instance());
-	class_.create();
-
-	return true;
 }
 
 winpp::application::object_manager::lresult_type CALLBACK winpp::application::object_manager::hook_(int code, wparam_type wparam, lparam_type lparam){
@@ -181,10 +161,6 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 	return ::CallNextHookEx(nullptr, code, wparam, lparam);
 }*/
 
-winpp::application::object_manager::wnd_class_type winpp::application::object_manager::class_;
-
-winpp::application::object_manager::wnd_class_type winpp::application::object_manager::dialog_class_;
-
-bool winpp::application::object_manager::classes_created_ = create_classes_();
+winpp::application::classes winpp::application::object_manager::classes_;
 
 winpp::application::object_manager::uint_type winpp::application::object_manager::non_window_message_id_ = ::RegisterWindowMessageW(L"WINPP_NW_WM_" WINPP_WUUID);

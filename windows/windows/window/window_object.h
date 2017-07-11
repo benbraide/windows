@@ -54,9 +54,9 @@ namespace winpp{
 			using tree_base_type::inner_size;
 			using tree_base_type::offset;
 
-			class event_tunnel : public tree_base_type::event_tunnel{
+			class event_tunnel : public messaging::target::event_tunnel{
 			public:
-				typedef tree_base_type::event_tunnel base_type;
+				typedef messaging::target::event_tunnel base_type;
 
 				using base_type::bind;
 
@@ -64,31 +64,8 @@ namespace winpp{
 
 				virtual ~event_tunnel();
 
-				virtual unsigned __int64 bind(event_type e, const std::any &callback) override;
-
-				events::tunnel<void> pre_create;
-				events::tunnel<void> post_destroy;
-
-				events::tunnel<void> pre_activate;
-				events::tunnel<void> activate;
-
-				events::tunnel<void> close;
-
-				events::tunnel<void> maximize;
-				events::tunnel<void> minimize;
-				events::tunnel<void> restore;
-
-				events::tunnel<void> show;
-				events::tunnel<void> hide;
-
-				events::tunnel<void> erase_background;
-				events::tunnel<void> paint;
-
 				events::timer_tunnel<false> timer;
 				events::timer_tunnel<true> interval;
-
-			protected:
-				virtual unsigned __int64 bind_(const std::wstring &e, const std::any &callback) override;
 			};
 
 			virtual ~object();
@@ -159,8 +136,6 @@ namespace winpp{
 			virtual bool cache_group_(unsigned int value) const override;
 
 			virtual target *target_parent_() const override;
-
-			virtual void *find_event_() override;
 
 			template <typename generic_styles_type, typename... args_types>
 			styles_ptr_type create_styles_(args_types &&...args){

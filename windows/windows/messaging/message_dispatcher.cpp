@@ -1,40 +1,43 @@
 #include "message_dispatcher.h"
 
-winpp::messaging::dispatcher::lresult_type winpp::messaging::dispatcher::dispatch(const msg_type &info, bool is_sent, const std::any &handler, gui_object_type *target){
-	if (target == nullptr && (target = hwnd_type(info.owner()).data<gui_object_type *>()) == nullptr)//Unrecognized handle
-		return ::DefWindowProcW(info.owner(), info.code(), info.wparam(), info.lparam());
-
-	switch (info.code()){
-	case WM_NCCREATE:
-		return dispatch_nc_create_(info, is_sent, handler, target);
-	case WM_CREATE:
-		return dispatch_create_(info, is_sent, handler, target);
-	case WM_DESTROY:
-		return dispatch_destroy_(info, is_sent, handler, target);
-	case WM_NCDESTROY:
-		return dispatch_nc_destroy_(info, is_sent, handler, target);
-	default:
-		break;
-	}
-
-	if (info.owner() == nullptr)
-		throw common::invalid_arg_exception();
-
-	return ::DefWindowProcW(info.owner(), info.code(), info.wparam(), info.lparam());
+winpp::messaging::dispatcher::lresult_type winpp::messaging::unrecognized_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	return call_(info, is_sent, target);
 }
 
-winpp::messaging::dispatcher::lresult_type winpp::messaging::dispatcher::dispatch_nc_create_(const msg_type &info, bool is_sent, const std::any &handler, gui_object_type *target){
+winpp::messaging::dispatcher::lresult_type winpp::messaging::nccreate_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::object e(*reinterpret_cast<gui::object *>(&target));
+	target.events().pre_create(e);
+	return (e.is_prevented() || !call_(info, is_sent, target)) ? FALSE : TRUE;
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::create_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::object e(*reinterpret_cast<gui::object *>(&target));
+	target.events().create(e);
+	return (e.is_prevented() || !call_(info, is_sent, target)) ? -1 : 0;
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::destroy_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::object e(*reinterpret_cast<gui::object *>(&target));
+	target.events().destroy(e);
+	call_(info, is_sent, target);
 	return 0;
 }
 
-winpp::messaging::dispatcher::lresult_type winpp::messaging::dispatcher::dispatch_create_(const msg_type &info, bool is_sent, const std::any &handler, gui_object_type *target){
+winpp::messaging::dispatcher::lresult_type winpp::messaging::ncdestroy_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	call_(info, is_sent, target);
+	events::object e(*reinterpret_cast<gui::object *>(&target));
+	target.events().post_destroy(e);
 	return 0;
 }
 
-winpp::messaging::dispatcher::lresult_type winpp::messaging::dispatcher::dispatch_destroy_(const msg_type &info, bool is_sent, const std::any &handler, gui_object_type *target){
-	return 0;
-}
+winpp::messaging::dispatcher::lresult_type winpp::messaging::close_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::object e(*reinterpret_cast<gui::object *>(&target));
+	target.events().pre_create(e);
+	if (e.is_prevented())
+		return 0;
 
-winpp::messaging::dispatcher::lresult_type winpp::messaging::dispatcher::dispatch_nc_destroy_(const msg_type &info, bool is_sent, const std::any &handler, gui_object_type *target){
+	if (call_(info, is_sent, target, true))//Destroy object
+		dynamic_cast<gui::object *>(&target)->destroy(gui::object::force_type::dont_force);
+
 	return 0;
 }

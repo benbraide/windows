@@ -3,16 +3,19 @@
 #ifndef WINPP_MESSAGE_TARGET_H
 #define WINPP_MESSAGE_TARGET_H
 
+#include <any>
+
 #include "../wrappers/msg_wrapper.h"
 #include "../wrappers/hwnd_wrapper.h"
 
 #include "../events/event_tunnel.h"
+#include "../gui/gui_object_tree.h"
 
 #include "message_handler.h"
 
 namespace winpp{
 	namespace messaging{
-		class target : protected handler{
+		class target : public handler{
 		public:
 			typedef ::WNDPROC procedure_type;
 			typedef ::LRESULT lresult_type;
@@ -21,58 +24,61 @@ namespace winpp{
 			typedef wrappers::hwnd hwnd_type;
 
 			typedef events::object event_object_type;
-			typedef events::tunnel<void> event_tunnel_type;
+
+			class event_tunnel : public gui::object_tree::event_tunnel{
+			public:
+				typedef gui::object_tree::event_tunnel base_type;
+				typedef structures::enumerations::event_type event_type;
+
+				using base_type::bind;
+
+				virtual ~event_tunnel();
+
+				virtual unsigned __int64 bind(event_type e, const std::any &callback) override;
+
+				events::tunnel<void> pre_create;
+				events::tunnel<void> post_destroy;
+
+				events::tunnel<void> pre_activate;
+				events::tunnel<void> activate;
+
+				events::tunnel<void> close;
+
+				events::tunnel<void> maximize;
+				events::tunnel<void> minimize;
+				events::tunnel<void> restore;
+
+				events::tunnel<void> show;
+				events::tunnel<void> hide;
+
+				events::tunnel<void> erase_background;
+				events::tunnel<void> paint;
+
+			protected:
+				virtual unsigned __int64 bind_(const std::wstring &e, const std::any &callback) override;
+			};
 
 			virtual ~target();
 
 			virtual bool pre_translate(msg_type &msg);
 
-			virtual lresult_type procedure(const msg_type &msg);
+			virtual lresult_type unrecognized_message(const message_object_type &e);
+
+			virtual lresult_type procedure(const msg_type &msg, bool is_sent);
 
 			virtual procedure_type procedure() const = 0;
+
+			virtual event_tunnel &events() = 0;
 
 		protected:
 			virtual target *target_parent_() const = 0;
 
-			virtual void *find_event_() = 0;
-
-			virtual lresult_type dispatch_nccreate_();
-
-			virtual lresult_type dispatch_create_();
-
-			virtual lresult_type dispatch_destroy_();
-
-			virtual lresult_type dispatch_ncdestroy_();
-
-			virtual lresult_type dispatch_close_();
-
-			virtual lresult_type dispatch_unrecognized_();
-
-			virtual lresult_type call_default_();
+			virtual lresult_type call_default_(const msg_type &info);
 
 			template <typename return_type>
-			return_type default_(){
-				return (return_type)call_default_();
+			return_type default_(const msg_type &info){
+				return (return_type)call_default_(info);
 			}
-
-			template <typename event_type, typename... args_types>
-			bool action_prevented_(args_types &&... args){
-				auto event_tunnel = find_event_();
-				if (event_tunnel == nullptr)
-					return false;
-
-				typename event_type::object_type event_object(*reinterpret_cast<gui::object *>(this), std::forward<args_types>(args)...);
-				static_cast<event_type *>(event_tunnel)->fire(event_object);
-
-				return event_object.is_prevented();
-			}
-
-			template <typename event_type, typename... args_types>
-			void fire_event_(args_types &&... args){
-				action_prevented_<event_type>(std::forward<args_types>(args)...);
-			}
-
-			msg_type msg_;
 		};
 	}
 }

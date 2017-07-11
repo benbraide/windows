@@ -5,79 +5,6 @@ winpp::window::object::event_tunnel::event_tunnel(gui_object_type &object)
 
 winpp::window::object::event_tunnel::~event_tunnel() = default;
 
-unsigned __int64 winpp::window::object::event_tunnel::bind(event_type e, const std::any &callback){
-	switch (e){
-	case event_type::pre_create:
-		return pre_create(callback);
-	case event_type::post_destroy:
-		return post_destroy(callback);
-	case event_type::pre_activate:
-		return pre_activate(callback);
-	case event_type::activate:
-		return activate(callback);
-	case event_type::close:
-		return close(callback);
-	case event_type::maximize:
-		return maximize(callback);
-	case event_type::minimize:
-		return minimize(callback);
-	case event_type::restore:
-		return restore(callback);
-	case event_type::show:
-		return show(callback);
-	case event_type::hide:
-		return hide(callback);
-	case event_type::erase_background:
-		return erase_background(callback);
-	case event_type::paint:
-		return paint(callback);
-	default:
-		break;
-	}
-
-	return base_type::bind(e, callback);
-}
-
-unsigned __int64 winpp::window::object::event_tunnel::bind_(const std::wstring &e, const std::any &callback){
-	if (e == L"pre_create")
-		return pre_create(callback);
-
-	if (e == L"post_destroy")
-		return post_destroy(callback);
-
-	if (e == L"pre_activate")
-		return pre_activate(callback);
-
-	if (e == L"activate")
-		return activate(callback);
-
-	if (e == L"close")
-		return close(callback);
-
-	if (e == L"maximize")
-		return maximize(callback);
-
-	if (e == L"minimize")
-		return minimize(callback);
-
-	if (e == L"restore")
-		return restore(callback);
-
-	if (e == L"show")
-		return show(callback);
-
-	if (e == L"hide")
-		return hide(callback);
-
-	if (e == L"erase_background")
-		return erase_background(callback);
-
-	if (e == L"paint")
-		return paint(callback);
-
-	return base_type::bind_(e, callback);
-}
-
 winpp::window::object::object(procedure_type procedure)
 	: procedure_(procedure){}
 
@@ -238,23 +165,6 @@ bool winpp::window::object::cache_group_(unsigned int value) const{
 
 winpp::messaging::target *winpp::window::object::target_parent_() const{
 	return dynamic_cast<target *>(parent_);
-}
-
-void *winpp::window::object::find_event_(){
-	switch (msg_.code()){
-	case WM_NCCREATE:
-		return &events().pre_create;
-	case WM_CREATE:
-		return &events().create;
-	case WM_DESTROY:
-		return &events().destroy;
-	case WM_NCDESTROY:
-		return &events().post_destroy;
-	default:
-		break;
-	}
-
-	return nullptr;
 }
 
 winpp::window::object::styles_ptr_type winpp::window::object::get_styles_(){

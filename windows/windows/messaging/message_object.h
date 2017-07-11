@@ -18,6 +18,7 @@ namespace winpp{
 
 			typedef wrappers::msg msg_type;
 			typedef wrappers::hwnd hwnd_type;
+			typedef hwnd_type::value_type hwnd_value_type;
 
 			typedef gui::object gui_object_type;
 
@@ -78,6 +79,8 @@ namespace winpp{
 				return WINPP_IS(states_, state_type::has_value) ? (value_ != 0u) : false;
 			}
 
+			lresult_type result() const;
+
 			bool is_sent() const;
 
 			bool is_cross_thread() const;
@@ -104,6 +107,32 @@ namespace winpp{
 			gui_object_type *target_;
 			state_type states_;
 			lresult_type value_;
+		};
+
+		class ncactivate : public object{
+		public:
+			template <typename... args_type>
+			explicit ncactivate(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~ncactivate();
+
+			virtual bool is_activating() const;
+		};
+
+		class activate : public object{
+		public:
+			template <typename... args_type>
+			explicit activate(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~activate();
+
+			virtual bool is_activated() const;
+
+			virtual bool click_activated() const;
+
+			virtual hwnd_type other_window() const;
 		};
 
 		WINPP_MAKE_OPERATORS(object::state_type);
