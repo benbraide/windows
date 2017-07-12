@@ -151,6 +151,28 @@ namespace winpp{
 			virtual hwnd_type other_window() const;
 		};
 
+		class focus_change : public object{
+		public:
+			template <typename... args_type>
+			explicit focus_change(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~focus_change();
+
+			virtual bool is_focused() const;
+		};
+
+		class enable : public object{
+		public:
+			template <typename... args_type>
+			explicit enable(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~enable();
+
+			virtual bool is_enabled() const;
+		};
+
 		WINPP_MAKE_OPERATORS(object::state_type);
 	}
 }

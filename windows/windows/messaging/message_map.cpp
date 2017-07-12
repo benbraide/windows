@@ -16,6 +16,10 @@ winpp::messaging::map::map()
 
 	list_[WM_CHILDACTIVATE] = std::make_shared<messaging::child_activate_dispatcher>(&target::on_child_activate);
 	list_[WM_ACTIVATEAPP] = std::make_shared<messaging::activate_app_dispatcher>(&target::on_activate_app);
+
+	list_[WM_CANCELMODE] = std::make_shared<messaging::cancel_mode_dispatcher>(&target::on_cancel_mode);
+	list_[WM_KILLFOCUS] = list_[WM_SETFOCUS] = std::make_shared<messaging::focus_change_dispatcher>(&target::on_focus_change);
+	list_[WM_ENABLE] = std::make_shared<messaging::enable_dispatcher>(&target::on_enable);
 }
 
 winpp::messaging::map &winpp::messaging::map::add_entry(uint_type code, dispatcher_ptr_type dispatcher){

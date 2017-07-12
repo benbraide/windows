@@ -86,6 +86,26 @@ namespace winpp{
 			hwnd_type other_window_;
 		};
 
+		class focus_change : public object{
+		public:
+			focus_change(gui_object_type &target, bool focused);
+
+			bool is_focused() const;
+
+		protected:
+			bool focused_;
+		};
+
+		class enable : public object{
+		public:
+			enable(gui_object_type &target, bool enabled);
+
+			bool is_enabled() const;
+
+		protected:
+			bool enabled_;
+		};
+
 		template <class value_type>
 		class object_with_data : public object{
 		public:

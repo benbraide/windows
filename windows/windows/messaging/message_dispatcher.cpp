@@ -88,8 +88,29 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::child_activate_disp
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::activate_app_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::object e(*reinterpret_cast<gui::object *>(&target));
+	events::pre_activate e(*reinterpret_cast<gui::object *>(&target), (info.wparam<::BOOL>() != FALSE));
 	target.events().activate_app(e);
+	call_(info, is_sent, target);
+	return 0;
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::cancel_mode_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::object e(*reinterpret_cast<gui::object *>(&target));
+	target.events().cancel_mode(e);
+	call_(info, is_sent, target);
+	return 0;
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::focus_change_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::focus_change e(*reinterpret_cast<gui::object *>(&target), (info.code() == WM_SETFOCUS));
+	target.events().focus_change(e);
+	call_(info, is_sent, target);
+	return 0;
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::enable_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::enable e(*reinterpret_cast<gui::object *>(&target), (info.wparam<::BOOL>() != FALSE));
+	target.events().enable(e);
 	call_(info, is_sent, target);
 	return 0;
 }

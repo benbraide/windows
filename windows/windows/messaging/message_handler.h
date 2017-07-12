@@ -17,6 +17,9 @@ namespace winpp{
 			typedef messaging::ncactivate ncactivate_message_type;
 			typedef messaging::activate activate_message_type;
 
+			typedef messaging::focus_change focus_change_message_type;
+			typedef messaging::enable enable_message_type;
+
 			typedef structures::enumerations::mouse_activate_type mouse_activate_type;
 
 			virtual ~handler();
@@ -40,7 +43,13 @@ namespace winpp{
 
 			virtual void on_child_activate(message_object_type &e);
 
-			virtual void on_activate_app(message_object_type &e);
+			virtual void on_activate_app(ncactivate_message_type &e);
+
+			virtual void on_cancel_mode(message_object_type &e);
+
+			virtual void on_focus_change(focus_change_message_type &e);
+
+			virtual void on_enable(enable_message_type &e);
 
 			friend class map;
 		};

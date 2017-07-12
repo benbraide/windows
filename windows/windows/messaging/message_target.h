@@ -44,7 +44,11 @@ namespace winpp{
 				events::tunnel<void, events::activate> activate;
 
 				events::tunnel<void> child_activate;
-				events::tunnel<void> activate_app;
+				events::tunnel<void, events::pre_activate> activate_app;
+
+				events::tunnel<void> cancel_mode;
+				events::tunnel<void, events::focus_change> focus_change;
+				events::tunnel<void, events::enable> enable;
 
 				events::tunnel<void> close;
 

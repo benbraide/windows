@@ -30,4 +30,10 @@ void winpp::messaging::handler::on_activate(activate_message_type &e){}
 
 void winpp::messaging::handler::on_child_activate(message_object_type &e){}
 
-void winpp::messaging::handler::on_activate_app(message_object_type &e){}
+void winpp::messaging::handler::on_activate_app(ncactivate_message_type &e){}
+
+void winpp::messaging::handler::on_cancel_mode(message_object_type &e){}
+
+void winpp::messaging::handler::on_focus_change(focus_change_message_type &e){}
+
+void winpp::messaging::handler::on_enable(enable_message_type &e){}

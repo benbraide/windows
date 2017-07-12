@@ -182,12 +182,45 @@ namespace winpp{
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
 		};
 
-		class activate_app_dispatcher : public typed_dispatcher<void>{
+		class activate_app_dispatcher : public typed_dispatcher<void, ncactivate>{
+		public:
+			typedef typed_dispatcher<void, ncactivate> base_type;
+
+			template <typename... args_types>
+			explicit activate_app_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
+		class cancel_mode_dispatcher : public typed_dispatcher<void>{
 		public:
 			typedef typed_dispatcher<void> base_type;
 
 			template <typename... args_types>
-			explicit activate_app_dispatcher(args_types &&... args)
+			explicit cancel_mode_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
+		class focus_change_dispatcher : public typed_dispatcher<void, focus_change>{
+		public:
+			typedef typed_dispatcher<void, focus_change> base_type;
+
+			template <typename... args_types>
+			explicit focus_change_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
+		class enable_dispatcher : public typed_dispatcher<void, enable>{
+		public:
+			typedef typed_dispatcher<void, enable> base_type;
+
+			template <typename... args_types>
+			explicit enable_dispatcher(args_types &&... args)
 				: base_type(std::forward<args_types>(args)...){}
 
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;

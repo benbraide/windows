@@ -59,3 +59,17 @@ bool winpp::events::activate::click_activated() const{
 winpp::events::activate::hwnd_type winpp::events::activate::other_window() const{
 	return other_window_;
 }
+
+winpp::events::focus_change::focus_change(gui_object_type &target, bool focused)
+	: object(target), focused_(focused){}
+
+bool winpp::events::focus_change::is_focused() const{
+	return focused_;
+}
+
+winpp::events::enable::enable(gui_object_type &target, bool enabled)
+	: object(target), enabled_(enabled){}
+
+bool winpp::events::enable::is_enabled() const{
+	return enabled_;
+}

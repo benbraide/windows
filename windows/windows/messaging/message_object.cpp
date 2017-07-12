@@ -126,3 +126,15 @@ bool winpp::messaging::activate::click_activated() const{
 winpp::messaging::object::hwnd_type winpp::messaging::activate::other_window() const{
 	return info_.lparam<hwnd_value_type>();
 }
+
+winpp::messaging::focus_change::~focus_change() = default;
+
+bool winpp::messaging::focus_change::is_focused() const{
+	return (info_.code() == WM_SETFOCUS);
+}
+
+winpp::messaging::enable::~enable() = default;
+
+bool winpp::messaging::enable::is_enabled() const{
+	return (info_.wparam<::BOOL>() != FALSE);
+}
