@@ -41,3 +41,41 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::close_dispatcher::d
 
 	return 0;
 }
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::mouse_activate_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::mouse_activate e(*reinterpret_cast<gui::object *>(&target), info.lparam());
+	target.events().mouse_activate(e);
+	if (e.is_prevented())//Prevent activation
+		return MA_NOACTIVATEANDEAT;
+
+	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	auto value = call_(target, ev);
+	if (value != mouse_activate_type::nil){//Skip default
+		ev.skip();
+		return static_cast<lresult_type>(value);
+	}
+
+	return ev.handle(false).result();//Use default
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::ncactivate_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::pre_activate e(*reinterpret_cast<gui::object *>(&target), (info.wparam<::BOOL>() != FALSE));
+	target.events().pre_activate(e);
+	if (e.is_prevented())//Prevent activation
+		return FALSE;
+
+	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	if (!call_(target, ev)){//Prevent activation
+		ev.skip();
+		return FALSE;
+	}
+
+	return ev.handle(false).result();
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::activate_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::activate e(*reinterpret_cast<gui::object *>(&target), static_cast<events::activate::state>(info.wparam<int>()), info.lparam<::HWND>());
+	target.events().activate(e);
+	call_(info, is_sent, target);
+	return 0;
+}

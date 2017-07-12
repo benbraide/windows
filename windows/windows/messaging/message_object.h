@@ -109,6 +109,22 @@ namespace winpp{
 			lresult_type value_;
 		};
 
+		class mouse_activate : public object{
+		public:
+			typedef ::UINT uint_type;
+			typedef structures::enumerations::hit_target_type hit_target_type;
+
+			template <typename... args_type>
+			explicit mouse_activate(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~mouse_activate();
+
+			virtual hit_target_type hit_target() const;
+
+			virtual uint_type mouse_message() const;
+		};
+
 		class ncactivate : public object{
 		public:
 			template <typename... args_type>

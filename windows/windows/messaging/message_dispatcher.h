@@ -25,7 +25,7 @@ namespace winpp{
 			typedef return_type return_type;
 			typedef message_object_type message_object_type;
 
-			typedef return_type(target_type::*callback_type)(const message_object_type &);
+			typedef return_type(target_type::*callback_type)(message_object_type &);
 
 			explicit typed_dispatcher(callback_type callback)
 				: callback_(callback){}
@@ -46,10 +46,26 @@ namespace winpp{
 				return (lresult_type)call_(info, is_sent, target);
 			}
 
-			virtual return_type call_(const msg_type &info, bool is_sent, target_type &target, bool skip = false){
-				if (skip)//Skip default action
-					return (target.*callback_)(message_object_type(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target)).skip());
-				return (target.*callback_)(message_object_type(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target)));
+			template <typename unused_type = return_type>
+			std::enable_if_t<std::is_same_v<unused_type, void>, return_type> call_(const msg_type &info, bool is_sent, target_type &target, bool skip = false){
+				message_object_type e(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+				call_(target, e);
+				if (skip)//Skip default
+					e.skip();
+			}
+
+			template <typename unused_type = return_type>
+			std::enable_if_t<!std::is_same_v<unused_type, void>, return_type> call_(const msg_type &info, bool is_sent, target_type &target, bool skip = false){
+				message_object_type e(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+				auto value = call_(target, e);
+				if (skip)//Skip default
+					e.skip();
+
+				return value;
+			}
+
+			virtual return_type call_(target_type &target, message_object_type &e){
+				return (target.*callback_)(e);
 			}
 
 			callback_type callback_;
@@ -116,6 +132,40 @@ namespace winpp{
 
 			template <typename... args_types>
 			explicit close_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
+		class mouse_activate_dispatcher : public typed_dispatcher<structures::enumerations::mouse_activate_type, mouse_activate>{
+		public:
+			typedef typed_dispatcher<structures::enumerations::mouse_activate_type, mouse_activate> base_type;
+			typedef structures::enumerations::mouse_activate_type mouse_activate_type;
+
+			template <typename... args_types>
+			explicit mouse_activate_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
+		class ncactivate_dispatcher : public typed_dispatcher<bool, ncactivate>{
+		public:
+			typedef typed_dispatcher<bool, ncactivate> base_type;
+
+			template <typename... args_types>
+			explicit ncactivate_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
+		class activate_dispatcher : public typed_dispatcher<void, activate>{
+		public:
+			typedef typed_dispatcher<void, activate> base_type;
+
+			template <typename... args_types>
+			explicit activate_dispatcher(args_types &&... args)
 				: base_type(std::forward<args_types>(args)...){}
 
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;

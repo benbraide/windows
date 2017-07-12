@@ -421,6 +421,14 @@ namespace winpp{
 				all				= LWA_COLORKEY | LWA_ALPHA,
 			};
 
+			enum class mouse_activate_type{
+				nil							= 0,
+				dont_activate				= MA_NOACTIVATE,
+				dont_activate_and_eat		= MA_NOACTIVATEANDEAT,
+				activate					= MA_ACTIVATE,
+				activate_and_eat			= MA_ACTIVATEANDEAT,
+			};
+
 			WINPP_MAKE_OPERATORS(random_string_char_set);
 			WINPP_MAKE_OPERATORS(key_state_type);
 			WINPP_MAKE_OPERATORS(mouse_key_state_type);

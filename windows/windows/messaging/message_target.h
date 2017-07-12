@@ -39,8 +39,9 @@ namespace winpp{
 				events::tunnel<void> pre_create;
 				events::tunnel<void> post_destroy;
 
-				events::tunnel<void> pre_activate;
-				events::tunnel<void> activate;
+				events::tunnel<void, events::mouse_activate> mouse_activate;
+				events::tunnel<void, events::pre_activate> pre_activate;
+				events::tunnel<void, events::activate> activate;
 
 				events::tunnel<void> close;
 
@@ -62,7 +63,7 @@ namespace winpp{
 
 			virtual bool pre_translate(msg_type &msg);
 
-			virtual lresult_type unrecognized_message(const message_object_type &e);
+			virtual lresult_type unrecognized_message(message_object_type &e);
 
 			virtual lresult_type procedure(const msg_type &msg, bool is_sent);
 

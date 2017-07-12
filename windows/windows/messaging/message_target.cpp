@@ -83,7 +83,7 @@ bool winpp::messaging::target::pre_translate(msg_type &msg){
 	return (parent == nullptr) ? false : parent->pre_translate(msg);
 }
 
-winpp::messaging::target::lresult_type winpp::messaging::target::unrecognized_message(const message_object_type &e){
+winpp::messaging::target::lresult_type winpp::messaging::target::unrecognized_message(message_object_type &e){
 	return call_default_(e.info());
 }
 

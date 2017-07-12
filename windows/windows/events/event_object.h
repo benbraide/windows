@@ -36,6 +36,56 @@ namespace winpp{
 			state_type states_;
 		};
 
+		class mouse_activate : public object{
+		public:
+			typedef ::LPARAM lparam_type;
+			typedef ::UINT uint_type;
+
+			typedef structures::enumerations::hit_target_type hit_target_type;
+
+			mouse_activate(gui_object_type &target, lparam_type lparam);
+
+			hit_target_type hit_target() const;
+
+			uint_type mouse_message() const;
+
+		protected:
+			lparam_type lparam_;
+		};
+
+		class pre_activate : public object{
+		public:
+			pre_activate(gui_object_type &target, bool activating);
+
+			bool is_activating() const;
+
+		protected:
+			bool activating_;
+		};
+
+		class activate : public object{
+		public:
+			typedef wrappers::hwnd hwnd_type;
+
+			enum class state{
+				inactive			= WA_INACTIVE,
+				active				= WA_ACTIVE,
+				click_active		= WA_CLICKACTIVE
+			};
+
+			activate(gui_object_type &target, state state, hwnd_type other_window);
+
+			bool is_activated() const;
+
+			bool click_activated() const;
+
+			hwnd_type other_window() const;
+
+		protected:
+			state state_;
+			hwnd_type other_window_;
+		};
+
 		template <class value_type>
 		class object_with_data : public object{
 		public:

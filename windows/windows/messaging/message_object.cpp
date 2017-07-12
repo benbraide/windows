@@ -97,6 +97,16 @@ winpp::messaging::object::gui_object_type *winpp::messaging::object::target() co
 	return hwnd_type(info_.owner()).data<gui_object_type *>();
 }
 
+winpp::messaging::mouse_activate::~mouse_activate() = default;
+
+winpp::messaging::mouse_activate::hit_target_type winpp::messaging::mouse_activate::hit_target() const{
+	return static_cast<hit_target_type>(info_.low_lparam<int>());
+}
+
+winpp::messaging::mouse_activate::uint_type winpp::messaging::mouse_activate::mouse_message() const{
+	return info_.high_lparam<uint_type>();
+}
+
 winpp::messaging::ncactivate::~ncactivate() = default;
 
 bool winpp::messaging::ncactivate::is_activating() const{

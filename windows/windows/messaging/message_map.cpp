@@ -9,6 +9,10 @@ winpp::messaging::map::map()
 	list_[WM_NCDESTROY] = std::make_shared<messaging::ncdestroy_dispatcher>(&target::on_ncdestroy);
 
 	list_[WM_CLOSE] = std::make_shared<messaging::close_dispatcher>(&target::on_close);
+
+	list_[WM_MOUSEACTIVATE] = std::make_shared<messaging::mouse_activate_dispatcher>(&target::on_mouse_activate);
+	list_[WM_NCACTIVATE] = std::make_shared<messaging::ncactivate_dispatcher>(&target::on_ncactivate);
+	list_[WM_ACTIVATE] = std::make_shared<messaging::activate_dispatcher>(&target::on_activate);
 }
 
 winpp::messaging::map &winpp::messaging::map::add_entry(uint_type code, dispatcher_ptr_type dispatcher){
