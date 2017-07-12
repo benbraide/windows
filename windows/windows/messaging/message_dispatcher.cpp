@@ -121,3 +121,41 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::position_dispatcher
 	call_(info, is_sent, target);
 	return 0;
 }
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::size_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::size e(*reinterpret_cast<gui::object *>(&target), (info.code() == WM_SIZING), info.wparam<int>());
+	target.events().size(e);
+	if (e.is_prevented()){//Action prevented
+		if (info.code() == WM_SIZING)//Prevent size
+			*info.lparam<rect_value_type *>() = rect_value_type{};
+		return TRUE;
+	}
+
+	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	if (!call_(target, ev) && info.code() == WM_SIZING){//Prevent size
+		ev.skip();
+		*info.lparam<rect_value_type *>() = rect_value_type{};
+		return TRUE;
+	}
+
+	return ev.handle(false).result();
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::move_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::move e(*reinterpret_cast<gui::object *>(&target), (info.code() == WM_MOVING));
+	target.events().move(e);
+	if (e.is_prevented()){//Action prevented
+		if (info.code() == WM_MOVING)//Prevent move
+			*info.lparam<rect_value_type *>() = reinterpret_cast<gui::object *>(&target)->outer_rect();
+		return TRUE;
+	}
+
+	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	if (!call_(target, ev) && info.code() == WM_MOVING){//Prevent move
+		ev.skip();
+		*info.lparam<rect_value_type *>() = reinterpret_cast<gui::object *>(&target)->outer_rect();
+		return TRUE;
+	}
+
+	return ev.handle(false).result();
+}

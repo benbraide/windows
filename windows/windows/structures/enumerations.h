@@ -401,6 +401,26 @@ namespace winpp{
 				restore_to_maximized	= WPF_RESTORETOMAXIMIZED,
 			};
 
+			enum class window_edge_type : ::UINT{
+				nil						= 0,
+				left					= WMSZ_LEFT,
+				right					= WMSZ_RIGHT,
+				top						= WMSZ_TOP,
+				top_left				= WMSZ_TOPLEFT,
+				top_right				= WMSZ_TOPRIGHT,
+				bottom					= WMSZ_BOTTOM,
+				bottom_left				= WMSZ_BOTTOMLEFT,
+				bottom_right			= WMSZ_BOTTOMRIGHT,
+			};
+
+			enum class window_size_type{
+				restored				= SIZE_RESTORED,
+				minimized				= SIZE_MINIMIZED,
+				maximized				= SIZE_MAXIMIZED,
+				max_show				= SIZE_MAXSHOW,
+				max_hide				= SIZE_MAXHIDE,
+			};
+
 			enum class data_index_type{
 				procedure				= GWLP_WNDPROC,
 				instance				= GWLP_HINSTANCE,

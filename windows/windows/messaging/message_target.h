@@ -51,6 +51,8 @@ namespace winpp{
 				events::tunnel<void, events::enable> enable;
 
 				events::tunnel<void, events::position> position;
+				events::tunnel<void, events::size> size;
+				events::tunnel<void, events::move> move;
 
 				events::tunnel<void> close;
 

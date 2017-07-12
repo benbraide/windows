@@ -197,6 +197,35 @@ namespace winpp{
 			virtual position_type flags() const;
 		};
 
+		class size : public object{
+		public:
+			typedef structures::enumerations::window_edge_type window_edge_type;
+			typedef structures::enumerations::window_size_type window_size_type;
+
+			template <typename... args_type>
+			explicit size(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~size();
+
+			virtual bool is_changing() const;
+
+			virtual window_edge_type edge() const;
+
+			virtual window_size_type reason() const;
+		};
+
+		class move : public object{
+		public:
+			template <typename... args_type>
+			explicit move(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~move();
+
+			virtual bool is_changing() const;
+		};
+
 		WINPP_MAKE_OPERATORS(object::state_type);
 	}
 }

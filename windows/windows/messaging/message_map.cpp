@@ -22,6 +22,8 @@ winpp::messaging::map::map()
 	list_[WM_ENABLE] = std::make_shared<messaging::enable_dispatcher>(&target::on_enable);
 
 	list_[WM_WINDOWPOSCHANGED] = list_[WM_WINDOWPOSCHANGING] = std::make_shared<messaging::position_dispatcher>(&target::on_position);
+	list_[WM_SIZE] = list_[WM_SIZING] = std::make_shared<messaging::size_dispatcher>(&target::on_size);
+	list_[WM_MOVE] = list_[WM_MOVING] = std::make_shared<messaging::move_dispatcher>(&target::on_move);
 }
 
 winpp::messaging::map &winpp::messaging::map::add_entry(uint_type code, dispatcher_ptr_type dispatcher){

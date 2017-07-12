@@ -236,6 +236,30 @@ namespace winpp{
 
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
 		};
+
+		class size_dispatcher : public typed_dispatcher<bool, size>{
+		public:
+			typedef typed_dispatcher<bool, size> base_type;
+			typedef structures::rect::value_type rect_value_type;
+
+			template <typename... args_types>
+			explicit size_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
+		class move_dispatcher : public typed_dispatcher<bool, move>{
+		public:
+			typedef typed_dispatcher<bool, move> base_type;
+			typedef structures::rect::value_type rect_value_type;
+
+			template <typename... args_types>
+			explicit move_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
 	}
 }
 

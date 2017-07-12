@@ -158,3 +158,23 @@ winpp::messaging::position::size_type winpp::messaging::position::size() const{
 winpp::messaging::position::position_type winpp::messaging::position::flags() const{
 	return static_cast<position_type>(info_.lparam<window_pos_type *>()->flags);
 }
+
+winpp::messaging::size::~size() = default;
+
+bool winpp::messaging::size::is_changing() const{
+	return (info_.code() == WM_SIZING);
+}
+
+winpp::messaging::size::window_edge_type winpp::messaging::size::edge() const{
+	return (is_changing() ? static_cast<window_edge_type>(info_.wparam<int>()) : window_edge_type::nil);
+}
+
+winpp::messaging::size::window_size_type winpp::messaging::size::reason() const{
+	return (is_changing() ? window_size_type::restored : static_cast<window_size_type>(info_.wparam<int>()));
+}
+
+winpp::messaging::move::~move() = default;
+
+bool winpp::messaging::move::is_changing() const{
+	return (info_.code() == WM_MOVING);
+}

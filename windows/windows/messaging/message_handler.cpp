@@ -39,3 +39,11 @@ void winpp::messaging::handler::on_focus_change(focus_change_message_type &e){}
 void winpp::messaging::handler::on_enable(enable_message_type &e){}
 
 void winpp::messaging::handler::on_position(position_message_type &e){}
+
+bool winpp::messaging::handler::on_size(size_message_type &e){
+	return true;
+}
+
+bool winpp::messaging::handler::on_move(move_message_type &e){
+	return true;
+}

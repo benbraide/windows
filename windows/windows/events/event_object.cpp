@@ -94,3 +94,29 @@ winpp::events::position::size_type winpp::events::position::size() const{
 winpp::events::position::position_type winpp::events::position::flags() const{
 	return static_cast<position_type>(info_->flags);
 }
+
+winpp::events::size::size(gui_object_type &target, bool changing, int value)
+	: object(target), changing_(changing), value_(value){}
+
+winpp::events::size::~size() = default;
+
+bool winpp::events::size::is_changing() const{
+	return changing_;
+}
+
+winpp::events::size::window_edge_type winpp::events::size::edge() const{
+	return (is_changing() ? static_cast<window_edge_type>(value_) : window_edge_type::nil);
+}
+
+winpp::events::size::window_size_type winpp::events::size::reason() const{
+	return (is_changing() ? window_size_type::restored : static_cast<window_size_type>(value_));
+}
+
+winpp::events::move::move(gui_object_type &target, bool changing)
+	: object(target), changing_(changing){}
+
+winpp::events::move::~move() = default;
+
+bool winpp::events::move::is_changing() const{
+	return changing_;
+}

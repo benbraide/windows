@@ -132,6 +132,41 @@ namespace winpp{
 			window_pos_type *info_;
 		};
 
+		class size : public object{
+		public:
+			typedef structures::enumerations::window_edge_type window_edge_type;
+			typedef structures::enumerations::window_size_type window_size_type;
+
+			size(gui_object_type &target, bool changing, int value);
+
+			virtual ~size();
+
+			virtual bool is_changing() const;
+
+			virtual window_edge_type edge() const;
+
+			virtual window_size_type reason() const;
+
+		protected:
+			bool changing_;
+			int value_;
+		};
+
+		class move : public object{
+		public:
+			typedef structures::enumerations::window_edge_type window_edge_type;
+			typedef structures::enumerations::window_size_type window_size_type;
+
+			move(gui_object_type &target, bool changing);
+
+			virtual ~move();
+
+			virtual bool is_changing() const;
+
+		protected:
+			bool changing_;
+		};
+
 		template <class value_type>
 		class object_with_data : public object{
 		public:

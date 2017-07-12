@@ -21,6 +21,8 @@ namespace winpp{
 			typedef messaging::enable enable_message_type;
 
 			typedef messaging::position position_message_type;
+			typedef messaging::size size_message_type;
+			typedef messaging::move move_message_type;
 
 			typedef structures::enumerations::mouse_activate_type mouse_activate_type;
 
@@ -54,6 +56,10 @@ namespace winpp{
 			virtual void on_enable(enable_message_type &e);
 
 			virtual void on_position(position_message_type &e);
+
+			virtual bool on_size(size_message_type &e);
+
+			virtual bool on_move(move_message_type &e);
 
 			friend class map;
 		};
