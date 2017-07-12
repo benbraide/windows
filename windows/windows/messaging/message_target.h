@@ -50,6 +50,8 @@ namespace winpp{
 				events::tunnel<void, events::focus_change> focus_change;
 				events::tunnel<void, events::enable> enable;
 
+				events::tunnel<void, events::position> position;
+
 				events::tunnel<void> close;
 
 				events::tunnel<void> maximize;

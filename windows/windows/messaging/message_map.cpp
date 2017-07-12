@@ -20,6 +20,8 @@ winpp::messaging::map::map()
 	list_[WM_CANCELMODE] = std::make_shared<messaging::cancel_mode_dispatcher>(&target::on_cancel_mode);
 	list_[WM_KILLFOCUS] = list_[WM_SETFOCUS] = std::make_shared<messaging::focus_change_dispatcher>(&target::on_focus_change);
 	list_[WM_ENABLE] = std::make_shared<messaging::enable_dispatcher>(&target::on_enable);
+
+	list_[WM_WINDOWPOSCHANGED] = list_[WM_WINDOWPOSCHANGING] = std::make_shared<messaging::position_dispatcher>(&target::on_position);
 }
 
 winpp::messaging::map &winpp::messaging::map::add_entry(uint_type code, dispatcher_ptr_type dispatcher){

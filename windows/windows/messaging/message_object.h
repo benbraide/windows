@@ -173,6 +173,30 @@ namespace winpp{
 			virtual bool is_enabled() const;
 		};
 
+		class position : public object{
+		public:
+			typedef ::WINDOWPOS window_pos_type;
+
+			typedef structures::point point_type;
+			typedef structures::size size_type;
+
+			typedef structures::enumerations::position_type position_type;
+
+			template <typename... args_type>
+			explicit position(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~position();
+
+			virtual bool is_changing() const;
+
+			virtual point_type offset() const;
+
+			virtual size_type size() const;
+
+			virtual position_type flags() const;
+		};
+
 		WINPP_MAKE_OPERATORS(object::state_type);
 	}
 }

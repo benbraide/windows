@@ -114,3 +114,10 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::enable_dispatcher::
 	call_(info, is_sent, target);
 	return 0;
 }
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::position_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::position e(*reinterpret_cast<gui::object *>(&target), (info.code() == WM_WINDOWPOSCHANGING), *info.lparam<position::window_pos_type *>());
+	target.events().position(e);
+	call_(info, is_sent, target);
+	return 0;
+}

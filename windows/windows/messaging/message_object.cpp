@@ -138,3 +138,23 @@ winpp::messaging::enable::~enable() = default;
 bool winpp::messaging::enable::is_enabled() const{
 	return (info_.wparam<::BOOL>() != FALSE);
 }
+
+winpp::messaging::position::~position() = default;
+
+bool winpp::messaging::position::is_changing() const{
+	return (info_.code() == WM_WINDOWPOSCHANGING);
+}
+
+winpp::messaging::position::point_type winpp::messaging::position::offset() const{
+	auto info = info_.lparam<window_pos_type *>();
+	return point_type{ info->x, info->y };
+}
+
+winpp::messaging::position::size_type winpp::messaging::position::size() const{
+	auto info = info_.lparam<window_pos_type *>();
+	return size_type{ info->cx, info->cy };
+}
+
+winpp::messaging::position::position_type winpp::messaging::position::flags() const{
+	return static_cast<position_type>(info_.lparam<window_pos_type *>()->flags);
+}

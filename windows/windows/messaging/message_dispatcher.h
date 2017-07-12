@@ -225,6 +225,17 @@ namespace winpp{
 
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
 		};
+
+		class position_dispatcher : public typed_dispatcher<void, position>{
+		public:
+			typedef typed_dispatcher<void, position> base_type;
+
+			template <typename... args_types>
+			explicit position_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
 	}
 }
 

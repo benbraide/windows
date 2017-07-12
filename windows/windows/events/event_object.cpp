@@ -73,3 +73,24 @@ winpp::events::enable::enable(gui_object_type &target, bool enabled)
 bool winpp::events::enable::is_enabled() const{
 	return enabled_;
 }
+
+winpp::events::position::position(gui_object_type &target, bool changing, window_pos_type &info)
+	: object(target), changing_(changing), info_(&info){}
+
+winpp::events::position::~position() = default;
+
+bool winpp::events::position::is_changing() const{
+	return changing_;
+}
+
+winpp::events::position::point_type winpp::events::position::offset() const{
+	return point_type{ info_->x, info_->y };
+}
+
+winpp::events::position::size_type winpp::events::position::size() const{
+	return size_type{ info_->cx, info_->cy };
+}
+
+winpp::events::position::position_type winpp::events::position::flags() const{
+	return static_cast<position_type>(info_->flags);
+}

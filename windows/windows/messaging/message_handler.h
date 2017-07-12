@@ -20,6 +20,8 @@ namespace winpp{
 			typedef messaging::focus_change focus_change_message_type;
 			typedef messaging::enable enable_message_type;
 
+			typedef messaging::position position_message_type;
+
 			typedef structures::enumerations::mouse_activate_type mouse_activate_type;
 
 			virtual ~handler();
@@ -50,6 +52,8 @@ namespace winpp{
 			virtual void on_focus_change(focus_change_message_type &e);
 
 			virtual void on_enable(enable_message_type &e);
+
+			virtual void on_position(position_message_type &e);
 
 			friend class map;
 		};
