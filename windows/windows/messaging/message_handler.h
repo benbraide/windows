@@ -38,6 +38,10 @@ namespace winpp{
 
 			virtual void on_activate(activate_message_type &e);
 
+			virtual void on_child_activate(message_object_type &e);
+
+			virtual void on_activate_app(message_object_type &e);
+
 			friend class map;
 		};
 	}

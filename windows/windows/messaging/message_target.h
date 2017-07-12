@@ -43,6 +43,9 @@ namespace winpp{
 				events::tunnel<void, events::pre_activate> pre_activate;
 				events::tunnel<void, events::activate> activate;
 
+				events::tunnel<void> child_activate;
+				events::tunnel<void> activate_app;
+
 				events::tunnel<void> close;
 
 				events::tunnel<void> maximize;

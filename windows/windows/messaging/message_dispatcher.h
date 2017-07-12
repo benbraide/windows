@@ -170,6 +170,28 @@ namespace winpp{
 
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
 		};
+
+		class child_activate_dispatcher : public typed_dispatcher<void>{
+		public:
+			typedef typed_dispatcher<void> base_type;
+
+			template <typename... args_types>
+			explicit child_activate_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
+		class activate_app_dispatcher : public typed_dispatcher<void>{
+		public:
+			typedef typed_dispatcher<void> base_type;
+
+			template <typename... args_types>
+			explicit activate_app_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
 	}
 }
 

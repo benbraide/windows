@@ -79,3 +79,17 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::activate_dispatcher
 	call_(info, is_sent, target);
 	return 0;
 }
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::child_activate_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::object e(*reinterpret_cast<gui::object *>(&target));
+	target.events().child_activate(e);
+	call_(info, is_sent, target);
+	return 0;
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::activate_app_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::object e(*reinterpret_cast<gui::object *>(&target));
+	target.events().activate_app(e);
+	call_(info, is_sent, target);
+	return 0;
+}

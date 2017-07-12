@@ -27,3 +27,7 @@ bool winpp::messaging::handler::on_ncactivate(ncactivate_message_type &e){
 }
 
 void winpp::messaging::handler::on_activate(activate_message_type &e){}
+
+void winpp::messaging::handler::on_child_activate(message_object_type &e){}
+
+void winpp::messaging::handler::on_activate_app(message_object_type &e){}
