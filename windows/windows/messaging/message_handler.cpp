@@ -38,6 +38,14 @@ void winpp::messaging::handler::on_focus_change(focus_change_message_type &e){}
 
 void winpp::messaging::handler::on_enable(enable_message_type &e){}
 
+winpp::messaging::handler::hcursor_type winpp::messaging::handler::on_set_cursor(set_cursor_message_type &e){
+	return nullptr;
+}
+
+winpp::messaging::handler::hit_target_type winpp::messaging::handler::on_hit_test(hit_test_message_type &e){
+	return hit_target_type::nil;
+}
+
 void winpp::messaging::handler::on_position(position_message_type &e){}
 
 bool winpp::messaging::handler::on_size(size_message_type &e){

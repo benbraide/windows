@@ -120,3 +120,12 @@ winpp::events::move::~move() = default;
 bool winpp::events::move::is_changing() const{
 	return changing_;
 }
+
+winpp::events::hit_test::hit_test(gui_object_type &target, const point_type &position)
+	: object(target), position_(position){}
+
+winpp::events::hit_test::~hit_test() = default;
+
+const winpp::events::hit_test::point_type &winpp::events::hit_test::mouse_position() const{
+	return position_;
+}

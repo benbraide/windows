@@ -11,6 +11,8 @@ namespace winpp{
 
 		class handler{
 		public:
+			typedef ::HCURSOR hcursor_type;
+
 			typedef messaging::object message_object_type;
 
 			typedef messaging::mouse_activate mouse_activate_message_type;
@@ -20,11 +22,15 @@ namespace winpp{
 			typedef messaging::focus_change focus_change_message_type;
 			typedef messaging::enable enable_message_type;
 
+			typedef messaging::set_cursor set_cursor_message_type;
+			typedef messaging::hit_test hit_test_message_type;
+
 			typedef messaging::position position_message_type;
 			typedef messaging::size size_message_type;
 			typedef messaging::move move_message_type;
 
 			typedef structures::enumerations::mouse_activate_type mouse_activate_type;
+			typedef structures::enumerations::hit_target_type hit_target_type;
 
 			virtual ~handler();
 
@@ -54,6 +60,10 @@ namespace winpp{
 			virtual void on_focus_change(focus_change_message_type &e);
 
 			virtual void on_enable(enable_message_type &e);
+
+			virtual hcursor_type on_set_cursor(set_cursor_message_type &e);
+
+			virtual hit_target_type on_hit_test(hit_test_message_type &e);
 
 			virtual void on_position(position_message_type &e);
 

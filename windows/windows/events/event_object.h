@@ -36,7 +36,7 @@ namespace winpp{
 			state_type states_;
 		};
 
-		class mouse_activate : public object{
+		typedef class mouse_activate : public object{
 		public:
 			typedef ::LPARAM lparam_type;
 			typedef ::UINT uint_type;
@@ -51,7 +51,7 @@ namespace winpp{
 
 		protected:
 			lparam_type lparam_;
-		};
+		} set_cursor;
 
 		class pre_activate : public object{
 		public:
@@ -104,6 +104,20 @@ namespace winpp{
 
 		protected:
 			bool enabled_;
+		};
+
+		class hit_test : public object{
+		public:
+			typedef structures::point point_type;
+
+			hit_test(gui_object_type &target, const point_type &position);
+
+			virtual ~hit_test();
+
+			virtual const point_type &mouse_position() const;
+
+		protected:
+			point_type position_;
 		};
 
 		class position : public object{

@@ -139,6 +139,12 @@ bool winpp::messaging::enable::is_enabled() const{
 	return (info_.wparam<::BOOL>() != FALSE);
 }
 
+winpp::messaging::hit_test::~hit_test() = default;
+
+winpp::messaging::hit_test::point_type winpp::messaging::hit_test::mouse_position() const{
+	return WINPP_MAKE_MOUSE_POSITION(info_.lparam());
+}
+
 winpp::messaging::position::~position() = default;
 
 bool winpp::messaging::position::is_changing() const{

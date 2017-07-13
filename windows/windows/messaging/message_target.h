@@ -28,7 +28,9 @@ namespace winpp{
 			class event_tunnel : public gui::object_tree::event_tunnel{
 			public:
 				typedef gui::object_tree::event_tunnel base_type;
+
 				typedef structures::enumerations::event_type event_type;
+				typedef structures::enumerations::hit_target_type hit_target_type;
 
 				using base_type::bind;
 
@@ -49,6 +51,9 @@ namespace winpp{
 				events::tunnel<void> cancel_mode;
 				events::tunnel<void, events::focus_change> focus_change;
 				events::tunnel<void, events::enable> enable;
+
+				events::tunnel<::HCURSOR, events::set_cursor> set_cursor;
+				events::tunnel<hit_target_type, events::hit_test> hit_test;
 
 				events::tunnel<void, events::position> position;
 				events::tunnel<void, events::size> size;

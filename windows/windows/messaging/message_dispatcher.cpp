@@ -32,7 +32,7 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::ncdestroy_dispatche
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::close_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
 	events::object e(*reinterpret_cast<gui::object *>(&target));
-	target.events().pre_create(e);
+	target.events().close(e);
 	if (e.is_prevented())
 		return 0;
 
@@ -113,6 +113,78 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::enable_dispatcher::
 	target.events().enable(e);
 	call_(info, is_sent, target);
 	return 0;
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::set_cursor_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::set_cursor e(*reinterpret_cast<gui::object *>(&target), info.lparam());
+	auto value = target.events().set_cursor(e);
+	if (value != nullptr){//Use cursor
+		::SetCursor(value);
+		return TRUE;
+	}
+
+	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	ev.skip();
+
+	if ((value = call_(target, ev)) != nullptr){//Use cursor
+		::SetCursor(value);
+		return TRUE;
+	}
+
+	if ((value = retrieve_cursor_(info)) != nullptr)
+		::SetCursor(value);//Use retrieved value
+
+	return TRUE;
+}
+
+::HCURSOR winpp::messaging::set_cursor_dispatcher::retrieve_cursor_(const msg_type &info){
+	//Retrieve cursor -- Ref: Wine
+	switch (static_cast<hit_target_type>(info.low_lparam())){
+	case hit_target_type::error://Play beep if applicable
+		switch (info.high_lparam()){
+		case WM_LBUTTONDOWN:
+		case WM_MBUTTONDOWN:
+		case WM_RBUTTONDOWN:
+		case WM_XBUTTONDOWN:
+			::MessageBeep(0);
+			break;
+		default:
+			break;
+		}
+
+		return nullptr;
+	case hit_target_type::client://Use class cursor
+		return reinterpret_cast<::HCURSOR>(::GetClassLongPtrW(info.owner(), GCLP_HCURSOR));
+	case hit_target_type::left:
+	case hit_target_type::right:
+		return ::LoadCursorW(nullptr, IDC_SIZEWE);
+	case hit_target_type::top:
+	case hit_target_type::bottom:
+		return ::LoadCursorW(nullptr, IDC_SIZENS);
+	case hit_target_type::top_left:
+	case hit_target_type::bottom_right:
+		return ::LoadCursorW(nullptr, IDC_SIZENWSE);
+	case hit_target_type::top_right:
+	case hit_target_type::bottom_left:
+		return ::LoadCursorW(nullptr, IDC_SIZENESW);
+	default:
+		break;
+	}
+
+	return ::LoadCursorW(nullptr, IDC_ARROW);
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::hit_test_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::hit_test e(*reinterpret_cast<gui::object *>(&target), WINPP_MAKE_MOUSE_POSITION(info.lparam()));
+	auto value = target.events().hit_test(e);
+	if (value != hit_target_type::nil)
+		return static_cast<lresult_type>(value);
+
+	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	if ((value = call_(target, ev)) != hit_target_type::nil)
+		return static_cast<lresult_type>(value);
+
+	return ev.handle(false).result();
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::position_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){

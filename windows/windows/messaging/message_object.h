@@ -109,7 +109,7 @@ namespace winpp{
 			lresult_type value_;
 		};
 
-		class mouse_activate : public object{
+		typedef class mouse_activate : public object{
 		public:
 			typedef ::UINT uint_type;
 			typedef structures::enumerations::hit_target_type hit_target_type;
@@ -123,7 +123,7 @@ namespace winpp{
 			virtual hit_target_type hit_target() const;
 
 			virtual uint_type mouse_message() const;
-		};
+		} set_cursor;
 
 		class ncactivate : public object{
 		public:
@@ -171,6 +171,19 @@ namespace winpp{
 			virtual ~enable();
 
 			virtual bool is_enabled() const;
+		};
+
+		class hit_test : public object{
+		public:
+			typedef structures::point point_type;
+
+			template <typename... args_type>
+			explicit hit_test(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~hit_test();
+
+			virtual point_type mouse_position() const;
 		};
 
 		class position : public object{

@@ -226,6 +226,33 @@ namespace winpp{
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
 		};
 
+		class set_cursor_dispatcher : public typed_dispatcher<::HCURSOR, set_cursor>{
+		public:
+			typedef typed_dispatcher<::HCURSOR, set_cursor> base_type;
+			typedef structures::enumerations::hit_target_type hit_target_type;
+
+			template <typename... args_types>
+			explicit set_cursor_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+
+		protected:
+			virtual ::HCURSOR retrieve_cursor_(const msg_type &info);
+		};
+
+		class hit_test_dispatcher : public typed_dispatcher<structures::enumerations::hit_target_type, hit_test>{
+		public:
+			typedef typed_dispatcher<structures::enumerations::hit_target_type, hit_test> base_type;
+			typedef structures::enumerations::hit_target_type hit_target_type;
+
+			template <typename... args_types>
+			explicit hit_test_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
 		class position_dispatcher : public typed_dispatcher<void, position>{
 		public:
 			typedef typed_dispatcher<void, position> base_type;

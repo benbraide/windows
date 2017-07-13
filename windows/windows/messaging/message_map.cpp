@@ -21,6 +21,9 @@ winpp::messaging::map::map()
 	list_[WM_KILLFOCUS] = list_[WM_SETFOCUS] = std::make_shared<messaging::focus_change_dispatcher>(&target::on_focus_change);
 	list_[WM_ENABLE] = std::make_shared<messaging::enable_dispatcher>(&target::on_enable);
 
+	list_[WM_SETCURSOR] = std::make_shared<messaging::set_cursor_dispatcher>(&target::on_set_cursor);
+	list_[WM_NCHITTEST] = std::make_shared<messaging::hit_test_dispatcher>(&target::on_hit_test);
+
 	list_[WM_WINDOWPOSCHANGED] = list_[WM_WINDOWPOSCHANGING] = std::make_shared<messaging::position_dispatcher>(&target::on_position);
 	list_[WM_SIZE] = list_[WM_SIZING] = std::make_shared<messaging::size_dispatcher>(&target::on_size);
 	list_[WM_MOVE] = list_[WM_MOVING] = std::make_shared<messaging::move_dispatcher>(&target::on_move);
