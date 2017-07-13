@@ -8,16 +8,12 @@
 
 namespace winpp{
 	namespace window{
-		template <class base_type>
-		class frame{
+		template <class this_base_type>
+		class frame : public this_base_type{
 		public:
-			typedef base_type base_type;
+			typedef this_base_type base_type;
 
 			typedef ::DWORD dword_type;
-
-			frame(){
-				reset_persistent_styles_();
-			}
 
 			template <typename... args_types>
 			explicit frame(args_types &&... args){
@@ -26,7 +22,7 @@ namespace winpp{
 			}
 
 			virtual ~frame(){
-				base_type::destroy(true);
+				base_type::destroy(gui::object::force_type::force);
 			}
 
 			virtual dword_type black_listed_styles(bool is_extended) const override{
@@ -39,6 +35,9 @@ namespace winpp{
 				WINPP_SET(base_type::persistent_styles_.basic, WS_OVERLAPPEDWINDOW);
 			}
 		};
+
+		typedef frame<top_level> framed_top_level;
+		typedef frame<top_level_dialog> framed_top_level_dialog;
 	}
 }
 

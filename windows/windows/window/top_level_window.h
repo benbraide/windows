@@ -7,10 +7,10 @@
 
 namespace winpp{
 	namespace window{
-		template <class base_type>
-		class basic_top_level{
+		template <class this_base_type>
+		class basic_top_level : public this_base_type{
 		public:
-			typedef base_type base_type;
+			typedef this_base_type base_type;
 
 			typedef gui::object gui_object_type;
 			typedef gui::object_sibling gui_sibling_type;
@@ -35,7 +35,7 @@ namespace winpp{
 			}
 
 			virtual ~basic_top_level(){
-				base_type::destroy(true);
+				base_type::destroy(gui::object::force_type::force);
 			}
 
 			virtual void create(const std::wstring &caption, const point_type &offset, const size_type &size){
