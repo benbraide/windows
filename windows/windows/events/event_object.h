@@ -36,6 +36,21 @@ namespace winpp{
 			state_type states_;
 		};
 
+		typedef class dispatch_message : public object{
+		public:
+			typedef wrappers::msg msg_type;
+
+			dispatch_message(gui_object_type &target, const msg_type &msg, bool is_sent);
+
+			const msg_type &msg() const;
+
+			bool is_sent() const;
+
+		protected:
+			msg_type msg_;
+			bool is_sent_;
+		} unrecognized_message;
+
 		typedef class mouse_activate : public object{
 		public:
 			typedef ::LPARAM lparam_type;

@@ -83,34 +83,24 @@ bool winpp::messaging::target::pre_translate(msg_type &msg){
 	return (parent == nullptr) ? false : parent->pre_translate(msg);
 }
 
-winpp::messaging::target::lresult_type winpp::messaging::target::unrecognized_message(message_object_type &e){
-	return call_default_(e.info());
-}
+winpp::messaging::target::lresult_type winpp::messaging::target::dispatch(const msg_type &msg, bool is_sent){
+	events::dispatch_message e(*reinterpret_cast<gui::object *>(this), msg, is_sent);
+	auto result = events().dispatch_message(e);
+	if (e.is_prevented())//Message handled
+		return result;
 
-winpp::messaging::target::lresult_type winpp::messaging::target::procedure(const msg_type &msg, bool is_sent){
 	auto dispatcher = application::object::get().object_manager().messaging_map.find_dispatcher(msg.code());
 	return (dispatcher == nullptr) ? call_default_(msg) : dispatcher->dispatch(msg, is_sent, *this);
 }
 
-/*
-winpp::messaging::target::lresult_type winpp::messaging::target::dispatch_ncactivate_(){
-	if (action_prevented_<events::tunnel<void>>() && msg_.wparam<::BOOL>() == FALSE)
-		return FALSE;//Prevent
+winpp::messaging::target::lresult_type winpp::messaging::target::unrecognized_message(message_object_type &e){
+	events::unrecognized_message ev(*reinterpret_cast<gui::object *>(this), e.info(), e.is_sent());
+	auto result = events().unrecognized_message(ev);
+	if (ev.is_prevented())//Message handled
+		return result;
 
-	ncactivate_message_type e(msg_, false, procedure());
-	if (!on_ncactivate(e) && msg_.wparam<::BOOL>() == FALSE){//Prevent
-		e.skip();
-		return FALSE;
-	}
-
-	return e.handle(false).result();
+	return call_default_(e.info());
 }
-
-winpp::messaging::target::lresult_type winpp::messaging::target::dispatch_activate_(){
-	fire_event_<events::tunnel<void>>();
-	on_activate(activate_message_type(msg_, false, procedure()));
-	return 0;
-}*/
 
 winpp::messaging::target::lresult_type winpp::messaging::target::call_default_(const msg_type &info){
 	auto default_procedure = procedure();

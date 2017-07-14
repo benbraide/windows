@@ -1,4 +1,5 @@
 #include "window_object.h"
+#include "../application/object_manager.h"
 
 winpp::window::object::event_tunnel::event_tunnel(gui_object_type &object)
 	: timer(object), interval(object){}

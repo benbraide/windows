@@ -8,8 +8,6 @@
 #include "../wrappers/hwnd_wrapper.h"
 #include "../wrappers/wnd_class_wrapper.h"
 
-#include "../application/object_manager.h"
-
 #include "../messaging/message_target.h"
 
 #include "window_styles.h"
@@ -18,8 +16,6 @@ namespace winpp{
 	namespace window{
 		class object : public gui::object_tree, public messaging::target{
 		public:
-			using messaging::target::procedure;
-
 			typedef gui::object_tree tree_base_type;
 
 			typedef window::styles styles_type;
@@ -29,6 +25,10 @@ namespace winpp{
 			typedef ::UINT uint_type;
 			typedef ::WORD word_type;
 			typedef ::DWORD dword_type;
+
+			typedef ::WPARAM wparam_type;
+			typedef ::LPARAM lparam_type;
+
 			typedef ::WNDPROC procedure_type;
 
 			typedef wrappers::wnd_class wnd_class_type;
@@ -135,6 +135,16 @@ namespace winpp{
 			virtual dword_type white_listed_styles(bool is_extended) const;
 
 			virtual dword_type black_listed_styles(bool is_extended) const;
+
+			template <typename return_type = lresult_type, typename arg_wparam_type = wparam_type, typename arg_lparam_type = lparam_type>
+			return_type send_message(uint_type message, arg_wparam_type wparam, arg_lparam_type lparam){
+				return value_.send_message<return_type>(message, wparam, lparam);
+			}
+
+			template <typename arg_wparam_type = wparam_type, typename arg_lparam_type = lparam_type>
+			bool post_message(uint_type message, arg_wparam_type wparam, arg_lparam_type lparam){
+				return value_.post_message(message, wparam, lparam);
+			}
 
 		protected:
 			explicit object(procedure_type procedure = ::DefWindowProcW);

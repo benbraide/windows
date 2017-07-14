@@ -27,6 +27,17 @@ winpp::events::object::gui_object_type &winpp::events::object::target() const{
 	return *target_;
 }
 
+winpp::events::dispatch_message::dispatch_message(gui_object_type &target, const msg_type &msg, bool is_sent)
+	: object(target), msg_(msg), is_sent_(is_sent){}
+
+const winpp::events::dispatch_message::msg_type &winpp::events::dispatch_message::msg() const{
+	return msg_;
+}
+
+bool winpp::events::dispatch_message::is_sent() const{
+	return is_sent_;
+}
+
 winpp::events::mouse_activate::mouse_activate(gui_object_type &target, lparam_type lparam)
 	: object(target), lparam_(lparam){}
 

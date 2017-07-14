@@ -10,16 +10,14 @@
 
 #include "../gui/gui_object.h"
 #include "../messaging/message_map.h"
+#include "../window/window_object.h"
 
 #include "application_classes.h"
 
+#define WINPP_WM_PROXY_MSG (WM_APP + 0)
 #define WINPP_WM_MARSHALLED_MSG (WM_APP + 1)
 
 namespace winpp{
-	namespace window{
-		class object;
-	}
-
 	namespace application{
 		class object_manager{
 		public:
@@ -63,12 +61,14 @@ namespace winpp{
 			typedef std::list<gui_object_type *> object_list_type;
 			typedef std::unordered_map<hwnd_value_type, window_type *> window_list_type;
 
+			typedef std::shared_ptr<window_type> window_ptr_type;
+
 			struct window_state{
 				hwnd_value_type moused;
 				hwnd_value_type focused;
 			};
 
-			struct non_window_message_info{
+			struct message_proxy_info{
 				gui_object_type *target;
 				uint_type code;
 				wparam_type wparam;
@@ -92,22 +92,20 @@ namespace winpp{
 			template <typename return_type = lresult_type, typename arg_wparam_type = wparam_type, typename arg_lparam_type = lparam_type>
 			static return_type send_message(gui_object_type &target, uint_type message, arg_wparam_type wparam, arg_lparam_type lparam){
 				if (target.group() == gui_object_type::window_group)//Forward message to window
-					return hwnd_type(static_cast<hwnd_value_type>(target.handle())).send_message<return_type>(message, wparam, lparam);
+					return target.query<window_type>().send_message<return_type>(message, wparam, lparam);
 
 				auto target_app = target.app();
 				if (target_app == nullptr)
 					throw common::no_app_exception();
 
-				non_window_message_info info{
+				message_proxy_info info{
 					&target,
 					message,
 					(wparam_type)wparam,
 					(lparam_type)lparam
 				};
 
-				return (return_type)target_app->execute_task<lresult_type>([&info]{
-					return entry(nullptr, non_window_message_id_, reinterpret_cast<wparam_type>(&info), 0u);
-				});
+				return target_app->object_manager().proxy_window_->send_message<return_type>(WINPP_WM_PROXY_MSG, 0, &info);
 			}
 
 			static gui_object_type *owner(hwnd_type value);
@@ -133,7 +131,7 @@ namespace winpp{
 			static lresult_type CALLBACK hook_(int code, wparam_type wparam, lparam_type lparam);
 
 			object *app_;
-			hwnd_value_type message_handle_;
+			window_ptr_type proxy_window_;
 
 			void *recent_params_;
 			bool replace_procedure_;

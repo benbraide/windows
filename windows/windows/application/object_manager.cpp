@@ -1,22 +1,16 @@
 #include "object_manager.h"
-#include "../window/window_object.h"
+#include "../window/message_window.h"
 
 winpp::application::object_manager::object_manager(object &app)
-	: app_(&app), recent_params_(nullptr), replace_procedure_(false){
-	/*message_handle_ = ::CreateWindowExW(
-		0,
-		classes_.general().name().c_str(),
-		L"WINPP_MSG_WND_" WINPP_WUUID,
-		0,
-		0,
-		0,
-		0,
-		0,
-		HWND_MESSAGE,
-		nullptr,
-		nullptr,
-		nullptr
-	);*/
+	: app_(&app), recent_params_(nullptr), replace_procedure_(false), proxy_window_(std::make_shared<window::message>(app, L"WINPP_MSG_WND_" WINPP_WUUID)){
+	proxy_window_->events().unrecognized_message([this](events::unrecognized_message &e) -> lresult_type{
+		auto &msg = e.msg();
+		if (msg.code() != WINPP_WM_PROXY_MSG)
+			return 0;
+
+		e.prevent();//Indicate handled
+		return msg.lparam<message_proxy_info *>()->target->query<messaging::target>().dispatch(msg, e.is_sent());
+	});
 }
 
 winpp::application::object_manager::~object_manager() = default;
@@ -105,7 +99,7 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 	if (target == nullptr)//Unidentified handle
 		return ::DefWindowProcW(window_handle, msg, wparam, lparam);
 
-	return target->procedure(msg_type({ window_handle, msg, wparam, lparam }), false);
+	return target->dispatch(msg_type({ window_handle, msg, wparam, lparam }), false);
 }
 
 winpp::application::object_manager::messaging_map_type winpp::application::object_manager::messaging_map;

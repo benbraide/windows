@@ -38,6 +38,9 @@ namespace winpp{
 
 				virtual unsigned __int64 bind(event_type e, const std::any &callback) override;
 
+				events::tunnel<lresult_type, events::dispatch_message> dispatch_message;
+				events::tunnel<lresult_type, events::unrecognized_message> unrecognized_message;
+
 				events::tunnel<void> pre_create;
 				events::tunnel<void> post_destroy;
 
@@ -79,9 +82,9 @@ namespace winpp{
 
 			virtual bool pre_translate(msg_type &msg);
 
-			virtual lresult_type unrecognized_message(message_object_type &e);
+			virtual lresult_type dispatch(const msg_type &msg, bool is_sent);
 
-			virtual lresult_type procedure(const msg_type &msg, bool is_sent);
+			virtual lresult_type unrecognized_message(message_object_type &e);
 
 			virtual procedure_type procedure() const = 0;
 
