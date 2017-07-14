@@ -81,6 +81,8 @@ namespace winpp{
 
 			object &app();
 
+			void create_proxy();
+
 			void create(const create_info_type &info, hwnd_type &out);
 
 			bool has_top_level() const;

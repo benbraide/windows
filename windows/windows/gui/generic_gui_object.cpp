@@ -20,13 +20,13 @@ unsigned __int64 winpp::gui::generic_object::event_tunnel::bind(const std::strin
 unsigned __int64 winpp::gui::generic_object::event_tunnel::bind(event_type e, const std::any &callback){
 	switch (e){
 	case event_type::create:
-		return create(callback);
+		return create.bind_generic(callback);
 	case event_type::destroy:
-		return destroy(callback);
+		return destroy.bind_generic(callback);
 	case event_type::move:
-		return move(callback);
+		return move.bind_generic(callback);
 	case event_type::size:
-		return size(callback);
+		return size.bind_generic(callback);
 	default:
 		break;
 	}
@@ -36,16 +36,16 @@ unsigned __int64 winpp::gui::generic_object::event_tunnel::bind(event_type e, co
 
 unsigned __int64 winpp::gui::generic_object::event_tunnel::bind_(const std::wstring &e, const std::any &callback){
 	if (e == L"create")
-		return create(callback);
+		return create.bind_generic(callback);
 
 	if (e == L"destroy")
-		return destroy(callback);
+		return destroy.bind_generic(callback);
 
 	if (e == L"move")
-		return move(callback);
+		return move.bind_generic(callback);
 
 	if (e == L"size")
-		return size(callback);
+		return size.bind_generic(callback);
 
 	return 0u;
 }

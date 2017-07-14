@@ -6,29 +6,29 @@ winpp::messaging::target::event_tunnel::~event_tunnel() = default;
 unsigned __int64 winpp::messaging::target::event_tunnel::bind(event_type e, const std::any &callback){
 	switch (e){
 	case event_type::pre_create:
-		return pre_create(callback);
+		return pre_create.bind_generic(callback);
 	case event_type::post_destroy:
-		return post_destroy(callback);
+		return post_destroy.bind_generic(callback);
 	case event_type::pre_activate:
-		return pre_activate(callback);
+		return pre_activate.bind_generic(callback);
 	case event_type::activate:
-		return activate(callback);
+		return activate.bind_generic(callback);
 	case event_type::close:
-		return close(callback);
+		return close.bind_generic(callback);
 	case event_type::maximize:
-		return maximize(callback);
+		return maximize.bind_generic(callback);
 	case event_type::minimize:
-		return minimize(callback);
+		return minimize.bind_generic(callback);
 	case event_type::restore:
-		return restore(callback);
+		return restore.bind_generic(callback);
 	case event_type::show:
-		return show(callback);
+		return show.bind_generic(callback);
 	case event_type::hide:
-		return hide(callback);
+		return hide.bind_generic(callback);
 	case event_type::erase_background:
-		return erase_background(callback);
+		return erase_background.bind_generic(callback);
 	case event_type::paint:
-		return paint(callback);
+		return paint.bind_generic(callback);
 	default:
 		break;
 	}
@@ -38,40 +38,40 @@ unsigned __int64 winpp::messaging::target::event_tunnel::bind(event_type e, cons
 
 unsigned __int64 winpp::messaging::target::event_tunnel::bind_(const std::wstring &e, const std::any &callback){
 	if (e == L"pre_create")
-		return pre_create(callback);
+		return pre_create.bind_generic(callback);
 
 	if (e == L"post_destroy")
-		return post_destroy(callback);
+		return post_destroy.bind_generic(callback);
 
 	if (e == L"pre_activate")
-		return pre_activate(callback);
+		return pre_activate.bind_generic(callback);
 
 	if (e == L"activate")
-		return activate(callback);
+		return activate.bind_generic(callback);
 
 	if (e == L"close")
-		return close(callback);
+		return close.bind_generic(callback);
 
 	if (e == L"maximize")
-		return maximize(callback);
+		return maximize.bind_generic(callback);
 
 	if (e == L"minimize")
-		return minimize(callback);
+		return minimize.bind_generic(callback);
 
 	if (e == L"restore")
-		return restore(callback);
+		return restore.bind_generic(callback);
 
 	if (e == L"show")
-		return show(callback);
+		return show.bind_generic(callback);
 
 	if (e == L"hide")
-		return hide(callback);
+		return hide.bind_generic(callback);
 
 	if (e == L"erase_background")
-		return erase_background(callback);
+		return erase_background.bind_generic(callback);
 
 	if (e == L"paint")
-		return paint(callback);
+		return paint.bind_generic(callback);
 
 	return base_type::bind_(e, callback);
 }

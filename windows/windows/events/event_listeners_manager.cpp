@@ -12,7 +12,8 @@ unsigned __int32 winpp::events::listeners_manager::add(listeners_base &item){
 
 void winpp::events::listeners_manager::remove(unsigned __int32 id){
 	guard_type guard(lock_);
-	list_.erase(id);
+	if (!list_.empty())
+		list_.erase(id);
 }
 
 winpp::events::listeners_base *winpp::events::listeners_manager::find(unsigned __int32 id){

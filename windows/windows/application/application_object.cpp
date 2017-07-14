@@ -45,14 +45,29 @@ winpp::application::object &winpp::application::object::get(){
 	if (current_app != nullptr)
 		return *current_app;
 
-	guard_type guard(lock_);
-	return *(list_[threading::id::current()] = std::make_shared<object>());
+	{//Limit guard scope
+		guard_type guard(lock_);
+		*(list_[threading::id::current()] = std::make_shared<object>());
+	}
+
+	current_app->object_manager_->create_proxy();
+	return *current_app;
 }
 
 winpp::application::object &winpp::application::object::get(dword_type id){
-	guard_type guard(lock_);
-	auto entry = list_.find(id);
-	return (entry == list_.end()) ? *(list_[id] = std::make_shared<object>()) : *entry->second;
+	object_ptr_type new_object;
+	{//Limit guard scope
+		guard_type guard(lock_);
+
+		auto entry = list_.find(id);
+		if (entry != list_.end())//Entry found
+			return *entry->second;
+
+		new_object = (list_[id] = std::make_shared<object>());
+	}
+	
+	new_object->object_manager_->create_proxy();
+	return *new_object;
 }
 
 winpp::application::object *winpp::application::object::find(dword_type id){

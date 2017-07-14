@@ -18,6 +18,10 @@ winpp::window::message::~message(){
 	destroy();
 }
 
+bool winpp::window::message::is_top_level() const{
+	return false;
+}
+
 winpp::window::object::dword_type winpp::window::message::black_listed_styles(bool is_extended) const{
 	return ~0ul;//Blacklist all styles
 }

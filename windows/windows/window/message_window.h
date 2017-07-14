@@ -17,6 +17,8 @@ namespace winpp{
 
 			virtual ~message();
 
+			virtual bool is_top_level() const override;
+
 			virtual dword_type black_listed_styles(bool is_extended) const override;
 
 			virtual void create(const std::wstring &caption);

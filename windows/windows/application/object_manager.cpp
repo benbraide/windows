@@ -2,8 +2,20 @@
 #include "../window/message_window.h"
 
 winpp::application::object_manager::object_manager(object &app)
-	: app_(&app), recent_params_(nullptr), replace_procedure_(false), proxy_window_(std::make_shared<window::message>(app, L"WINPP_MSG_WND_" WINPP_WUUID)){
-	proxy_window_->events().unrecognized_message([this](events::unrecognized_message &e) -> lresult_type{
+	: app_(&app), recent_params_(nullptr), replace_procedure_(false){}
+
+winpp::application::object_manager::~object_manager() = default;
+
+winpp::application::object &winpp::application::object_manager::app(){
+	return *app_;
+}
+
+void winpp::application::object_manager::create_proxy(){
+	if (proxy_window_ != nullptr)
+		return;//Proxy already created
+
+	proxy_window_ = std::make_shared<window::message>(*app_, L"WINPP_MSG_WND_" WINPP_WUUID);
+	proxy_window_->events().unrecognized_message([](events::unrecognized_message &e) -> lresult_type{
 		auto &msg = e.msg();
 		if (msg.code() != WINPP_WM_PROXY_MSG)
 			return 0;
@@ -11,12 +23,6 @@ winpp::application::object_manager::object_manager(object &app)
 		e.prevent();//Indicate handled
 		return msg.lparam<message_proxy_info *>()->target->query<messaging::target>().dispatch(msg, e.is_sent());
 	});
-}
-
-winpp::application::object_manager::~object_manager() = default;
-
-winpp::application::object &winpp::application::object_manager::app(){
-	return *app_;
 }
 
 void winpp::application::object_manager::create(const create_info_type &info, hwnd_type &out){
@@ -105,6 +111,9 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 winpp::application::object_manager::messaging_map_type winpp::application::object_manager::messaging_map;
 
 winpp::application::object_manager::window_type *winpp::application::object_manager::find_window_(hwnd_value_type handle){
+	if (windows_.empty())
+		return nullptr;
+
 	auto entry = windows_.find(handle);
 	return (entry == windows_.end()) ? nullptr : entry->second;
 }
@@ -129,7 +138,7 @@ void winpp::application::object_manager::update_object_created_(gui_object_type 
 }
 
 void winpp::application::object_manager::update_object_destroyed_(gui_object_type *object){
-	if (object == nullptr)
+	if (object == nullptr || list_.empty())
 		return;
 
 	auto entry = std::find(list_.begin(), list_.end(), object);

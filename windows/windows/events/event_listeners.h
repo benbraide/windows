@@ -3,7 +3,6 @@
 #ifndef WINPP_EVENT_LISTENERS_H
 #define WINPP_EVENT_LISTENERS_H
 
-#include <variant>
 #include <functional>
 
 #include "event_listeners_manager.h"
@@ -39,13 +38,10 @@ namespace winpp{
 			typedef std::function<return_type(value_types...)> callback_type;
 			typedef std::function<return_type()> no_args_callback_type;
 			
-			typedef return_type(*native_callback_type)(value_types...);
-			typedef std::variant<callback_type, native_callback_type> variant_callback_type;
-
 			typedef std::recursive_mutex lock_type;
 			typedef std::lock_guard<lock_type> guard_type;
 
-			typedef std::unordered_map<unsigned __int32, variant_callback_type> callback_list_type;
+			typedef std::unordered_map<unsigned __int32, callback_type> callback_list_type;
 			typedef common::random_uint32 random_number_type;
 
 			listeners(){
@@ -54,10 +50,6 @@ namespace winpp{
 
 			virtual ~listeners(){
 				listeners_manager::remove(id_);
-			}
-
-			unsigned __int64 add(native_callback_type callback){
-				return add_(callback);
 			}
 
 			unsigned __int64 add(callback_type callback){
@@ -80,18 +72,6 @@ namespace winpp{
 
 				callback_list_.erase(item);
 				return true;
-			}
-
-			bool remove(native_callback_type callback){
-				guard_type guard(lock_);
-				for (auto item = callback_list_.begin(); item != callback_list_.end(); ++item){
-					if (std::holds_alternative<native_callback_type>(item->second) && std::get<native_callback_type>(item->second) == callback){
-						callback_list_.erase(item);
-						return true;
-					}
-				}
-
-				return false;
 			}
 
 			unsigned __int32 id() const{
