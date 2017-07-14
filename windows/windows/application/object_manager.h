@@ -47,6 +47,8 @@ namespace winpp{
 			typedef structures::size size_type;
 			typedef structures::rect rect_type;
 
+			typedef structures::enumerations::hit_target_type hit_target_type;
+
 			typedef wrappers::msg msg_type;
 			typedef wrappers::wnd_class wnd_class_type;
 
@@ -63,9 +65,10 @@ namespace winpp{
 
 			typedef std::shared_ptr<window_type> window_ptr_type;
 
-			struct window_state{
-				hwnd_value_type moused;
-				hwnd_value_type focused;
+			struct object_state{
+				gui_object_type *moused;
+				gui_object_type *focused;
+				gui_object_type *captured;
 			};
 
 			struct message_proxy_info{
@@ -130,6 +133,8 @@ namespace winpp{
 
 			void update_object_destroyed_(gui_object_type *object);
 
+			lresult_type mouse_move_(window_type &target, uint_type msg, wparam_type wparam, lparam_type lparam);
+
 			static lresult_type CALLBACK hook_(int code, wparam_type wparam, lparam_type lparam);
 
 			object *app_;
@@ -142,10 +147,9 @@ namespace winpp{
 			object_list_type list_;
 			object_list_type top_levels_;
 			window_list_type windows_;
-			window_state window_state_{};
+			object_state object_state_{};
 
 			static classes classes_;
-			static uint_type non_window_message_id_;
 		};
 	}
 }

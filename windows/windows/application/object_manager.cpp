@@ -101,9 +101,18 @@ winpp::application::object_manager::uint_type winpp::application::object_manager
 }
 
 winpp::application::object_manager::lresult_type CALLBACK winpp::application::object_manager::entry(hwnd_value_type window_handle, uint_type msg, wparam_type wparam, lparam_type lparam){
-	auto target = object::current_app->object_manager().find_window_(window_handle);
+	auto &manager = object::current_app->object_manager();
+	auto target = manager.find_window_(window_handle);
 	if (target == nullptr)//Unidentified handle
 		return ::DefWindowProcW(window_handle, msg, wparam, lparam);
+
+	switch (msg){
+	case WM_NCMOUSEMOVE:
+	case WM_MOUSEMOVE:
+		return manager.mouse_move_(*target, msg, wparam, lparam);
+	default:
+		break;
+	}
 
 	return target->dispatch(msg_type({ window_handle, msg, wparam, lparam }), false);
 }
@@ -154,6 +163,47 @@ void winpp::application::object_manager::update_object_destroyed_(gui_object_typ
 		windows_.erase(static_cast<hwnd_value_type>(window_object->handle()));
 }
 
+winpp::application::object_manager::lresult_type winpp::application::object_manager::mouse_move_(window_type &target, uint_type msg, wparam_type wparam, lparam_type lparam){
+	auto mouse_out_of_target = false;
+	auto mouse_position = threading::message_queue::last_mouse_position();
+	while (object_state_.moused != nullptr){//Check if mouse has moved out of object
+		if (object_state_.moused->hit_test(mouse_position) == hit_target_type::nil){//Mouse is out of object
+			object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+				static_cast<hwnd_value_type>(object_state_.moused->handle()),
+				WM_NCMOUSELEAVE,
+				0,
+				0
+			}), true);//Send mouse leave message
+
+			if (object_state_.moused == &target)
+				mouse_out_of_target = true;
+
+			object_state_.moused = object_state_.moused->parent();//Climb hierarchy
+		}
+	}
+
+	if (mouse_out_of_target){
+		if (object_state_.captured != nullptr){//Release capture
+			::ReleaseCapture();
+			object_state_.captured = nullptr;
+		}
+		return 0;
+	}
+
+	if (object_state_.captured == nullptr)//Capture mouse
+		::SetCapture(static_cast<hwnd_value_type>((object_state_.captured = &target)->handle()));
+
+	if (object_state_.moused == nullptr && (object_state_.moused = target.deepest_hit_target(mouse_position)) == nullptr)//Find new target
+		object_state_.moused = &target;//Target is deepest object
+
+	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+		static_cast<hwnd_value_type>(object_state_.moused->handle()),
+		object_state_.moused->is_window() ? msg : WM_MOUSEMOVE,
+		wparam,
+		lparam
+	}), true);//Forward message
+}
+
 winpp::application::object_manager::lresult_type CALLBACK winpp::application::object_manager::hook_(int code, wparam_type wparam, lparam_type lparam){
 	if (code == HCBT_CREATEWND){//Respond to window creation
 		auto &manager = object::current_app->object_manager();
@@ -173,29 +223,4 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 	return ::CallNextHookEx(nullptr, code, wparam, lparam);
 }
 
-/*
-winpp::application::object_manager::lresult_type CALLBACK winpp::application::object_manager::mouse_hook_(int code, wparam_type wparam, lparam_type lparam){
-	if (code == HC_ACTION){
-		auto &manager = object::current_app->object_manager();
-		auto info = reinterpret_cast<mouse_info_type *>(lparam);
-		if (wparam == WM_NCMOUSEMOVE || wparam == WM_MOUSEMOVE){
-			auto target = owner(info->hwnd);
-			auto moused_target = owner(manager.window_state_.moused);
-
-			if (info->hwnd != manager.window_state_.moused){//Update window with mouse
-				if (manager.window_state_.moused != nullptr && (moused_target == nullptr || !moused_target->is_ancestor(*target)))
-					send_message(*moused_target, WM_NCMOUSELEAVE, 0, 0);
-				manager.window_state_.moused = info->hwnd;
-			}
-
-			if (target != nullptr && target->has_parent())
-				send_message(*target->parent(), WM_MOUSEMOVE, 0, 0);
-		}
-	}
-
-	return ::CallNextHookEx(nullptr, code, wparam, lparam);
-}*/
-
 winpp::application::classes winpp::application::object_manager::classes_;
-
-winpp::application::object_manager::uint_type winpp::application::object_manager::non_window_message_id_ = ::RegisterWindowMessageW(L"WINPP_NW_WM_" WINPP_WUUID);
