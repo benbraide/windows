@@ -200,6 +200,7 @@ bool winpp::gui::object_group::is_child(const gui_object_type &object) const{
 }
 
 void winpp::gui::object_group::destroyed_(){
+	generic_object::destroyed_();
 	guard_type guard(lock_);
 	for (auto child : children_)
 		child->internal_set_parent(nullptr);

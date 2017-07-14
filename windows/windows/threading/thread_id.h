@@ -26,7 +26,7 @@ namespace winpp{
 			}
 
 			static basic_id current(){
-				return basic_id();
+				return basic_id(::GetCurrentThreadId());
 			}
 		};
 

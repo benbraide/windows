@@ -61,6 +61,7 @@ namespace winpp{
 			typedef messaging::map messaging_map_type;
 
 			typedef std::list<gui_object_type *> object_list_type;
+			typedef std::unordered_map<hwnd_value_type, window_type *> window_list_type;
 
 			struct window_state{
 				hwnd_value_type moused;
@@ -80,11 +81,13 @@ namespace winpp{
 
 			object &app();
 
-			hwnd_type create(const create_info_type &info);
+			void create(const create_info_type &info, hwnd_type &out);
 
 			bool has_top_level() const;
 
 			void update(uint_type code, void *args);
+
+			window_type *find_window(hwnd_value_type handle);
 
 			template <typename return_type = lresult_type, typename arg_wparam_type = wparam_type, typename arg_lparam_type = lparam_type>
 			static return_type send_message(gui_object_type &target, uint_type message, arg_wparam_type wparam, arg_lparam_type lparam){
@@ -119,6 +122,8 @@ namespace winpp{
 			static const uint_type update_object_destroyed		= 0x00000002u;
 
 		private:
+			window_type *find_window_(hwnd_value_type handle);
+
 			void update_(uint_type code, void *args);
 
 			void update_object_created_(gui_object_type *object);
@@ -132,9 +137,11 @@ namespace winpp{
 
 			void *recent_params_;
 			bool replace_procedure_;
+			hwnd_type *out_;
 
 			object_list_type list_;
 			object_list_type top_levels_;
+			window_list_type windows_;
 			window_state window_state_{};
 
 			static classes classes_;

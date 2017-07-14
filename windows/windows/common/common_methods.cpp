@@ -5,18 +5,6 @@ winpp::common::methods::application_type *winpp::common::methods::get_app(){
 	return (application_type::current_app == nullptr) ? application_type::main_app : application_type::current_app;
 }
 
-winpp::common::methods::hwnd_type winpp::common::methods::create_window(const create_info_type &info, application_type *&app){
-	if (app == nullptr && (app = get_app()) == nullptr)
-		throw common::no_app_exception();
-
-	if (app == application_type::current_app)
-		return app->object_manager().create(info);
-
-	return app->execute_task<hwnd_type>([app, &info]{
-		return app->object_manager().create(info);
-	});
-}
-
 std::string winpp::common::methods::uuid(){
 	uuid_type uuid;
 	if (::UuidCreate(&uuid) == RPC_S_UUID_NO_ADDRESS)

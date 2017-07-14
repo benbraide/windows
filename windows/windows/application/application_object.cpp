@@ -5,7 +5,6 @@
 
 winpp::application::object::object()
 	: states_(state_type::nil), object_manager_(std::make_shared<object_manager_type>(*this)){
-	guard_type guard(lock_);
 	if (current_app != nullptr)
 		throw common::multiple_apps_exception();
 
@@ -16,7 +15,8 @@ winpp::application::object::object()
 
 winpp::application::object::~object(){
 	guard_type guard(lock_);
-	list_.erase(id_);
+	if (!list_.empty())
+		list_.erase(id_);
 }
 
 int winpp::application::object::run(){
@@ -81,12 +81,12 @@ void winpp::application::object::dispatch_(){
 }
 
 bool winpp::application::object::is_stopped_() const{
-	return false;
+	return !object_manager_->has_top_level();
 }
 
 bool winpp::application::object::is_pre_processed_(){
-	auto target = hwnd_type(cache_.owner()).data<gui_object_type *>();
-	return (target == nullptr) ? false : target->query<messaging::target>().pre_translate(cache_);
+	auto target = object_manager_->find_window(cache_.owner());
+	return (target == nullptr) ? false : target->pre_translate(cache_);
 }
 
 winpp::application::object::list_type winpp::application::object::list_;

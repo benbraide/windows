@@ -204,6 +204,20 @@ winpp::gui::object &winpp::gui::object_sibling::destroy(force_type force){
 	return *this;
 }
 
+winpp::gui::object &winpp::gui::object_sibling::show(show_mode mode){
+	object_->show(mode);
+	return *this;
+}
+
+winpp::gui::object &winpp::gui::object_sibling::hide(){
+	object_->hide();
+	return *this;
+}
+
+bool winpp::gui::object_sibling::is_hidden() const{
+	return object_->is_hidden();
+}
+
 winpp::gui::object::rect_type winpp::gui::object_sibling::convert_from_screen(const rect_type &value) const{
 	return object_->convert_from_screen(value);
 }

@@ -274,6 +274,18 @@ winpp::gui::object &winpp::gui::generic_object::destroy(force_type force){
 	throw common::unsupported_exception();
 }
 
+winpp::gui::object &winpp::gui::generic_object::show(show_mode mode){
+	throw common::unsupported_exception();
+}
+
+winpp::gui::object &winpp::gui::generic_object::hide(){
+	throw common::unsupported_exception();
+}
+
+bool winpp::gui::generic_object::is_hidden() const{
+	throw common::unsupported_exception();
+}
+
 winpp::gui::object::rect_type winpp::gui::generic_object::convert_from_screen(const rect_type &value) const{
 	return value;
 }

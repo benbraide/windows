@@ -26,7 +26,7 @@ namespace winpp{
 			typedef ::HBRUSH brush_type;
 
 			basic_wnd_class()
-				: base_type(value_type{}){
+				: base_type(value_type{ sizeof(value_type) }){
 				base_type::value_.style = (CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS);
 			}
 

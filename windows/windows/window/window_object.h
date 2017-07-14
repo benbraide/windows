@@ -18,6 +18,8 @@ namespace winpp{
 	namespace window{
 		class object : public gui::object_tree, public messaging::target{
 		public:
+			using messaging::target::procedure;
+
 			typedef gui::object_tree tree_base_type;
 
 			typedef window::styles styles_type;
@@ -105,6 +107,12 @@ namespace winpp{
 			virtual rect_type convert_from_screen(const rect_type &value) const override;
 
 			virtual object &destroy(force_type force = force_type::dont_force) override;
+
+			virtual object &show(show_mode mode = show_mode::show) override;
+
+			virtual object &hide() override;
+
+			virtual bool is_hidden() const override;
 
 			virtual event_tunnel &events() override;
 
