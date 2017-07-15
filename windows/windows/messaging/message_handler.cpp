@@ -97,6 +97,22 @@ void winpp::messaging::handler::on_mouse_wheel(mouse_message_type &e){
 	bubble_mouse(e);
 }
 
+void winpp::messaging::handler::on_key_down(key_message_type &e){
+	bubble_key(e);
+}
+
+void winpp::messaging::handler::on_key_up(key_message_type &e){
+	bubble_key(e);
+}
+
+void winpp::messaging::handler::on_key_pressed(key_message_type &e){
+	bubble_key(e);
+}
+
+void winpp::messaging::handler::on_dead_key(key_message_type &e){
+	bubble_key(e);
+}
+
 void winpp::messaging::handler::bubble_mouse(mouse_message_type &e){
 	auto parent = parent_handler();
 	if (parent == nullptr)//No bubbling
@@ -114,5 +130,24 @@ void winpp::messaging::handler::bubble_mouse(mouse_message_type &e){
 	auto resolved_info = e.info();
 
 	mouse ev(gui_target, resolved_info.code(info.code), true, nullptr, gui_target);
+	(dynamic_cast<target *>(parent)->*handler)(ev);//Call handler
+}
+
+void winpp::messaging::handler::bubble_key(key_message_type &e){
+	auto parent = parent_handler();
+	if (parent == nullptr)//No bubbling
+		return;
+
+	key_dispatcher::info_type info{ e.info().lparam<uint_type>() };
+	key_dispatcher::retrieve_event_and_handler(*dynamic_cast<target *>(parent), info);
+
+	auto gui_target = reinterpret_cast<gui::object *>(parent);
+	events::key eo(*gui_target, info.code, e.info().wparam(), e.info().lparam(), e.original_target());
+	if (info.event_object != nullptr)//Fire event
+		(*info.event_object)(eo);
+
+	auto handler = info.handler;
+	key ev(gui_target, e.info(), true, nullptr, gui_target);
+
 	(dynamic_cast<target *>(parent)->*handler)(ev);//Call handler
 }

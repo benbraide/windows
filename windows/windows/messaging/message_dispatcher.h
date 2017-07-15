@@ -339,6 +339,27 @@ namespace winpp{
 
 			static void retrieve_event_and_handler(target_type &target, info_type &in_out);
 		};
+
+		class key_dispatcher : public dispatcher{
+		public:
+			typedef ::UINT uint_type;
+
+			typedef dispatcher base_type;
+			typedef structures::enumerations::hit_target_type hit_target_type;
+
+			typedef events::tunnel<void, events::key> event_type;
+			typedef void(target_type::*handler_type)(key &);
+
+			struct info_type{
+				uint_type code;
+				event_type *event_object;
+				handler_type handler;
+			};
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+
+			static void retrieve_event_and_handler(target_type &target, info_type &in_out);
+		};
 	}
 }
 

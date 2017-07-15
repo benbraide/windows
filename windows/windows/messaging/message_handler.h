@@ -9,6 +9,7 @@ namespace winpp{
 	namespace messaging{
 		class map;
 		class mouse_dispatcher;
+		class key_dispatcher;
 
 		class handler{
 		public:
@@ -32,6 +33,7 @@ namespace winpp{
 			typedef messaging::move move_message_type;
 
 			typedef messaging::mouse mouse_message_type;
+			typedef messaging::key key_message_type;
 
 			typedef structures::enumerations::mouse_activate_type mouse_activate_type;
 			typedef structures::enumerations::hit_target_type hit_target_type;
@@ -97,10 +99,21 @@ namespace winpp{
 
 			virtual void on_mouse_wheel(mouse_message_type &e);
 
+			virtual void on_key_down(key_message_type &e);
+
+			virtual void on_key_up(key_message_type &e);
+
+			virtual void on_key_pressed(key_message_type &e);
+
+			virtual void on_dead_key(key_message_type &e);
+
 			virtual void bubble_mouse(mouse_message_type &e);
+
+			virtual void bubble_key(key_message_type &e);
 
 			friend class map;
 			friend class mouse_dispatcher;
+			friend class key_dispatcher;
 		};
 	}
 }

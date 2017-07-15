@@ -89,6 +89,11 @@ namespace winpp{
 
 				events::tunnel<void, events::mouse> mouse_wheel;
 
+				events::tunnel<void, events::key> key_down;
+				events::tunnel<void, events::key> key_up;
+				events::tunnel<void, events::key> key_pressed;
+				events::tunnel<void, events::key> dead_key;
+
 			protected:
 				virtual unsigned __int64 bind_(const std::wstring &e, const std::any &callback) override;
 			};

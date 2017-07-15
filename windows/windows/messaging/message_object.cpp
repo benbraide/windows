@@ -274,3 +274,154 @@ winpp::messaging::mouse::size_type winpp::messaging::mouse::drag_delta() const{
 winpp::messaging::object::gui_object_type *winpp::messaging::mouse::original_target() const{
 	return original_target_;
 }
+
+winpp::messaging::key::~key() = default;
+
+bool winpp::messaging::key::is_system() const{
+	return WINPP_IS(states_, state_type::is_system);
+}
+
+bool winpp::messaging::key::is_extended() const{
+	return WINPP_IS(states_, state_type::is_extended);
+}
+
+bool winpp::messaging::key::was_down() const{
+	return WINPP_IS(states_, state_type::was_down);
+}
+
+bool winpp::messaging::key::is_being_released() const{
+	return WINPP_IS(states_, state_type::being_released);
+}
+
+bool winpp::messaging::key::alt_key_down() const{
+	return WINPP_IS(states_, state_type::alt_down);
+}
+
+bool winpp::messaging::key::is_down() const{
+	return WINPP_IS(states_, state_type::down);
+}
+
+bool winpp::messaging::key::is_up() const{
+	return WINPP_IS(states_, state_type::up);
+}
+
+bool winpp::messaging::key::is_char() const{
+	return WINPP_IS(states_, state_type::pressed);
+}
+
+bool winpp::messaging::key::is_dead() const{
+	return WINPP_IS(states_, state_type::dead);
+}
+
+unsigned short winpp::messaging::key::code() const{
+	return code_;
+}
+
+short winpp::messaging::key::scan_code() const{
+	return scan_code_;
+}
+
+short winpp::messaging::key::repeat_count() const{
+	return repeat_count_;
+}
+
+winpp::messaging::key::key_state_type winpp::messaging::key::key_states() const{
+	return retrieve_key_states();
+}
+
+winpp::messaging::key::state_type winpp::messaging::key::states() const{
+	return states_;
+}
+
+winpp::messaging::object::gui_object_type *winpp::messaging::key::original_target() const{
+	return original_target_;
+}
+
+bool winpp::messaging::key::cache_key_states(){
+	return (::GetKeyboardState(keyboard_state) != FALSE);
+}
+
+winpp::messaging::key::key_state_type winpp::messaging::key::retrieve_key_states(){
+	static const key_map_info_list_type key_map_info_list{
+		key_map_info{ VK_LSHIFT, key_state_type::left_shift, false },
+		key_map_info{ VK_RSHIFT, key_state_type::right_shift, false },
+		key_map_info{ VK_LCONTROL, key_state_type::left_ctrl, false },
+		key_map_info{ VK_RCONTROL, key_state_type::right_ctrl, false },
+		key_map_info{ VK_LMENU, key_state_type::left_alt, false },
+		key_map_info{ VK_RMENU, key_state_type::right_alt, false },
+		key_map_info{ VK_LWIN, key_state_type::left_win, false },
+		key_map_info{ VK_RWIN, key_state_type::right_win, false },
+		key_map_info{ VK_CAPITAL, key_state_type::caps, true },
+		key_map_info{ VK_NUMLOCK, key_state_type::numpad, true },
+		key_map_info{ VK_SCROLL, key_state_type::scroll, true },
+		key_map_info{ VK_INSERT, key_state_type::insert, true },
+	};
+
+	if (!cache_key_states())
+		return key_state_type::nil;
+
+	auto states = key_state_type::nil;
+	for (auto &info : key_map_info_list){
+		if (info.toggle){
+			if ((keyboard_state[info.key] & 1) != 0)
+				WINPP_SET(states, info.value);
+		}
+		else if (keyboard_state[info.key] < 0)
+			WINPP_SET(states, info.value);
+	}
+
+	return states;
+}
+
+void winpp::messaging::key::resolve_(){
+	switch (info_.code()){
+	case WM_KEYDOWN:
+		states_ = state_type::down;
+		break;
+	case WM_SYSKEYDOWN:
+		states_ = (state_type::is_system | state_type::down);
+		break;
+	case WM_KEYUP:
+		states_ = state_type::up;
+		break;
+	case WM_SYSKEYUP:
+		states_ = (state_type::is_system | state_type::up);
+		break;
+	case WM_CHAR:
+		states_ = state_type::pressed;
+		break;
+	case WM_SYSCHAR:
+		states_ = (state_type::is_system | state_type::pressed);
+		break;
+	case WM_DEADCHAR:
+		states_ = (state_type::dead | state_type::pressed);
+		break;
+	case WM_SYSDEADCHAR:
+		states_ = (state_type::is_system | state_type::dead | state_type::pressed);
+		break;
+	default: 
+		states_ = state_type::nil;
+		break;
+	}
+
+	auto lp_value = info_.lparam();
+	std::bitset<sizeof(lresult_type) * 8> lparam_bits(lp_value);
+
+	code_ = info_.wparam<unsigned short>();
+	repeat_count_ = *reinterpret_cast<short *>(&lp_value);
+	scan_code_ = static_cast<short>((reinterpret_cast<byte_type *>(&lp_value))[2]);
+
+	if (lparam_bits.test(24))//Extended
+		WINPP_SET(states_, state_type::is_extended);
+
+	if (lparam_bits.test(29))//Alt
+		WINPP_SET(states_, state_type::alt_down);
+
+	if (lparam_bits.test(30))//Was down
+		WINPP_SET(states_, state_type::was_down);
+
+	if (lparam_bits.test(31))//Being released
+		WINPP_SET(states_, state_type::being_released);
+}
+
+winpp::messaging::key::byte_type winpp::messaging::key::keyboard_state[0x100];

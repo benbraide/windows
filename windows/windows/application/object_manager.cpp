@@ -164,6 +164,27 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 	return result;
 }
 
+winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_hover(window_type &target, const msg_type &msg){
+	switch (msg.code()){
+	case WM_NCMOUSEHOVER:
+		return target.query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+			static_cast<hwnd_value_type>(target.handle()),
+			WINPP_WM_MOUSE,
+			msg.wparam(),
+			msg.code()
+		}), true);//Send message
+	default:
+		break;
+	}
+
+	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+		static_cast<hwnd_value_type>(object_state_.moused->handle()),
+		static_cast<uint_type>((object_state_.moused == &target) ? WINPP_WM_MOUSE : WINPP_WM_RAWMOUSE),
+		msg.wparam(),
+		msg.code()
+	}), true);//Send message
+}
+
 winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_leave(window_type &target, const msg_type &msg){
 	auto mouse_position = threading::message_queue::last_mouse_position();
 	auto hit_target = target.hit_test(mouse_position);
@@ -319,6 +340,10 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 	}), true);//Send message
 }
 
+winpp::application::object_manager::object_state_type &winpp::application::object_manager::object_state(){
+	return object_state_;
+}
+
 winpp::application::object_manager::gui_object_type *winpp::application::object_manager::owner(hwnd_type value){
 	return value.data<gui_object_type *>();
 }
@@ -332,6 +357,15 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 	auto target = manager.find_window_(window_handle);
 	if (target == nullptr)//Unidentified handle
 		return ::DefWindowProcW(window_handle, msg, wparam, lparam);
+
+	switch (msg){
+	case WM_SETFOCUS://Focus acquired
+		manager.object_state_.focused = target;
+		break;
+	case WM_KILLFOCUS://Focus lost
+		manager.object_state_.focused = nullptr;
+		break;
+	}
 
 	return target->dispatch(msg_type({ window_handle, msg, wparam, lparam }), false);
 }

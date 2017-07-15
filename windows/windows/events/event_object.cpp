@@ -233,3 +233,119 @@ winpp::events::mouse::size_type winpp::events::mouse::drag_delta() const{
 winpp::events::object::gui_object_type *winpp::events::mouse::original_target() const{
 	return original_target_;
 }
+
+winpp::events::key::key(gui_object_type &target, uint_type code, wparam_type wparam, lparam_type lparam, gui_object_type *original_target)
+	: object(target), original_target_(original_target){
+	resolve_(code, wparam, lparam);
+}
+
+winpp::events::key::~key() = default;
+
+bool winpp::events::key::is_system() const{
+	return WINPP_IS(states_, state_type::is_system);
+}
+
+bool winpp::events::key::is_extended() const{
+	return WINPP_IS(states_, state_type::is_extended);
+}
+
+bool winpp::events::key::was_down() const{
+	return WINPP_IS(states_, state_type::was_down);
+}
+
+bool winpp::events::key::is_being_released() const{
+	return WINPP_IS(states_, state_type::being_released);
+}
+
+bool winpp::events::key::alt_key_down() const{
+	return WINPP_IS(states_, state_type::alt_down);
+}
+
+bool winpp::events::key::is_down() const{
+	return WINPP_IS(states_, state_type::down);
+}
+
+bool winpp::events::key::is_up() const{
+	return WINPP_IS(states_, state_type::up);
+}
+
+bool winpp::events::key::is_char() const{
+	return WINPP_IS(states_, state_type::pressed);
+}
+
+bool winpp::events::key::is_dead() const{
+	return WINPP_IS(states_, state_type::dead);
+}
+
+unsigned short winpp::events::key::code() const{
+	return code_;
+}
+
+short winpp::events::key::scan_code() const{
+	return scan_code_;
+}
+
+short winpp::events::key::repeat_count() const{
+	return repeat_count_;
+}
+
+winpp::events::key::key_state_type winpp::events::key::key_states() const{
+	return messaging::key::retrieve_key_states();
+}
+
+winpp::events::key::state_type winpp::events::key::states() const{
+	return states_;
+}
+
+winpp::events::object::gui_object_type *winpp::events::key::original_target() const{
+	return original_target_;
+}
+
+void winpp::events::key::resolve_(uint_type code, wparam_type wparam, lparam_type lparam){
+	switch (code){
+	case WM_KEYDOWN:
+		states_ = state_type::down;
+		break;
+	case WM_SYSKEYDOWN:
+		states_ = (state_type::is_system | state_type::down);
+		break;
+	case WM_KEYUP:
+		states_ = state_type::up;
+		break;
+	case WM_SYSKEYUP:
+		states_ = (state_type::is_system | state_type::up);
+		break;
+	case WM_CHAR:
+		states_ = state_type::pressed;
+		break;
+	case WM_SYSCHAR:
+		states_ = (state_type::is_system | state_type::pressed);
+		break;
+	case WM_DEADCHAR:
+		states_ = (state_type::dead | state_type::pressed);
+		break;
+	case WM_SYSDEADCHAR:
+		states_ = (state_type::is_system | state_type::dead | state_type::pressed);
+		break;
+	default:
+		states_ = state_type::nil;
+		break;
+	}
+
+	code_ = static_cast<unsigned short>(wparam);
+	repeat_count_ = *reinterpret_cast<short *>(&lparam);
+	scan_code_ = static_cast<short>((reinterpret_cast<byte_type *>(&lparam))[2]);
+
+	std::bitset<sizeof(lresult_type) * 8> lparam_bits(lparam);
+	if (lparam_bits.test(24))//Extended
+		WINPP_SET(states_, state_type::is_extended);
+
+	if (lparam_bits.test(29))//Alt
+		WINPP_SET(states_, state_type::alt_down);
+
+	if (lparam_bits.test(30))//Was down
+		WINPP_SET(states_, state_type::was_down);
+
+	if (lparam_bits.test(31))//Being released
+		WINPP_SET(states_, state_type::being_released);
+}

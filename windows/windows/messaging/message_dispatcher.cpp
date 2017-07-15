@@ -391,3 +391,50 @@ void winpp::messaging::mouse_dispatcher::retrieve_event_and_handler(target_type 
 		break;
 	}
 }
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::key_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	auto focused = dynamic_cast<target_type *>(application::object::get().object_manager().object_state().focused);
+	if (focused == nullptr)//No focused object
+		focused = &target;
+
+	info_type retrieved_info{ info.code() };
+	retrieve_event_and_handler(target, retrieved_info);
+
+	auto gui_target = reinterpret_cast<gui::object *>(focused);
+	events::key e(*gui_target, info.code(), info.wparam(), info.lparam(), gui_target);
+	if (retrieved_info.event_object != nullptr)//Fire event
+		(*retrieved_info.event_object)(e);
+
+	auto handler = retrieved_info.handler;
+	key ev(gui_target, info, is_sent, focused->procedure(), gui_target);
+
+	(focused->*handler)(ev);//Call handler
+	return ev.handle(false).result();
+}
+
+void winpp::messaging::key_dispatcher::retrieve_event_and_handler(target_type &target, info_type &in_out){
+	switch (in_out.code){
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+		in_out.event_object = &target.events().key_down;
+		in_out.handler = &target_type::on_key_down;
+		break;
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		in_out.event_object = &target.events().key_up;
+		in_out.handler = &target_type::on_key_up;
+		break;
+	case WM_CHAR:
+	case WM_SYSCHAR:
+		in_out.event_object = &target.events().key_pressed;
+		in_out.handler = &target_type::on_key_pressed;
+		break;
+	case WM_DEADCHAR:
+	case WM_SYSDEADCHAR:
+		in_out.event_object = &target.events().dead_key;
+		in_out.handler = &target_type::on_dead_key;
+		break;
+	default:
+		break;
+	}
+}

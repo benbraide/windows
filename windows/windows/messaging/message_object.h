@@ -3,6 +3,9 @@
 #ifndef WINPP_MESSAGE_OBJECT_H
 #define WINPP_MESSAGE_OBJECT_H
 
+#include <bitset>
+#include <vector>
+
 #include "../wrappers/msg_wrapper.h"
 #include "../wrappers/hwnd_wrapper.h"
 
@@ -271,6 +274,75 @@ namespace winpp{
 
 		protected:
 			gui_object_type *original_target_;
+		};
+
+		class key : public object{
+		public:
+			typedef ::BYTE byte_type;
+
+			typedef structures::enumerations::key_event_state_type state_type;
+			typedef structures::enumerations::key_state_type key_state_type;
+
+			struct key_map_info{
+				byte_type key;
+				key_state_type value;
+				bool toggle;
+			};
+
+			typedef std::vector<key_map_info> key_map_info_list_type;
+
+			template <typename... args_type>
+			explicit key(gui_object_type *original_target, args_type &&... args)
+				: object(std::forward<args_type>(args)...), original_target_(original_target){
+				resolve_();
+			}
+
+			virtual ~key();
+
+			virtual bool is_system() const;
+
+			virtual bool is_extended() const;
+
+			virtual bool was_down() const;
+
+			virtual bool is_being_released() const;
+
+			virtual bool alt_key_down() const;
+
+			virtual bool is_down() const;
+
+			virtual bool is_up() const;
+
+			virtual bool is_char() const;
+
+			virtual bool is_dead() const;
+
+			virtual unsigned short code() const;
+
+			virtual short scan_code() const;
+
+			virtual short repeat_count() const;
+
+			virtual key_state_type key_states() const;
+
+			virtual state_type states() const;
+
+			virtual gui_object_type *original_target() const;
+
+			static bool cache_key_states();
+
+			static key_state_type retrieve_key_states();
+
+			static byte_type keyboard_state[0x100];
+
+		protected:
+			virtual void resolve_();
+
+			gui_object_type *original_target_;
+			unsigned short code_;
+			short scan_code_;
+			short repeat_count_;
+			state_type states_;
 		};
 
 		WINPP_MAKE_OPERATORS(object::state_type);

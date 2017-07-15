@@ -234,6 +234,62 @@ namespace winpp{
 			gui_object_type *original_target_;
 		};
 
+		class key : public object{
+		public:
+			typedef ::BYTE byte_type;
+			typedef ::UINT uint_type;
+
+			typedef ::WPARAM wparam_type;
+			typedef ::LPARAM lparam_type;
+			typedef ::LRESULT lresult_type;
+
+			typedef structures::enumerations::key_event_state_type state_type;
+			typedef structures::enumerations::key_state_type key_state_type;
+
+			explicit key(gui_object_type &target, uint_type code, wparam_type wparam, lparam_type lparam, gui_object_type *original_target);
+
+			virtual ~key();
+
+			virtual bool is_system() const;
+
+			virtual bool is_extended() const;
+
+			virtual bool was_down() const;
+
+			virtual bool is_being_released() const;
+
+			virtual bool alt_key_down() const;
+
+			virtual bool is_down() const;
+
+			virtual bool is_up() const;
+
+			virtual bool is_char() const;
+
+			virtual bool is_dead() const;
+
+			virtual unsigned short code() const;
+
+			virtual short scan_code() const;
+
+			virtual short repeat_count() const;
+
+			virtual key_state_type key_states() const;
+
+			virtual state_type states() const;
+
+			virtual gui_object_type *original_target() const;
+
+		protected:
+			virtual void resolve_(uint_type code, wparam_type wparam, lparam_type lparam);
+
+			gui_object_type *original_target_;
+			unsigned short code_;
+			short scan_code_;
+			short repeat_count_;
+			state_type states_;
+		};
+
 		template <class value_type>
 		class object_with_data : public object{
 		public:

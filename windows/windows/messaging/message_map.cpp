@@ -30,6 +30,7 @@ winpp::messaging::map::map()
 	list_[WM_MOVE] = list_[WM_MOVING] = std::make_shared<messaging::move_dispatcher>(&target::on_move);
 
 	list_[WM_NCMOUSEMOVE] = list_[WM_MOUSEMOVE] = std::make_shared<messaging::object_manager_handling_dispatcher>(&application::object_manager::handle_mouse_move);
+	list_[WM_NCMOUSEHOVER] = list_[WM_MOUSEHOVER] = std::make_shared<messaging::object_manager_handling_dispatcher>(&application::object_manager::handle_mouse_hover);
 	list_[WM_NCMOUSELEAVE] = list_[WM_MOUSELEAVE] = std::make_shared<messaging::object_manager_handling_dispatcher>(&application::object_manager::handle_mouse_leave);
 
 	list_[WM_NCLBUTTONDOWN] = list_[WM_NCMBUTTONDOWN] = list_[WM_NCRBUTTONDOWN] = list_[WM_LBUTTONDOWN] = list_[WM_MBUTTONDOWN] = list_[WM_RBUTTONDOWN] =
@@ -42,6 +43,9 @@ winpp::messaging::map::map()
 		std::make_shared<messaging::object_manager_handling_dispatcher>(&application::object_manager::handle_mouse_dbl_click);
 
 	list_[WINPP_WM_MOUSE] = list_[WINPP_WM_RAWMOUSE] = std::make_shared<messaging::mouse_dispatcher>();
+
+	list_[WM_KEYDOWN] = list_[WM_SYSKEYDOWN] = list_[WM_KEYUP] = list_[WM_SYSKEYUP] = list_[WM_CHAR] = list_[WM_SYSCHAR] = list_[WM_DEADCHAR] = list_[WM_SYSDEADCHAR] =
+		std::make_shared<messaging::key_dispatcher>();
 }
 
 winpp::messaging::map &winpp::messaging::map::add_entry(uint_type code, dispatcher_ptr_type dispatcher){

@@ -85,7 +85,7 @@ namespace winpp{
 				track			= (1 << 0x0002),
 			};
 
-			struct object_state{
+			struct object_state_type{
 				gui_object_type *moused;
 				gui_object_type *focused;
 				gui_object_type *captured;
@@ -120,6 +120,8 @@ namespace winpp{
 
 			lresult_type handle_mouse_move(window_type &target, const msg_type &msg);
 
+			lresult_type handle_mouse_hover(window_type &target, const msg_type &msg);
+
 			lresult_type handle_mouse_leave(window_type &target, const msg_type &msg);
 
 			lresult_type handle_mouse_down(window_type &target, const msg_type &msg);
@@ -129,6 +131,8 @@ namespace winpp{
 			lresult_type handle_mouse_dbl_click(window_type &target, const msg_type &msg);
 
 			lresult_type handle_mouse_wheel(window_type &target, const msg_type &msg);
+
+			object_state_type &object_state();
 
 			template <typename return_type = lresult_type, typename arg_wparam_type = wparam_type, typename arg_lparam_type = lparam_type>
 			static return_type send_message(gui_object_type &target, uint_type message, arg_wparam_type wparam, arg_lparam_type lparam){
@@ -186,7 +190,7 @@ namespace winpp{
 			object_list_type list_;
 			object_list_type top_levels_;
 			window_list_type windows_;
-			object_state object_state_{};
+			object_state_type object_state_{};
 
 			static classes classes_;
 		};

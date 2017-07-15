@@ -294,6 +294,19 @@ namespace winpp{
 				replied				= ISMEX_REPLIED,
 			};
 
+			enum class key_event_state_type : unsigned int{
+				nil					= (0 << 0x0000),
+				is_system			= (1 << 0x0000),
+				is_extended			= (1 << 0x0001),
+				was_down			= (1 << 0x0002),
+				being_released		= (1 << 0x0003),
+				alt_down			= (1 << 0x0004),
+				down				= (1 << 0x0005),
+				up					= (1 << 0x0006),
+				pressed				= (1 << 0x0007),
+				dead				= (1 << 0x0008),
+			};
+
 			enum class key_state_type : ::UINT{
 				nil				= (0 << 0x0000),
 				left_shift		= (1 << 0x0000),
@@ -450,6 +463,7 @@ namespace winpp{
 			};
 
 			WINPP_MAKE_OPERATORS(random_string_char_set);
+			WINPP_MAKE_OPERATORS(key_event_state_type);
 			WINPP_MAKE_OPERATORS(key_state_type);
 			WINPP_MAKE_OPERATORS(mouse_key_state_type);
 			WINPP_MAKE_OPERATORS(animation_type);
