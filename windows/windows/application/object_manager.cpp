@@ -170,7 +170,7 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 		if (object_state_.moused->hit_test(mouse_position) == hit_target_type::nil){//Mouse is out of object
 			object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 				static_cast<hwnd_value_type>(object_state_.moused->handle()),
-				WM_NCMOUSELEAVE,
+				WINPP_WM_MOUSELEAVE,
 				0,
 				0
 			}), true);//Send mouse leave message
@@ -193,12 +193,22 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 	if (object_state_.captured == nullptr)//Capture mouse
 		::SetCapture(static_cast<hwnd_value_type>((object_state_.captured = &target)->handle()));
 
-	if (object_state_.moused == nullptr && (object_state_.moused = target.deepest_hit_target(mouse_position)) == nullptr)//Find new target
-		object_state_.moused = &target;//Target is deepest object
+	if (object_state_.moused == nullptr){
+		gui_object_type *moused = &target;
+		while (moused != nullptr){//Mouse enter
+			(object_state_.moused = moused)->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+				static_cast<hwnd_value_type>(object_state_.moused->handle()),
+				WINPP_WM_MOUSEENTER,
+				0,
+				0
+			}), true);//Send mouse enter message
+			moused = moused->hit_target(mouse_position);//Find next target
+		}
+	}
 
 	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 		static_cast<hwnd_value_type>(object_state_.moused->handle()),
-		object_state_.moused->is_window() ? msg : WM_MOUSEMOVE,
+		(object_state_.moused == &target) ? msg : WINPP_WM_MOUSEMOVE,
 		wparam,
 		lparam
 	}), true);//Forward message
