@@ -128,6 +128,8 @@ namespace winpp{
 
 			lresult_type handle_mouse_dbl_click(window_type &target, const msg_type &msg);
 
+			lresult_type handle_mouse_wheel(window_type &target, const msg_type &msg);
+
 			template <typename return_type = lresult_type, typename arg_wparam_type = wparam_type, typename arg_lparam_type = lparam_type>
 			static return_type send_message(gui_object_type &target, uint_type message, arg_wparam_type wparam, arg_lparam_type lparam){
 				if (target.group() == gui_object_type::window_group)//Forward message to window

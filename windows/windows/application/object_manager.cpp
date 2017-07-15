@@ -310,6 +310,15 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 	}), true);//Send message
 }
 
+winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_wheel(window_type &target, const msg_type &msg){
+	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+		static_cast<hwnd_value_type>(object_state_.moused->handle()),
+		WINPP_WM_MOUSE,
+		msg.wparam(),
+		msg.code()
+	}), true);//Send message
+}
+
 winpp::application::object_manager::gui_object_type *winpp::application::object_manager::owner(hwnd_type value){
 	return value.data<gui_object_type *>();
 }
