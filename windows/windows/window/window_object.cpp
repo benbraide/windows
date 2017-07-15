@@ -78,6 +78,15 @@ winpp::window::object &winpp::window::object::absolute_move(const point_type &va
 	return move(structures::absolute_point(value));
 }
 
+winpp::window::object::hit_target_type winpp::window::object::hit_test(const point_type &value) const{
+	auto relative_value = dynamic_cast<const structures::relative_point *>(&value);
+	if (relative_value == nullptr)
+		return send_message<hit_target_type>(WM_NCHITTEST, 0, MAKELPARAM(value.x(), value.y()));
+
+	auto absolute_value = convert_to_screen(value);
+	return send_message<hit_target_type>(WM_NCHITTEST, 0, MAKELPARAM(absolute_value.x(), absolute_value.y()));
+}
+
 winpp::window::object::point_type winpp::window::object::convert_to_screen(const point_type &value) const{
 	return value_.client_to_screen(value);
 }

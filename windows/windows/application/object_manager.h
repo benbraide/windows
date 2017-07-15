@@ -14,13 +14,29 @@
 
 #include "application_classes.h"
 
-#define WINPP_WM_PROXY_MSG (WM_APP + 0)
-#define WINPP_WM_MARSHALLED_MSG (WM_APP + 1)
-#define WINPP_WM_APP_RESERVED_LAST (WM_APP + 9)
+#define WINPP_WM_PROXY_MSG			(WM_APP + 0x00)
+#define WINPP_WM_MARSHALLED_MSG		(WM_APP + 0x01)
+#define WINPP_WM_APP_RESERVED_LAST	(WM_APP + 0x09)
 
-#define WINPP_WM_MOUSEENTER	(WINPP_WM_APP_RESERVED_LAST + 1)
-#define WINPP_WM_MOUSELEAVE	(WINPP_WM_APP_RESERVED_LAST + 2)
-#define WINPP_WM_MOUSEMOVE	(WINPP_WM_APP_RESERVED_LAST + 3)
+#define WINPP_WM_MOUSEENTER			(WINPP_WM_APP_RESERVED_LAST + 0x01)
+#define WINPP_WM_MOUSELEAVE			(WINPP_WM_APP_RESERVED_LAST + 0x02)
+
+#define WINPP_WM_NCMOUSEMOVE		(WINPP_WM_APP_RESERVED_LAST + 0x03)
+#define WINPP_WM_MOUSEMOVE			(WINPP_WM_APP_RESERVED_LAST + 0x04)
+
+#define WINPP_WM_NCMOUSEDOWN		(WINPP_WM_APP_RESERVED_LAST + 0x05)
+#define WINPP_WM_MOUSEDOWN			(WINPP_WM_APP_RESERVED_LAST + 0x06)
+
+#define WINPP_WM_NCMOUSEUP			(WINPP_WM_APP_RESERVED_LAST + 0x07)
+#define WINPP_WM_MOUSEUP			(WINPP_WM_APP_RESERVED_LAST + 0x08)
+
+#define WINPP_WM_RAWMOUSEMOVE		(WINPP_WM_APP_RESERVED_LAST + 0x09)
+#define WINPP_WM_RAWMOUSEDOWN		(WINPP_WM_APP_RESERVED_LAST + 0x0a)
+#define WINPP_WM_RAWMOUSEUP			(WINPP_WM_APP_RESERVED_LAST + 0x0b)
+
+#define WINPP_WM_MOUSEDRAG			(WINPP_WM_APP_RESERVED_LAST + 0x0c)
+#define WINPP_WM_MOUSEDRAGEND		(WINPP_WM_APP_RESERVED_LAST + 0x0d)
+#define WINPP_WM_MOUSEDRAGCANCEL	(WINPP_WM_APP_RESERVED_LAST + 0x0e)
 
 namespace winpp{
 	namespace application{
@@ -36,6 +52,7 @@ namespace winpp{
 
 			typedef ::CBT_CREATEWND create_hook_info_type;
 			typedef ::CREATESTRUCTW create_info_type;
+			typedef ::TRACKMOUSEEVENT track_info_type;
 
 			typedef ::LRESULT lresult_type;
 			typedef ::WPARAM wparam_type;
@@ -53,6 +70,7 @@ namespace winpp{
 			typedef structures::rect rect_type;
 
 			typedef structures::enumerations::hit_target_type hit_target_type;
+			typedef structures::enumerations::mouse_key_state_type mouse_key_state_type;
 
 			typedef wrappers::msg msg_type;
 			typedef wrappers::wnd_class wnd_class_type;
@@ -70,10 +88,21 @@ namespace winpp{
 
 			typedef std::shared_ptr<window_type> window_ptr_type;
 
+			enum class object_mouse_state : unsigned int{
+				nil				= (0 << 0x0000),
+				down			= (1 << 0x0000),
+				drag			= (1 << 0x0001),
+				track			= (1 << 0x0002),
+			};
+
 			struct object_state{
 				gui_object_type *moused;
 				gui_object_type *focused;
 				gui_object_type *captured;
+				object_mouse_state mouse_state;
+				mouse_key_state_type button;
+				point_type down_position;
+				point_type last_position;
 			};
 
 			struct message_proxy_info{
@@ -98,6 +127,14 @@ namespace winpp{
 			void update(uint_type code, void *args);
 
 			window_type *find_window(hwnd_value_type handle);
+
+			lresult_type handle_mouse_move(window_type &target, const msg_type &msg);
+
+			lresult_type handle_mouse_leave(window_type &target, const msg_type &msg);
+
+			lresult_type handle_mouse_down(window_type &target, const msg_type &msg);
+
+			lresult_type handle_mouse_up(window_type &target, const msg_type &msg);
 
 			template <typename return_type = lresult_type, typename arg_wparam_type = wparam_type, typename arg_lparam_type = lparam_type>
 			static return_type send_message(gui_object_type &target, uint_type message, arg_wparam_type wparam, arg_lparam_type lparam){
@@ -125,6 +162,7 @@ namespace winpp{
 			static lresult_type CALLBACK entry(hwnd_value_type window_handle, uint_type msg, wparam_type wparam, lparam_type lparam);
 
 			static messaging_map_type messaging_map;
+			static size_type drag_threshold;
 
 			static const uint_type update_object_created		= 0x00000001u;
 			static const uint_type update_object_destroyed		= 0x00000002u;
@@ -138,7 +176,9 @@ namespace winpp{
 
 			void update_object_destroyed_(gui_object_type *object);
 
-			lresult_type mouse_move_(window_type &target, uint_type msg, wparam_type wparam, lparam_type lparam);
+			lresult_type nc_mouse_up_(window_type &target, const msg_type &msg, mouse_key_state_type button);
+
+			gui_object_type *find_window_in_chain_(gui_object_type *target);
 
 			static lresult_type CALLBACK hook_(int code, wparam_type wparam, lparam_type lparam);
 
@@ -156,6 +196,8 @@ namespace winpp{
 
 			static classes classes_;
 		};
+
+		WINPP_MAKE_OPERATORS(object_manager::object_mouse_state);
 	}
 }
 

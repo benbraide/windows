@@ -1,4 +1,5 @@
 #include "message_map.h"
+#include "../application/object_manager.h"
 
 winpp::messaging::map::map()
 	: unrecognized_dispatcher_(std::make_shared<messaging::unrecognized_dispatcher>(&target::unrecognized_message)){
@@ -27,6 +28,15 @@ winpp::messaging::map::map()
 	list_[WM_WINDOWPOSCHANGED] = list_[WM_WINDOWPOSCHANGING] = std::make_shared<messaging::position_dispatcher>(&target::on_position);
 	list_[WM_SIZE] = list_[WM_SIZING] = std::make_shared<messaging::size_dispatcher>(&target::on_size);
 	list_[WM_MOVE] = list_[WM_MOVING] = std::make_shared<messaging::move_dispatcher>(&target::on_move);
+
+	list_[WM_NCMOUSEMOVE] = list_[WM_MOUSEMOVE] = std::make_shared<messaging::object_manager_handling_dispatcher>(&application::object_manager::handle_mouse_move);
+	list_[WM_NCMOUSELEAVE] = list_[WM_MOUSELEAVE] = std::make_shared<messaging::object_manager_handling_dispatcher>(&application::object_manager::handle_mouse_leave);
+
+	list_[WM_NCLBUTTONDOWN] = list_[WM_NCMBUTTONDOWN] = list_[WM_NCRBUTTONDOWN] = list_[WM_LBUTTONDOWN] = list_[WM_MBUTTONDOWN] = list_[WM_RBUTTONDOWN] =
+		std::make_shared<messaging::object_manager_handling_dispatcher>(&application::object_manager::handle_mouse_down);
+
+	list_[WM_NCLBUTTONUP] = list_[WM_NCMBUTTONUP] = list_[WM_NCRBUTTONUP] = list_[WM_LBUTTONUP] = list_[WM_MBUTTONUP] = list_[WM_RBUTTONUP] =
+		std::make_shared<messaging::object_manager_handling_dispatcher>(&application::object_manager::handle_mouse_up);
 }
 
 winpp::messaging::map &winpp::messaging::map::add_entry(uint_type code, dispatcher_ptr_type dispatcher){

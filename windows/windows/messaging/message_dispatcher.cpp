@@ -1,4 +1,12 @@
 #include "message_dispatcher.h"
+#include "../application/object_manager.h"
+
+winpp::messaging::object_manager_handling_dispatcher::object_manager_handling_dispatcher(handler_type handler)
+	: base_type(nullptr), handler_(handler){}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::object_manager_handling_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	return (application::object::get().object_manager().*handler_)(*dynamic_cast<window_type *>(this), info);
+}
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::unrecognized_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
 	return call_(info, is_sent, target);

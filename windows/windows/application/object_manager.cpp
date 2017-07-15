@@ -92,6 +92,194 @@ winpp::application::object_manager::window_type *winpp::application::object_mana
 	});
 }
 
+winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_move(window_type &target, const msg_type &msg){
+	auto mouse_position = threading::message_queue::last_mouse_position();
+	auto is_client = (msg.code() == WM_MOUSEMOVE);
+
+	auto old_moused = object_state_.moused;
+	if (object_state_.moused == nullptr)//First movement
+		object_state_.moused = &target;
+
+	if (is_client){//Inside client - find deepest offspring
+		auto moused = object_state_.moused;
+		while (moused != nullptr){//Mouse enter
+			object_state_.moused = moused;
+			object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+				static_cast<hwnd_value_type>(object_state_.moused->handle()),
+				WINPP_WM_MOUSEENTER
+			}), true);//Send mouse enter message
+			moused = moused->hit_target(mouse_position);//Find next target
+		}
+	}
+	else{//Non-client
+		object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+			static_cast<hwnd_value_type>(object_state_.moused->handle()),
+			WINPP_WM_MOUSEENTER
+		}), true);//Send mouse enter message
+	}
+
+	if (object_state_.moused != old_moused){//New target
+		object_state_.mouse_state = object_mouse_state::nil;
+		object_state_.button = mouse_key_state_type::nil;
+	}
+
+	if (!WINPP_IS(object_state_.mouse_state, object_mouse_state::track)){//Track mouse
+		track_info_type track_info{ sizeof(track_info_type), TME_HOVER | TME_LEAVE | (is_client ? 0u : TME_NONCLIENT), target, HOVER_DEFAULT };
+		::TrackMouseEvent(&track_info);//Notify when mouse leaves window or client area
+	}
+
+	auto result = object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+		static_cast<hwnd_value_type>(object_state_.moused->handle()),
+		static_cast<uint_type>((object_state_.moused == &target) ? (is_client ? WINPP_WM_MOUSEMOVE : WINPP_WM_NCMOUSEMOVE) : WINPP_WM_RAWMOUSEMOVE),
+		msg.wparam(),
+		msg.lparam()
+	}), true);//Send message
+
+	if (WINPP_IS(object_state_.mouse_state, object_mouse_state::down) && !WINPP_IS(object_state_.mouse_state, object_mouse_state::drag)){//Check for drag
+		auto delta = (mouse_position - object_state_.down_position);
+		size_type abs_delta{//Absolute values
+			(delta.x() < 0) ? -delta.x() : delta.x(),
+			(delta.y() < 0) ? -delta.y() : delta.y()
+		};
+
+		if ((abs_delta.width() >= drag_threshold.width() || abs_delta.height() >= drag_threshold.height()))
+			WINPP_SET(object_state_.mouse_state, object_mouse_state::drag);//Drag begin
+	}
+
+	if (WINPP_IS(object_state_.mouse_state, object_mouse_state::drag)){//Do drag
+		size_type::value_type delta{ (mouse_position.x() - object_state_.last_position.x()), (mouse_position.y() - object_state_.last_position.y()) };
+		object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+			static_cast<hwnd_value_type>(object_state_.moused->handle()),
+			WINPP_WM_MOUSEDRAG,
+			*reinterpret_cast<wparam_type *>(&delta),
+			msg.lparam()
+		}), true);//Send message
+	}
+
+	object_state_.last_position = mouse_position;
+	return result;
+}
+
+winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_leave(window_type &target, const msg_type &msg){
+	auto mouse_position = threading::message_queue::last_mouse_position();
+	auto hit_target = target.hit_test(mouse_position);
+
+	if (hit_target == hit_target_type::nil){//Mouse is outside window
+		while (object_state_.moused != nullptr){//Send message to chain
+			object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+				static_cast<hwnd_value_type>(object_state_.moused->handle()),
+				WINPP_WM_MOUSELEAVE
+			}), true);//Send mouse leave message
+
+			if (object_state_.moused == &target){//Target reached
+				object_state_.moused = object_state_.moused->parent();//Climb hierarchy
+				break;
+			}
+			else//Continue climbing
+				object_state_.moused = object_state_.moused->parent();//Climb hierarchy
+		}
+
+		while (object_state_.moused != nullptr && object_state_.moused->hit_test(mouse_position) == hit_target_type::nil){//Notify applicable ancestors
+			object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+				static_cast<hwnd_value_type>(object_state_.moused->handle()),
+				WINPP_WM_MOUSELEAVE
+			}), true);//Send mouse leave message
+			object_state_.moused = object_state_.moused->parent();//Climb hierarchy
+		}
+
+		WINPP_REMOVE(object_state_.mouse_state, object_mouse_state::track);//Stopped tracking
+		return 0;
+	}
+
+	auto is_client = (msg.code() == WM_MOUSELEAVE);
+	if (!is_client || hit_target != hit_target_type::client){//Mouse moved from non-client to client or vice versa
+		track_info_type track_info{ sizeof(track_info_type), TME_HOVER | TME_LEAVE | (is_client ? TME_NONCLIENT : 0u), target, HOVER_DEFAULT };
+		::TrackMouseEvent(&track_info);//Notify when mouse leaves window or client area
+	}
+
+	return 0;
+}
+
+winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_down(window_type &target, const msg_type &msg){
+	switch (msg.code()){
+	case WM_NCLBUTTONDOWN:
+	case WM_NCMBUTTONDOWN:
+	case WM_NCRBUTTONDOWN:
+	case WM_NCXBUTTONDOWN://Ignore non-client
+		return target.query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+			static_cast<hwnd_value_type>(target.handle()),
+			WINPP_WM_NCMOUSEDOWN,
+			msg.wparam(),
+			msg.lparam()
+		}), true);//Send message
+	case WM_LBUTTONDOWN:
+		WINPP_SET(object_state_.button, mouse_key_state_type::left_button);
+		break;
+	case WM_MBUTTONDOWN:
+		WINPP_SET(object_state_.button, mouse_key_state_type::middle_button);
+		break;
+	case WM_RBUTTONDOWN:
+		WINPP_SET(object_state_.button, mouse_key_state_type::right_button);
+		break;
+	default:
+		break;
+	}
+
+	if (!WINPP_IS(object_state_.mouse_state, object_mouse_state::down)){//No button pressed
+		object_state_.down_position = threading::message_queue::last_mouse_position();
+		WINPP_SET(object_state_.mouse_state, object_mouse_state::down);
+	}
+
+	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+		static_cast<hwnd_value_type>(object_state_.moused->handle()),
+		WINPP_WM_MOUSEDOWN,
+		msg.wparam(),
+		msg.lparam()
+	}), true);//Send message
+}
+
+winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_up(window_type &target, const msg_type &msg){
+	switch (msg.code()){
+	case WM_NCLBUTTONUP:
+		return nc_mouse_up_(target, msg, mouse_key_state_type::left_button);
+	case WM_NCMBUTTONUP:
+		return nc_mouse_up_(target, msg, mouse_key_state_type::middle_button);
+	case WM_NCRBUTTONUP:
+		return nc_mouse_up_(target, msg, mouse_key_state_type::right_button);
+	case WM_LBUTTONDOWN:
+		WINPP_REMOVE(object_state_.button, mouse_key_state_type::left_button);
+		break;
+	case WM_MBUTTONDOWN:
+		WINPP_REMOVE(object_state_.button, mouse_key_state_type::middle_button);
+		break;
+	case WM_RBUTTONDOWN:
+		WINPP_REMOVE(object_state_.button, mouse_key_state_type::right_button);
+		break;
+	default:
+		break;
+	}
+
+	if (object_state_.button == mouse_key_state_type::nil){//All buttons are released
+		WINPP_REMOVE(object_state_.mouse_state, object_mouse_state::down);
+		if (WINPP_IS(object_state_.mouse_state, object_mouse_state::drag)){//End drag
+			WINPP_REMOVE(object_state_.mouse_state, object_mouse_state::drag);
+			object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+				static_cast<hwnd_value_type>(object_state_.moused->handle()),
+				WINPP_WM_MOUSEDRAGEND,
+				msg.wparam(),
+				msg.lparam()
+			}), true);//Forward message
+		}
+	}
+
+	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+		static_cast<hwnd_value_type>(object_state_.moused->handle()),
+		WINPP_WM_MOUSEUP,
+		msg.wparam(),
+		msg.lparam()
+	}), true);//Send message
+}
+
 winpp::application::object_manager::gui_object_type *winpp::application::object_manager::owner(hwnd_type value){
 	return value.data<gui_object_type *>();
 }
@@ -106,18 +294,12 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 	if (target == nullptr)//Unidentified handle
 		return ::DefWindowProcW(window_handle, msg, wparam, lparam);
 
-	switch (msg){
-	case WM_NCMOUSEMOVE:
-	case WM_MOUSEMOVE:
-		return manager.mouse_move_(*target, msg, wparam, lparam);
-	default:
-		break;
-	}
-
 	return target->dispatch(msg_type({ window_handle, msg, wparam, lparam }), false);
 }
 
 winpp::application::object_manager::messaging_map_type winpp::application::object_manager::messaging_map;
+
+winpp::application::object_manager::size_type winpp::application::object_manager::drag_threshold{ ::GetSystemMetrics(SM_CXDRAG), ::GetSystemMetrics(SM_CYDRAG) };
 
 winpp::application::object_manager::window_type *winpp::application::object_manager::find_window_(hwnd_value_type handle){
 	if (windows_.empty())
@@ -163,55 +345,37 @@ void winpp::application::object_manager::update_object_destroyed_(gui_object_typ
 		windows_.erase(static_cast<hwnd_value_type>(window_object->handle()));
 }
 
-winpp::application::object_manager::lresult_type winpp::application::object_manager::mouse_move_(window_type &target, uint_type msg, wparam_type wparam, lparam_type lparam){
-	auto mouse_out_of_target = false;
-	auto mouse_position = threading::message_queue::last_mouse_position();
-	while (object_state_.moused != nullptr){//Check if mouse has moved out of object
-		if (object_state_.moused->hit_test(mouse_position) == hit_target_type::nil){//Mouse is out of object
+winpp::application::object_manager::lresult_type winpp::application::object_manager::nc_mouse_up_(window_type &target, const msg_type &msg, mouse_key_state_type button){
+	if (WINPP_REMOVE(object_state_.button, button) == mouse_key_state_type::nil){//All buttons are released
+		WINPP_REMOVE(object_state_.mouse_state, object_mouse_state::down);
+		if (WINPP_IS(object_state_.mouse_state, object_mouse_state::drag)){//End drag
+			WINPP_REMOVE(object_state_.mouse_state, object_mouse_state::drag);
 			object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 				static_cast<hwnd_value_type>(object_state_.moused->handle()),
-				WINPP_WM_MOUSELEAVE,
-				0,
-				0
-			}), true);//Send mouse leave message
-
-			if (object_state_.moused == &target)
-				mouse_out_of_target = true;
-
-			object_state_.moused = object_state_.moused->parent();//Climb hierarchy
+				WINPP_WM_MOUSEDRAGEND,
+				msg.wparam(),
+				msg.lparam()
+			}), true);//Forward message
 		}
 	}
 
-	if (mouse_out_of_target){
-		if (object_state_.captured != nullptr){//Release capture
-			::ReleaseCapture();
-			object_state_.captured = nullptr;
-		}
-		return 0;
+	return target.query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+		static_cast<hwnd_value_type>(target.handle()),
+		WINPP_WM_NCMOUSEUP,
+		msg.wparam(),
+		msg.lparam()
+	}), true);//Send message
+}
+
+winpp::application::object_manager::gui_object_type *winpp::application::object_manager::find_window_in_chain_(gui_object_type *target){
+	while (target != nullptr){
+		if (!target->is_window())
+			target = target->parent();//Climb
+		else//Window found
+			break;
 	}
 
-	if (object_state_.captured == nullptr)//Capture mouse
-		::SetCapture(static_cast<hwnd_value_type>((object_state_.captured = &target)->handle()));
-
-	if (object_state_.moused == nullptr){
-		gui_object_type *moused = &target;
-		while (moused != nullptr){//Mouse enter
-			(object_state_.moused = moused)->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
-				static_cast<hwnd_value_type>(object_state_.moused->handle()),
-				WINPP_WM_MOUSEENTER,
-				0,
-				0
-			}), true);//Send mouse enter message
-			moused = moused->hit_target(mouse_position);//Find next target
-		}
-	}
-
-	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
-		static_cast<hwnd_value_type>(object_state_.moused->handle()),
-		(object_state_.moused == &target) ? msg : WINPP_WM_MOUSEMOVE,
-		wparam,
-		lparam
-	}), true);//Forward message
+	return target;
 }
 
 winpp::application::object_manager::lresult_type CALLBACK winpp::application::object_manager::hook_(int code, wparam_type wparam, lparam_type lparam){

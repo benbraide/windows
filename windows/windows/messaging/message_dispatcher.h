@@ -6,6 +6,14 @@
 #include "message_target.h"
 
 namespace winpp{
+	namespace application{
+		class object_manager;
+	}
+
+	namespace window{
+		class object;
+	}
+
 	namespace messaging{
 		class dispatcher{
 		public:
@@ -69,6 +77,23 @@ namespace winpp{
 			}
 
 			callback_type callback_;
+		};
+
+		class object_manager_handling_dispatcher : public typed_dispatcher<::LRESULT>{
+		public:
+			typedef typed_dispatcher<::LRESULT> base_type;
+
+			typedef application::object_manager object_manager_type;
+			typedef window::object window_type;
+
+			typedef lresult_type(object_manager_type::*handler_type)(window_type &, const msg_type &);
+
+			explicit object_manager_handling_dispatcher(handler_type handler);
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+
+		protected:
+			handler_type handler_;
 		};
 
 		class unrecognized_dispatcher : public typed_dispatcher<::LRESULT>{
