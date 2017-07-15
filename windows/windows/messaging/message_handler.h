@@ -8,9 +8,11 @@
 namespace winpp{
 	namespace messaging{
 		class map;
+		class mouse_dispatcher;
 
 		class handler{
 		public:
+			typedef ::UINT uint_type;
 			typedef ::HCURSOR hcursor_type;
 
 			typedef messaging::object message_object_type;
@@ -29,10 +31,14 @@ namespace winpp{
 			typedef messaging::size size_message_type;
 			typedef messaging::move move_message_type;
 
+			typedef messaging::mouse mouse_message_type;
+
 			typedef structures::enumerations::mouse_activate_type mouse_activate_type;
 			typedef structures::enumerations::hit_target_type hit_target_type;
 
 			virtual ~handler();
+
+			virtual handler *parent_handler() const;
 
 		protected:
 			virtual bool on_nccreate(message_object_type &e);
@@ -71,7 +77,30 @@ namespace winpp{
 
 			virtual bool on_move(move_message_type &e);
 
+			virtual void on_mouse_move(mouse_message_type &e);
+
+			virtual void on_mouse_hover(mouse_message_type &e);
+
+			virtual void on_mouse_enter(mouse_message_type &e);
+
+			virtual void on_mouse_leave(mouse_message_type &e);
+
+			virtual void on_mouse_down(mouse_message_type &e);
+
+			virtual void on_mouse_up(mouse_message_type &e);
+
+			virtual void on_mouse_dbl_click(mouse_message_type &e);
+
+			virtual void on_mouse_drag(mouse_message_type &e);
+
+			virtual void on_mouse_drag_end(mouse_message_type &e);
+
+			virtual void on_mouse_wheel(mouse_message_type &e);
+
+			virtual void bubble_mouse(mouse_message_type &e);
+
 			friend class map;
+			friend class mouse_dispatcher;
 		};
 	}
 }

@@ -239,6 +239,40 @@ namespace winpp{
 			virtual bool is_changing() const;
 		};
 
+		class mouse : public object{
+		public:
+			typedef structures::point point_type;
+			typedef structures::size size_type;
+
+			typedef structures::enumerations::hit_target_type hit_target_type;
+			typedef structures::enumerations::mouse_key_state_type mouse_key_state_type;
+
+			template <typename... args_type>
+			explicit mouse(gui_object_type *original_target, args_type &&... args)
+				: object(std::forward<args_type>(args)...), original_target_(original_target){}
+
+			virtual ~mouse();
+
+			virtual bool is_client() const;
+
+			virtual bool is_vertical_wheel() const;
+
+			virtual mouse_key_state_type button() const;
+
+			virtual hit_target_type hit_target() const;
+
+			virtual point_type position() const;
+
+			virtual short wheel_delta() const;
+
+			virtual size_type drag_delta() const;
+
+			virtual gui_object_type *original_target() const;
+
+		protected:
+			gui_object_type *original_target_;
+		};
+
 		WINPP_MAKE_OPERATORS(object::state_type);
 	}
 }

@@ -79,9 +79,9 @@ namespace winpp{
 			callback_type callback_;
 		};
 
-		class object_manager_handling_dispatcher : public typed_dispatcher<::LRESULT>{
+		class object_manager_handling_dispatcher : public dispatcher{
 		public:
-			typedef typed_dispatcher<::LRESULT> base_type;
+			typedef dispatcher base_type;
 
 			typedef application::object_manager object_manager_type;
 			typedef window::object window_type;
@@ -311,6 +311,33 @@ namespace winpp{
 				: base_type(std::forward<args_types>(args)...){}
 
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
+		class mouse_dispatcher : public dispatcher{
+		public:
+			typedef ::UINT uint_type;
+
+			typedef dispatcher base_type;
+			typedef structures::enumerations::hit_target_type hit_target_type;
+
+			typedef events::tunnel<void, events::mouse> event_type;
+			typedef void(target_type::*handler_type)(mouse &);
+
+			struct info_type{
+				uint_type code;
+				event_type *event_object;
+				handler_type handler;
+			};
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+
+			static uint_type non_client_to_client(uint_type code);
+
+			static uint_type client_to_non_client(uint_type code);
+
+			static void retrieve_info(const msg_type &info, target_type &target, info_type &out);
+
+			static void retrieve_event_and_handler(target_type &target, info_type &in_out);
 		};
 	}
 }

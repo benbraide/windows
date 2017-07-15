@@ -74,6 +74,21 @@ namespace winpp{
 				events::tunnel<void> erase_background;
 				events::tunnel<void> paint;
 
+				events::tunnel<void, events::mouse> mouse_move;
+				events::tunnel<void, events::mouse> mouse_hover;
+
+				events::tunnel<void, events::mouse> mouse_enter;
+				events::tunnel<void, events::mouse> mouse_leave;
+
+				events::tunnel<void, events::mouse> mouse_down;
+				events::tunnel<void, events::mouse> mouse_up;
+				events::tunnel<void, events::mouse> mouse_dbl_click;
+
+				events::tunnel<void, events::mouse> mouse_drag;
+				events::tunnel<void, events::mouse> mouse_drag_end;
+
+				events::tunnel<void, events::mouse> mouse_wheel;
+
 			protected:
 				virtual unsigned __int64 bind_(const std::wstring &e, const std::any &callback) override;
 			};

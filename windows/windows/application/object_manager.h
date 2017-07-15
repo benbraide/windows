@@ -21,22 +21,12 @@
 #define WINPP_WM_MOUSEENTER			(WINPP_WM_APP_RESERVED_LAST + 0x01)
 #define WINPP_WM_MOUSELEAVE			(WINPP_WM_APP_RESERVED_LAST + 0x02)
 
-#define WINPP_WM_NCMOUSEMOVE		(WINPP_WM_APP_RESERVED_LAST + 0x03)
-#define WINPP_WM_MOUSEMOVE			(WINPP_WM_APP_RESERVED_LAST + 0x04)
+#define WINPP_WM_MOUSEDRAG			(WINPP_WM_APP_RESERVED_LAST + 0x03)
+#define WINPP_WM_MOUSEDRAGEND		(WINPP_WM_APP_RESERVED_LAST + 0x04)
+#define WINPP_WM_MOUSEDRAGCANCEL	(WINPP_WM_APP_RESERVED_LAST + 0x05)
 
-#define WINPP_WM_NCMOUSEDOWN		(WINPP_WM_APP_RESERVED_LAST + 0x05)
-#define WINPP_WM_MOUSEDOWN			(WINPP_WM_APP_RESERVED_LAST + 0x06)
-
-#define WINPP_WM_NCMOUSEUP			(WINPP_WM_APP_RESERVED_LAST + 0x07)
-#define WINPP_WM_MOUSEUP			(WINPP_WM_APP_RESERVED_LAST + 0x08)
-
-#define WINPP_WM_RAWMOUSEMOVE		(WINPP_WM_APP_RESERVED_LAST + 0x09)
-#define WINPP_WM_RAWMOUSEDOWN		(WINPP_WM_APP_RESERVED_LAST + 0x0a)
-#define WINPP_WM_RAWMOUSEUP			(WINPP_WM_APP_RESERVED_LAST + 0x0b)
-
-#define WINPP_WM_MOUSEDRAG			(WINPP_WM_APP_RESERVED_LAST + 0x0c)
-#define WINPP_WM_MOUSEDRAGEND		(WINPP_WM_APP_RESERVED_LAST + 0x0d)
-#define WINPP_WM_MOUSEDRAGCANCEL	(WINPP_WM_APP_RESERVED_LAST + 0x0e)
+#define WINPP_WM_MOUSE				(WINPP_WM_APP_RESERVED_LAST + 0x06)
+#define WINPP_WM_RAWMOUSE			(WINPP_WM_APP_RESERVED_LAST + 0x07)
 
 namespace winpp{
 	namespace application{
@@ -135,6 +125,8 @@ namespace winpp{
 			lresult_type handle_mouse_down(window_type &target, const msg_type &msg);
 
 			lresult_type handle_mouse_up(window_type &target, const msg_type &msg);
+
+			lresult_type handle_mouse_dbl_click(window_type &target, const msg_type &msg);
 
 			template <typename return_type = lresult_type, typename arg_wparam_type = wparam_type, typename arg_lparam_type = lparam_type>
 			static return_type send_message(gui_object_type &target, uint_type message, arg_wparam_type wparam, arg_lparam_type lparam){

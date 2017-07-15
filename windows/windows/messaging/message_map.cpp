@@ -37,6 +37,11 @@ winpp::messaging::map::map()
 
 	list_[WM_NCLBUTTONUP] = list_[WM_NCMBUTTONUP] = list_[WM_NCRBUTTONUP] = list_[WM_LBUTTONUP] = list_[WM_MBUTTONUP] = list_[WM_RBUTTONUP] =
 		std::make_shared<messaging::object_manager_handling_dispatcher>(&application::object_manager::handle_mouse_up);
+
+	list_[WM_NCLBUTTONDBLCLK] = list_[WM_NCMBUTTONDBLCLK] = list_[WM_NCRBUTTONDBLCLK] = list_[WM_LBUTTONDBLCLK] = list_[WM_MBUTTONDBLCLK] = list_[WM_RBUTTONDBLCLK] =
+		std::make_shared<messaging::object_manager_handling_dispatcher>(&application::object_manager::handle_mouse_dbl_click);
+
+	list_[WINPP_WM_MOUSE] = list_[WINPP_WM_RAWMOUSE] = std::make_shared<messaging::mouse_dispatcher>();
 }
 
 winpp::messaging::map &winpp::messaging::map::add_entry(uint_type code, dispatcher_ptr_type dispatcher){

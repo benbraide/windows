@@ -2,10 +2,10 @@
 #include "../application/object_manager.h"
 
 winpp::messaging::object_manager_handling_dispatcher::object_manager_handling_dispatcher(handler_type handler)
-	: base_type(nullptr), handler_(handler){}
+	: handler_(handler){}
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::object_manager_handling_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	return (application::object::get().object_manager().*handler_)(*dynamic_cast<window_type *>(this), info);
+	return (application::object::get().object_manager().*handler_)(*dynamic_cast<window_type *>(&target), info);
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::unrecognized_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
@@ -238,4 +238,156 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::move_dispatcher::di
 	}
 
 	return ev.handle(false).result();
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::mouse_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	info_type retrieved_info{};
+	retrieve_info(info, target, retrieved_info);
+
+	auto gui_target = reinterpret_cast<gui::object *>(&target);
+	events::mouse e(*gui_target, info.code(), info.wparam(), gui_target);
+	if (retrieved_info.event_object != nullptr)//Fire event
+		(*retrieved_info.event_object)(e);
+
+	auto handler = retrieved_info.handler;
+	auto resolved_info = info;
+
+	mouse ev(gui_target, resolved_info.code(retrieved_info.code), is_sent, target.procedure(), gui_target);
+	(target.*handler)(ev);//Call handler
+
+	return ev.handle(false).result();
+}
+
+winpp::messaging::mouse_dispatcher::uint_type winpp::messaging::mouse_dispatcher::non_client_to_client(uint_type code){
+	switch (code){
+	case WM_NCMOUSEMOVE:
+		return WM_MOUSEMOVE;
+	case WM_NCMOUSEHOVER:
+		return WM_MOUSEHOVER;
+	case WM_NCLBUTTONDOWN:
+		return WM_LBUTTONDOWN;
+	case WM_NCMBUTTONDOWN:
+		return WM_MBUTTONDOWN;
+	case WM_NCRBUTTONDOWN:
+		return WM_RBUTTONDOWN;
+	case WM_NCLBUTTONUP:
+		return WM_LBUTTONUP;
+	case WM_NCMBUTTONUP:
+		return WM_MBUTTONUP;
+	case WM_NCRBUTTONUP:
+		return WM_RBUTTONUP;
+	case WM_NCLBUTTONDBLCLK:
+		return WM_LBUTTONDBLCLK;
+	case WM_NCMBUTTONDBLCLK:
+		return WM_MBUTTONDBLCLK;
+	case WM_NCRBUTTONDBLCLK:
+		return WM_RBUTTONDBLCLK;
+	default:
+		break;
+	}
+
+	return code;
+}
+
+winpp::messaging::mouse_dispatcher::uint_type winpp::messaging::mouse_dispatcher::client_to_non_client(uint_type code){
+	switch (code){
+	case WM_MOUSEMOVE:
+		return WM_NCMOUSEMOVE;
+	case WM_MOUSEHOVER:
+		return WM_NCMOUSEHOVER;
+	case WM_LBUTTONDOWN:
+		return WM_NCLBUTTONDOWN;
+	case WM_MBUTTONDOWN:
+		return WM_NCMBUTTONDOWN;
+	case WM_RBUTTONDOWN:
+		return WM_NCRBUTTONDOWN;
+	case WM_LBUTTONUP:
+		return WM_NCLBUTTONUP;
+	case WM_MBUTTONUP:
+		return WM_NCMBUTTONUP;
+	case WM_RBUTTONUP:
+		return WM_NCRBUTTONUP;
+	case WM_LBUTTONDBLCLK:
+		return WM_NCLBUTTONDBLCLK;
+	case WM_MBUTTONDBLCLK:
+		return WM_NCMBUTTONDBLCLK;
+	case WM_RBUTTONDBLCLK:
+		return WM_NCRBUTTONDBLCLK;
+	default:
+		break;
+	}
+
+	return code;
+}
+
+void winpp::messaging::mouse_dispatcher::retrieve_info(const msg_type &info, target_type &target, info_type &out){
+	out.code = info.lparam<uint_type>();
+	if (info.code() == WINPP_WM_RAWMOUSE && dynamic_cast<gui::object *>(&target)->hit_test(threading::message_queue::last_mouse_position()) != hit_target_type::client)
+		out.code = client_to_non_client(out.code);//Convert code to non-client version
+	retrieve_event_and_handler(target, out);
+}
+
+void winpp::messaging::mouse_dispatcher::retrieve_event_and_handler(target_type &target, info_type &in_out){
+	switch (in_out.code){
+	case WM_NCMOUSEMOVE:
+	case WM_MOUSEMOVE:
+		in_out.event_object = &target.events().mouse_move;
+		in_out.handler = &target_type::on_mouse_move;
+		break;
+	case WM_NCMOUSEHOVER:
+	case WM_MOUSEHOVER:
+		in_out.event_object = &target.events().mouse_hover;
+		in_out.handler = &target_type::on_mouse_hover;
+		break;
+	case WINPP_WM_MOUSEENTER:
+		in_out.event_object = &target.events().mouse_enter;
+		in_out.handler = &target_type::on_mouse_enter;
+		break;
+	case WINPP_WM_MOUSELEAVE:
+		in_out.event_object = &target.events().mouse_leave;
+		in_out.handler = &target_type::on_mouse_leave;
+		break;
+	case WM_NCLBUTTONDOWN:
+	case WM_LBUTTONDOWN:
+	case WM_NCMBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_NCRBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+		in_out.event_object = &target.events().mouse_down;
+		in_out.handler = &target_type::on_mouse_down;
+		break;
+	case WM_NCLBUTTONUP:
+	case WM_LBUTTONUP:
+	case WM_NCMBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_NCRBUTTONUP:
+	case WM_RBUTTONUP:
+		in_out.event_object = &target.events().mouse_up;
+		in_out.handler = &target_type::on_mouse_up;
+		break;
+	case WM_NCLBUTTONDBLCLK:
+	case WM_LBUTTONDBLCLK:
+	case WM_NCMBUTTONDBLCLK:
+	case WM_MBUTTONDBLCLK:
+	case WM_NCRBUTTONDBLCLK:
+	case WM_RBUTTONDBLCLK:
+		in_out.event_object = &target.events().mouse_dbl_click;
+		in_out.handler = &target_type::on_mouse_dbl_click;
+		break;
+	case WINPP_WM_MOUSEDRAG:
+		in_out.event_object = &target.events().mouse_drag;
+		in_out.handler = &target_type::on_mouse_drag;
+		break;
+	case WINPP_WM_MOUSEDRAGEND:
+		in_out.event_object = &target.events().mouse_drag_end;
+		in_out.handler = &target_type::on_mouse_drag_end;
+		break;
+	case WM_MOUSEWHEEL:
+	case WM_MOUSEHWHEEL:
+		in_out.event_object = &target.events().mouse_wheel;
+		in_out.handler = &target_type::on_mouse_wheel;
+		break;
+	default:
+		break;
+	}
 }

@@ -1,4 +1,5 @@
 #include "message_object.h"
+#include "../application/object_manager.h"
 
 winpp::messaging::object::object(const msg_type &info, bool is_sent, procedure_type default_callback, gui_object_type *target)
 	: info_(info), default_callback_(default_callback), target_(target), states_(is_sent ? state_type::sent : state_type::nil){
@@ -183,4 +184,93 @@ winpp::messaging::move::~move() = default;
 
 bool winpp::messaging::move::is_changing() const{
 	return (info_.code() == WM_MOVING);
+}
+
+winpp::messaging::mouse::~mouse() = default;
+
+bool winpp::messaging::mouse::is_client() const{
+	switch (info_.code()){
+	case WM_NCMOUSEMOVE:
+	case WM_NCMOUSEHOVER:
+	case WM_NCMOUSELEAVE:
+	case WM_NCLBUTTONDOWN:
+	case WM_NCLBUTTONUP:
+	case WM_NCLBUTTONDBLCLK:
+	case WM_NCMBUTTONDOWN:
+	case WM_NCMBUTTONUP:
+	case WM_NCMBUTTONDBLCLK:
+	case WM_NCRBUTTONDOWN:
+	case WM_NCRBUTTONUP:
+	case WM_NCRBUTTONDBLCLK:
+	case WM_NCXBUTTONDOWN:
+	case WM_NCXBUTTONUP:
+	case WM_NCXBUTTONDBLCLK:
+		return false;
+	default:
+		break;
+	}
+
+	return true;
+}
+
+bool winpp::messaging::mouse::is_vertical_wheel() const{
+	return (info_.code() == WM_MOUSEWHEEL);
+}
+
+winpp::messaging::mouse::mouse_key_state_type winpp::messaging::mouse::button() const{
+	switch (info_.code()){
+	case WM_NCLBUTTONDOWN:
+	case WM_LBUTTONDOWN:
+	case WM_NCLBUTTONUP:
+	case WM_LBUTTONUP:
+	case WM_NCLBUTTONDBLCLK:
+	case WM_LBUTTONDBLCLK:
+		return mouse_key_state_type::left_button;
+	case WM_NCMBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_NCMBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_NCMBUTTONDBLCLK:
+	case WM_MBUTTONDBLCLK:
+		return mouse_key_state_type::middle_button;
+	case WM_NCRBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	case WM_NCRBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_NCRBUTTONDBLCLK:
+	case WM_RBUTTONDBLCLK:
+		return mouse_key_state_type::right_button;
+	default:
+		break;
+	}
+
+	return mouse_key_state_type::nil;
+}
+
+winpp::messaging::mouse::hit_target_type winpp::messaging::mouse::hit_target() const{
+	return (is_client() ? hit_target_type::client : static_cast<hit_target_type>(info_.wparam<int>()));
+}
+
+winpp::messaging::mouse::point_type winpp::messaging::mouse::position() const{
+	return threading::message_queue::last_mouse_position();
+}
+
+short winpp::messaging::mouse::wheel_delta() const{
+	switch (info_.code()){
+	case WM_MOUSEWHEEL:
+	case WM_MOUSEHWHEEL:
+		return static_cast<short>(info_.high_wparam<int>() / WHEEL_DELTA);
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+winpp::messaging::mouse::size_type winpp::messaging::mouse::drag_delta() const{
+	return *info_.wparam<size_type::value_type *>();
+}
+
+winpp::messaging::object::gui_object_type *winpp::messaging::mouse::original_target() const{
+	return original_target_;
 }

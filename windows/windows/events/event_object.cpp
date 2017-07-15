@@ -1,4 +1,5 @@
 #include "event_object.h"
+#include "../application/object_manager.h"
 
 winpp::events::object::object(gui_object_type &target)
 	: target_(&target), states_(state_type::nil){}
@@ -139,4 +140,96 @@ winpp::events::hit_test::~hit_test() = default;
 
 const winpp::events::hit_test::point_type &winpp::events::hit_test::mouse_position() const{
 	return position_;
+}
+
+winpp::events::mouse::mouse(gui_object_type &target, uint_type code, wparam_type wparam, gui_object_type *original_target)
+	: object(target), code_(code), wparam_(wparam), original_target_(original_target){}
+
+winpp::events::mouse::~mouse() = default;
+
+bool winpp::events::mouse::is_client() const{
+	switch (code_){
+	case WM_NCMOUSEMOVE:
+	case WM_NCMOUSEHOVER:
+	case WM_NCMOUSELEAVE:
+	case WM_NCLBUTTONDOWN:
+	case WM_NCLBUTTONUP:
+	case WM_NCLBUTTONDBLCLK:
+	case WM_NCMBUTTONDOWN:
+	case WM_NCMBUTTONUP:
+	case WM_NCMBUTTONDBLCLK:
+	case WM_NCRBUTTONDOWN:
+	case WM_NCRBUTTONUP:
+	case WM_NCRBUTTONDBLCLK:
+	case WM_NCXBUTTONDOWN:
+	case WM_NCXBUTTONUP:
+	case WM_NCXBUTTONDBLCLK:
+		return false;
+	default:
+		break;
+	}
+
+	return true;
+}
+
+bool winpp::events::mouse::is_vertical_wheel() const{
+	return (code_ == WM_MOUSEWHEEL);
+}
+
+winpp::events::mouse::mouse_key_state_type winpp::events::mouse::button() const{
+	switch (code_){
+	case WM_NCLBUTTONDOWN:
+	case WM_LBUTTONDOWN:
+	case WM_NCLBUTTONUP:
+	case WM_LBUTTONUP:
+	case WM_NCLBUTTONDBLCLK:
+	case WM_LBUTTONDBLCLK:
+		return mouse_key_state_type::left_button;
+	case WM_NCMBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_NCMBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_NCMBUTTONDBLCLK:
+	case WM_MBUTTONDBLCLK:
+		return mouse_key_state_type::middle_button;
+	case WM_NCRBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	case WM_NCRBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_NCRBUTTONDBLCLK:
+	case WM_RBUTTONDBLCLK:
+		return mouse_key_state_type::right_button;
+	default:
+		break;
+	}
+
+	return mouse_key_state_type::nil;
+}
+
+winpp::events::mouse::hit_target_type winpp::events::mouse::hit_target() const{
+	return (is_client() ? hit_target_type::client : static_cast<hit_target_type>(wparam_));
+}
+
+winpp::events::mouse::point_type winpp::events::mouse::position() const{
+	return threading::message_queue::last_mouse_position();
+}
+
+short winpp::events::mouse::wheel_delta() const{
+	switch (code_){
+	case WM_MOUSEWHEEL:
+	case WM_MOUSEHWHEEL:
+		return static_cast<short>(HIWORD(wparam_) / WHEEL_DELTA);
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+winpp::events::mouse::size_type winpp::events::mouse::drag_delta() const{
+	return *reinterpret_cast<size_type::value_type *>(wparam_);
+}
+
+winpp::events::object::gui_object_type *winpp::events::mouse::original_target() const{
+	return original_target_;
 }

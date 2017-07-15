@@ -106,6 +106,8 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 			object_state_.moused = moused;
 			object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 				static_cast<hwnd_value_type>(object_state_.moused->handle()),
+				WINPP_WM_MOUSE,
+				0,
 				WINPP_WM_MOUSEENTER
 			}), true);//Send mouse enter message
 			moused = moused->hit_target(mouse_position);//Find next target
@@ -114,6 +116,8 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 	else{//Non-client
 		object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 			static_cast<hwnd_value_type>(object_state_.moused->handle()),
+			WINPP_WM_MOUSE,
+			0,
 			WINPP_WM_MOUSEENTER
 		}), true);//Send mouse enter message
 	}
@@ -130,9 +134,9 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 
 	auto result = object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 		static_cast<hwnd_value_type>(object_state_.moused->handle()),
-		static_cast<uint_type>((object_state_.moused == &target) ? (is_client ? WINPP_WM_MOUSEMOVE : WINPP_WM_NCMOUSEMOVE) : WINPP_WM_RAWMOUSEMOVE),
+		static_cast<uint_type>((object_state_.moused == &target) ? WINPP_WM_MOUSE : WINPP_WM_RAWMOUSE),
 		msg.wparam(),
-		msg.lparam()
+		msg.code()
 	}), true);//Send message
 
 	if (WINPP_IS(object_state_.mouse_state, object_mouse_state::down) && !WINPP_IS(object_state_.mouse_state, object_mouse_state::drag)){//Check for drag
@@ -150,9 +154,9 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 		size_type::value_type delta{ (mouse_position.x() - object_state_.last_position.x()), (mouse_position.y() - object_state_.last_position.y()) };
 		object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 			static_cast<hwnd_value_type>(object_state_.moused->handle()),
-			WINPP_WM_MOUSEDRAG,
+			WINPP_WM_MOUSE,
 			*reinterpret_cast<wparam_type *>(&delta),
-			msg.lparam()
+			WINPP_WM_MOUSEDRAG
 		}), true);//Send message
 	}
 
@@ -168,6 +172,8 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 		while (object_state_.moused != nullptr){//Send message to chain
 			object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 				static_cast<hwnd_value_type>(object_state_.moused->handle()),
+				WINPP_WM_MOUSE,
+				0,
 				WINPP_WM_MOUSELEAVE
 			}), true);//Send mouse leave message
 
@@ -182,6 +188,8 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 		while (object_state_.moused != nullptr && object_state_.moused->hit_test(mouse_position) == hit_target_type::nil){//Notify applicable ancestors
 			object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 				static_cast<hwnd_value_type>(object_state_.moused->handle()),
+				WINPP_WM_MOUSE,
+				0,
 				WINPP_WM_MOUSELEAVE
 			}), true);//Send mouse leave message
 			object_state_.moused = object_state_.moused->parent();//Climb hierarchy
@@ -205,12 +213,11 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 	case WM_NCLBUTTONDOWN:
 	case WM_NCMBUTTONDOWN:
 	case WM_NCRBUTTONDOWN:
-	case WM_NCXBUTTONDOWN://Ignore non-client
 		return target.query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 			static_cast<hwnd_value_type>(target.handle()),
-			WINPP_WM_NCMOUSEDOWN,
+			WINPP_WM_MOUSE,
 			msg.wparam(),
-			msg.lparam()
+			msg.code()
 		}), true);//Send message
 	case WM_LBUTTONDOWN:
 		WINPP_SET(object_state_.button, mouse_key_state_type::left_button);
@@ -232,9 +239,9 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 
 	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 		static_cast<hwnd_value_type>(object_state_.moused->handle()),
-		WINPP_WM_MOUSEDOWN,
+		static_cast<uint_type>((object_state_.moused == &target) ? WINPP_WM_MOUSE : WINPP_WM_RAWMOUSE),
 		msg.wparam(),
-		msg.lparam()
+		msg.code()
 	}), true);//Send message
 }
 
@@ -265,18 +272,41 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 			WINPP_REMOVE(object_state_.mouse_state, object_mouse_state::drag);
 			object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 				static_cast<hwnd_value_type>(object_state_.moused->handle()),
-				WINPP_WM_MOUSEDRAGEND,
-				msg.wparam(),
-				msg.lparam()
+				WINPP_WM_MOUSE,
+				0,
+				WINPP_WM_MOUSEDRAGEND
 			}), true);//Forward message
 		}
 	}
 
 	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 		static_cast<hwnd_value_type>(object_state_.moused->handle()),
-		WINPP_WM_MOUSEUP,
+		static_cast<uint_type>((object_state_.moused == &target) ? WINPP_WM_MOUSE : WINPP_WM_RAWMOUSE),
 		msg.wparam(),
-		msg.lparam()
+		msg.code()
+	}), true);//Send message
+}
+
+winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_dbl_click(window_type &target, const msg_type &msg){
+	switch (msg.code()){
+	case WM_NCLBUTTONDBLCLK:
+	case WM_NCMBUTTONDBLCLK:
+	case WM_NCRBUTTONDBLCLK:
+		return target.query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+			static_cast<hwnd_value_type>(target.handle()),
+			WINPP_WM_MOUSE,
+			msg.wparam(),
+			msg.code()
+		}), true);//Send message
+	default:
+		break;
+	}
+
+	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+		static_cast<hwnd_value_type>(object_state_.moused->handle()),
+		static_cast<uint_type>((object_state_.moused == &target) ? WINPP_WM_MOUSE : WINPP_WM_RAWMOUSE),
+		msg.wparam(),
+		msg.code()
 	}), true);//Send message
 }
 
@@ -352,18 +382,18 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 			WINPP_REMOVE(object_state_.mouse_state, object_mouse_state::drag);
 			object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 				static_cast<hwnd_value_type>(object_state_.moused->handle()),
-				WINPP_WM_MOUSEDRAGEND,
-				msg.wparam(),
-				msg.lparam()
+				WINPP_WM_MOUSE,
+				0,
+				WINPP_WM_MOUSEDRAGEND
 			}), true);//Forward message
 		}
 	}
 
 	return target.query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 		static_cast<hwnd_value_type>(target.handle()),
-		WINPP_WM_NCMOUSEUP,
+		WINPP_WM_MOUSE,
 		msg.wparam(),
-		msg.lparam()
+		msg.code()
 	}), true);//Send message
 }
 
