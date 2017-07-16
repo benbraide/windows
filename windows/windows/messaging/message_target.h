@@ -8,6 +8,8 @@
 #include "../wrappers/msg_wrapper.h"
 #include "../wrappers/hwnd_wrapper.h"
 
+#include "../structures/color_structure.h"
+
 #include "../events/event_tunnel.h"
 #include "../gui/gui_object_tree.h"
 
@@ -32,6 +34,11 @@ namespace winpp{
 				typedef structures::enumerations::event_type event_type;
 				typedef structures::enumerations::hit_target_type hit_target_type;
 
+				typedef structures::color color_type;
+
+				typedef ::HCURSOR hcursor_type;
+				typedef ::HBRUSH hbrush_type;
+
 				using base_type::bind;
 
 				virtual ~event_tunnel();
@@ -55,7 +62,7 @@ namespace winpp{
 				events::tunnel<void, events::focus_change> focus_change;
 				events::tunnel<void, events::enable> enable;
 
-				events::tunnel<::HCURSOR, events::set_cursor> set_cursor;
+				events::tunnel<hcursor_type, events::set_cursor> set_cursor;
 				events::tunnel<hit_target_type, events::hit_test> hit_test;
 
 				events::tunnel<void, events::position> position;
@@ -93,6 +100,9 @@ namespace winpp{
 				events::tunnel<void, events::key> key_up;
 				events::tunnel<void, events::key> key_pressed;
 				events::tunnel<void, events::key> dead_key;
+
+				events::tunnel<hbrush_type> background_brush;
+				events::tunnel<color_type> background_color;
 
 			protected:
 				virtual unsigned __int64 bind_(const std::wstring &e, const std::any &callback) override;
