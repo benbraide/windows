@@ -1,8 +1,8 @@
 #include "drawing_factory.h"
 
-winpp::drawing::factory::factory()
+winpp::drawing::factory::factory(factory_type type)
 	: value_(nullptr){
-	if (FAILED(::D2D1CreateFactory(::D2D1_FACTORY_TYPE::D2D1_FACTORY_TYPE_SINGLE_THREADED, &value_)))
+	if (FAILED(::D2D1CreateFactory(type, &value_)))
 		value_ = nullptr;//Failed to create factory
 }
 

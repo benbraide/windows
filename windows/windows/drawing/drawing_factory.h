@@ -12,10 +12,11 @@ namespace winpp{
 
 		class factory{
 		public:
+			typedef ::D2D1_FACTORY_TYPE factory_type;
 			typedef ::ID2D1Factory value_type;
 			typedef value_type *pointer_type;
 
-			factory();
+			explicit factory(factory_type type = factory_type::D2D1_FACTORY_TYPE_SINGLE_THREADED);
 
 			~factory();
 
