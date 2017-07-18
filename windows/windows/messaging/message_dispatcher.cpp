@@ -240,6 +240,27 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::move_dispatcher::di
 	return ev.handle(false).result();
 }
 
+winpp::messaging::dispatcher::lresult_type winpp::messaging::erase_background_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	ev.skip();
+
+	events::erase_background e(*reinterpret_cast<gui::object *>(&target), ev.clip());
+	target.events().erase_background(e);
+	if (e.is_prevented())//Handled
+		return TRUE;
+
+	events::object bbe(e.target());
+	auto brush = target.events().background_brush(bbe);
+	if (e.is_prevented())//Deferred
+		return FALSE;
+
+	if (brush != nullptr){//Use brush
+		return TRUE;
+	}
+
+	return call_(target, ev) ? TRUE : FALSE;
+}
+
 winpp::messaging::dispatcher::lresult_type winpp::messaging::mouse_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
 	info_type retrieved_info{};
 	retrieve_info(info, target, retrieved_info);

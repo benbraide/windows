@@ -242,6 +242,20 @@ namespace winpp{
 			virtual bool is_changing() const;
 		};
 
+		class erase_background : public object{
+		public:
+			typedef ::HDC hdc_type;
+			typedef structures::rect rect_type;
+
+			template <typename... args_type>
+			explicit erase_background(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~erase_background();
+
+			virtual rect_type clip() const;
+		};
+
 		class mouse : public object{
 		public:
 			typedef structures::point point_type;

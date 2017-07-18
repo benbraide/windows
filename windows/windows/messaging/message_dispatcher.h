@@ -313,6 +313,18 @@ namespace winpp{
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
 		};
 
+		class erase_background_dispatcher : public typed_dispatcher<bool, erase_background>{
+		public:
+			typedef typed_dispatcher<bool, erase_background> base_type;
+			typedef structures::rect::value_type rect_value_type;
+
+			template <typename... args_types>
+			explicit erase_background_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
 		class mouse_dispatcher : public dispatcher{
 		public:
 			typedef ::UINT uint_type;

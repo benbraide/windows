@@ -7,7 +7,7 @@ winpp::window::object::event_tunnel::event_tunnel(gui_object_type &object)
 winpp::window::object::event_tunnel::~event_tunnel() = default;
 
 winpp::window::object::object(procedure_type procedure)
-	: procedure_(procedure){}
+	: procedure_(procedure), background_color_(::D2D1::ColorF(::GetSysColor(COLOR_WINDOW))){}
 
 winpp::window::object::~object(){
 	destroy(force_type::force);
@@ -193,6 +193,21 @@ winpp::window::object::drawer_type &winpp::window::object::drawer(){
 	return *drawer_;
 }
 
+winpp::window::object &winpp::window::object::background_color(colorf_type &value, update_type update){
+	background_color_ = value;
+	if (update != update_type::dont_update)
+		value_.invalidate();
+	return *this;
+}
+
+winpp::window::object &winpp::window::object::background_color(color_type &value, update_type update){
+	return background_color(colorf_type{ value.relative_red(), value.relative_green(), value.relative_blue(), value.relative_alpha() });
+}
+
+const winpp::window::object::colorf_type &winpp::window::object::background_color() const{
+	return background_color_;
+}
+
 void winpp::window::object::destroyed_(){
 	tree_base_type::destroyed_();
 	value_ = nullptr;//Reset value
@@ -205,6 +220,11 @@ winpp::gui::generic_object::events_type winpp::window::object::get_events_(){
 
 bool winpp::window::object::cache_group_(unsigned int value) const{
 	return (value == non_window_group);
+}
+
+bool winpp::window::object::on_erase_background(erase_background_message_type &e){
+	drawer()->Clear(background_color_);
+	return true;
 }
 
 winpp::messaging::target *winpp::window::object::target_parent_() const{

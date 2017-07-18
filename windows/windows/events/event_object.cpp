@@ -86,6 +86,15 @@ bool winpp::events::enable::is_enabled() const{
 	return enabled_;
 }
 
+winpp::events::hit_test::hit_test(gui_object_type &target, const point_type &position)
+	: object(target), position_(position){}
+
+winpp::events::hit_test::~hit_test() = default;
+
+const winpp::events::hit_test::point_type &winpp::events::hit_test::mouse_position() const{
+	return position_;
+}
+
 winpp::events::position::position(gui_object_type &target, bool changing, window_pos_type &info)
 	: object(target), changing_(changing), info_(&info){}
 
@@ -133,13 +142,13 @@ bool winpp::events::move::is_changing() const{
 	return changing_;
 }
 
-winpp::events::hit_test::hit_test(gui_object_type &target, const point_type &position)
-	: object(target), position_(position){}
+winpp::events::erase_background::erase_background(gui_object_type &target, const rect_type &clip)
+	: object(target), clip_(clip){}
 
-winpp::events::hit_test::~hit_test() = default;
+winpp::events::erase_background::~erase_background() = default;
 
-const winpp::events::hit_test::point_type &winpp::events::hit_test::mouse_position() const{
-	return position_;
+const winpp::events::erase_background::rect_type &winpp::events::erase_background::clip() const{
+	return clip_;
 }
 
 winpp::events::mouse::mouse(gui_object_type &target, uint_type code, wparam_type wparam, gui_object_type *original_target)

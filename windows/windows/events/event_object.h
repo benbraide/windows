@@ -196,6 +196,21 @@ namespace winpp{
 			bool changing_;
 		};
 
+		class erase_background : public object{
+		public:
+			typedef ::HDC hdc_type;
+			typedef structures::rect rect_type;
+
+			erase_background(gui_object_type &target, const rect_type &clip);
+
+			virtual ~erase_background();
+
+			virtual const rect_type &clip() const;
+
+		protected:
+			rect_type clip_;
+		};
+
 		class mouse : public object{
 		public:
 			typedef structures::point point_type;

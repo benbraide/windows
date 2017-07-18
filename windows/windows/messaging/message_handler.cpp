@@ -61,6 +61,10 @@ bool winpp::messaging::handler::on_move(move_message_type &e){
 	return true;
 }
 
+bool winpp::messaging::handler::on_erase_background(erase_background_message_type &e){
+	return false;
+}
+
 void winpp::messaging::handler::on_mouse_move(mouse_message_type &e){
 	bubble_mouse(e);
 }

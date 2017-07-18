@@ -83,7 +83,7 @@ namespace winpp{
 				events::tunnel<void> show;
 				events::tunnel<void> hide;
 
-				events::tunnel<void> erase_background;
+				events::tunnel<void, events::erase_background> erase_background;
 				events::tunnel<void> paint;
 
 				events::tunnel<void, events::mouse> mouse_move;
@@ -107,8 +107,6 @@ namespace winpp{
 				events::tunnel<void, events::key> dead_key;
 
 				events::tunnel<brush_type *> background_brush;
-				events::tunnel<hbrush_type> gdi_background_brush;
-				events::tunnel<colorf_type> background_color;
 
 			protected:
 				virtual unsigned __int64 bind_(const std::wstring &e, const std::any &callback) override;

@@ -186,6 +186,14 @@ bool winpp::messaging::move::is_changing() const{
 	return (info_.code() == WM_MOVING);
 }
 
+winpp::messaging::erase_background::~erase_background() = default;
+
+winpp::messaging::erase_background::rect_type winpp::messaging::erase_background::clip() const{
+	rect_type value;
+	::GetClipBox(info_.wparam<hdc_type>(), value);
+	return value;
+}
+
 winpp::messaging::mouse::~mouse() = default;
 
 bool winpp::messaging::mouse::is_client() const{

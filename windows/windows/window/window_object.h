@@ -42,8 +42,6 @@ namespace winpp{
 			typedef wrappers::hwnd hwnd_type;
 			typedef wrappers::hwnd::value_type hwnd_value_type;
 
-			typedef structures::color color_type;
-
 			typedef structures::point point_type;
 			typedef structures::size size_type;
 			typedef structures::rect rect_type;
@@ -65,9 +63,17 @@ namespace winpp{
 			typedef drawing::hdc_drawer hdc_drawer_type;
 			typedef drawing::hwnd_drawer hwnd_drawer_type;
 
+			typedef hwnd_drawer_type::color_type color_type;
+			typedef hwnd_drawer_type::colorf_type colorf_type;
+
 			using tree_base_type::outer_size;
 			using tree_base_type::inner_size;
 			using tree_base_type::offset;
+
+			enum class update_type{
+				dont_update,
+				update,
+			};
 
 			class event_tunnel : public messaging::target::event_tunnel{
 			public:
@@ -153,6 +159,12 @@ namespace winpp{
 
 			virtual drawer_type &drawer();
 
+			virtual object &background_color(colorf_type &value, update_type update = update_type::update);
+
+			virtual object &background_color(color_type &value, update_type update = update_type::update);
+
+			virtual const colorf_type &background_color() const;
+
 			template <typename return_type = lresult_type, typename arg_wparam_type = wparam_type, typename arg_lparam_type = lparam_type>
 			return_type send_message(uint_type message, arg_wparam_type wparam, arg_lparam_type lparam) const{
 				return value_.send_message<return_type>(message, wparam, lparam);
@@ -173,6 +185,8 @@ namespace winpp{
 			virtual events_type get_events_() override;
 
 			virtual bool cache_group_(unsigned int value) const override;
+
+			virtual bool on_erase_background(erase_background_message_type &e) override;
 
 			virtual target *target_parent_() const override;
 
@@ -196,6 +210,7 @@ namespace winpp{
 			styles_info_type persistent_styles_;
 			styles_ptr_type styles_;
 			drawer_ptr_type drawer_;
+			colorf_type background_color_;
 		};
 	}
 }
