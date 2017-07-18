@@ -13,6 +13,8 @@
 #include "../events/event_tunnel.h"
 #include "../gui/gui_object_tree.h"
 
+#include "../drawing/drawing_brush.h"
+
 #include "message_handler.h"
 
 namespace winpp{
@@ -34,7 +36,10 @@ namespace winpp{
 				typedef structures::enumerations::event_type event_type;
 				typedef structures::enumerations::hit_target_type hit_target_type;
 
+				typedef drawing::brush brush_type;
+
 				typedef structures::color color_type;
+				typedef brush_type::colorf_type colorf_type;
 
 				typedef ::HCURSOR hcursor_type;
 				typedef ::HBRUSH hbrush_type;
@@ -101,8 +106,9 @@ namespace winpp{
 				events::tunnel<void, events::key> key_pressed;
 				events::tunnel<void, events::key> dead_key;
 
-				events::tunnel<hbrush_type> background_brush;
-				events::tunnel<color_type> background_color;
+				events::tunnel<brush_type *> background_brush;
+				events::tunnel<hbrush_type> gdi_background_brush;
+				events::tunnel<colorf_type> background_color;
 
 			protected:
 				virtual unsigned __int64 bind_(const std::wstring &e, const std::any &callback) override;

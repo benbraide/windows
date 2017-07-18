@@ -1,22 +1,22 @@
 #pragma once
 
-#ifndef WINPP_DRAWING_SOLID_BRUSH_H
-#define WINPP_DRAWING_SOLID_BRUSH_H
+#ifndef WINPP_DRAWING_SOLID_COLOR_BRUSH_H
+#define WINPP_DRAWING_SOLID_COLOR_BRUSH_H
 
 #include "drawing_brush.h"
 
 namespace winpp{
 	namespace drawing{
-		class solid_brush : public brush{
+		class solid_color_brush : public brush{
 		public:
 			typedef ::ID2D1SolidColorBrush solid_value_type;
 			typedef solid_value_type *solid_pointer_type;
 
-			solid_brush(drawer_type &drawer, const colorf_type &value);
+			solid_color_brush(drawer_type &drawer, const colorf_type &value);
 
-			solid_brush(drawer_type &drawer, const color_type &value);
+			solid_color_brush(drawer_type &drawer, const color_type &value);
 
-			virtual ~solid_brush();
+			virtual ~solid_color_brush();
 
 			virtual pointer_type value() const override;
 
@@ -30,4 +30,4 @@ namespace winpp{
 	}
 }
 
-#endif /* !WINPP_DRAWING_SOLID_BRUSH_H */
+#endif /* !WINPP_DRAWING_SOLID_COLOR_BRUSH_H */
