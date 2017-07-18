@@ -8,11 +8,18 @@
 #include "../wrappers/hwnd_wrapper.h"
 #include "../wrappers/wnd_class_wrapper.h"
 
+#include "../drawing/hdc_drawer.h"
+#include "../drawing/hwnd_drawer.h"
+
 #include "../messaging/message_target.h"
 
 #include "window_styles.h"
 
 namespace winpp{
+	namespace application{
+		class object_manager;
+	}
+
 	namespace window{
 		class object : public gui::object_tree, public messaging::target{
 		public:
@@ -50,8 +57,13 @@ namespace winpp{
 			typedef structures::enumerations::hit_target_type hit_target_type;
 
 			typedef wnd_class_type::instance_type instance_type;
-
 			typedef hwnd_type::create_info_type create_info_type;
+
+			typedef drawing::drawer drawer_type;
+			typedef std::shared_ptr<drawer_type> drawer_ptr_type;
+
+			typedef drawing::hdc_drawer hdc_drawer_type;
+			typedef drawing::hwnd_drawer hwnd_drawer_type;
 
 			using tree_base_type::outer_size;
 			using tree_base_type::inner_size;
@@ -139,6 +151,8 @@ namespace winpp{
 
 			virtual dword_type black_listed_styles(bool is_extended) const;
 
+			virtual drawer_type &drawer();
+
 			template <typename return_type = lresult_type, typename arg_wparam_type = wparam_type, typename arg_lparam_type = lparam_type>
 			return_type send_message(uint_type message, arg_wparam_type wparam, arg_lparam_type lparam) const{
 				return value_.send_message<return_type>(message, wparam, lparam);
@@ -150,7 +164,11 @@ namespace winpp{
 			}
 
 		protected:
+			friend class application::object_manager;
+
 			explicit object(procedure_type procedure = ::DefWindowProcW);
+
+			virtual void destroyed_() override;
 
 			virtual events_type get_events_() override;
 
@@ -177,6 +195,7 @@ namespace winpp{
 			procedure_type procedure_;
 			styles_info_type persistent_styles_;
 			styles_ptr_type styles_;
+			drawer_ptr_type drawer_;
 		};
 	}
 }

@@ -26,11 +26,8 @@ void winpp::application::object_manager::create_proxy(){
 }
 
 void winpp::application::object_manager::create(const create_info_type &info, hwnd_type &out){
-	if (object::current_app == nullptr){
-		out = nullptr;
+	if (object::current_app == nullptr || &object::current_app->object_manager() != this)
 		throw common::no_app_exception();
-		return;
-	}
 
 	out_ = &out;
 	recent_params_ = info.lpCreateParams;
@@ -358,7 +355,11 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 	if (target == nullptr)//Unidentified handle
 		return ::DefWindowProcW(window_handle, msg, wparam, lparam);
 
+	auto result = target->dispatch(msg_type({ window_handle, msg, wparam, lparam }), false);
 	switch (msg){
+	case WM_NCDESTROY:
+		target->destroyed_();
+		break;
 	case WM_SETFOCUS://Focus acquired
 		manager.object_state_.focused = target;
 		break;
@@ -367,7 +368,7 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 		break;
 	}
 
-	return target->dispatch(msg_type({ window_handle, msg, wparam, lparam }), false);
+	return result;
 }
 
 winpp::application::object_manager::messaging_map_type winpp::application::object_manager::messaging_map;

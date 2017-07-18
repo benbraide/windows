@@ -44,8 +44,10 @@ bool winpp::gui::object_group::object_attributes::monitoring_content() const{
 }
 
 winpp::gui::object *winpp::gui::object_group::child_at_index(index_and_size_type index) const{
-	guard_type guard(lock_);
-	return (children_.size() < index) ? *std::next(children_.begin(), index) : nullptr;
+	require_app_();
+	return app_->execute_task<object *>([&]() -> object *{
+		return (children_.size() < index) ? *std::next(children_.begin(), index) : nullptr;
+	});
 }
 
 winpp::gui::object *winpp::gui::object_group::child_at_absolute_index(index_and_size_type index) const{
@@ -68,65 +70,77 @@ const winpp::gui::object &winpp::gui::object_group::traverse_children(object_tra
 	if (traverser == nullptr)
 		throw common::invalid_arg_exception();
 
-	guard_type guard(lock_);
-	for (auto child : children_){
-		if (!traverser(*child))
-			break;
-	}
-
+	require_app_();
+	app_->execute_task([&]{
+		for (auto child : children_){
+			if (!traverser(*child))
+				break;
+		}
+	});
+	
 	return *this;
 }
 
 winpp::gui::object::rect_type winpp::gui::object_group::content_rect() const{
-	guard_type guard(lock_);
 	if (children_.empty())
 		return rect_type{};
 
-	rect_type computed_rect{}, child_rect;
-	for (auto child : children_){
-		if (!(child_rect = child->outer_rect()).is_empty()){
-			if (computed_rect.is_empty())
-				computed_rect = child_rect;
-			else//Combine
-				computed_rect.combine(child_rect);
+	require_app_();
+	return app_->execute_task<rect_type>([&]() -> rect_type{
+		rect_type computed_rect{}, child_rect;
+		for (auto child : children_){
+			if (!(child_rect = child->outer_rect()).is_empty()){
+				if (computed_rect.is_empty())
+					computed_rect = child_rect;
+				else//Combine
+					computed_rect.combine(child_rect);
+			}
 		}
-	}
 
-	return computed_rect.move(point_type{});
+		return computed_rect.move(point_type{});
+	});
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::object_group::internal_insert_child(gui_object_type &child, index_and_size_type before){
 	if (child.has_parent())
 		throw common::unsupported_exception();
 
-	guard_type guard(lock_);
-	if (!pre_insert_(child, before))
-		return invalid_index;
+	require_app_();
+	return app_->execute_task<index_and_size_type>([&]() -> index_and_size_type{
+		if (!pre_insert_(child, before))
+			return invalid_index;
 
-	insert_(child, before);
-	return post_insert_(child, before);
+		insert_(child, before);
+		return post_insert_(child, before);
+	});
 }
 
 winpp::gui::object &winpp::gui::object_group::internal_remove_child(gui_object_type &child, force_type force){
 	if (child.is_parent(*this))
 		throw common::invalid_object_exception();
 
-	guard_type guard(lock_);
-	if (!pre_remove_(child) && force == force_type::dont_force)
-		return *this;
-
-	remove_(child);
+	require_app_();
+	app_->execute_task([&]{
+		if (pre_remove_(child) || force != force_type::dont_force)
+			remove_(child);
+	});
+	
 	return *this;
 }
 
 winpp::gui::object::gui_object_type *winpp::gui::object_group::hit_target(const point_type &value) const{
-	guard_type guard(lock_);
-	for (auto child : children_){
-		if (child->hit_test(value) != hit_target_type::nil)
-			return child;
-	}
+	if (children_.empty())
+		return nullptr;
 
-	return nullptr;
+	require_app_();
+	return app_->execute_task<gui_object_type *>([&]() -> gui_object_type *{
+		for (auto child : children_){
+			if (child->hit_test(value) != hit_target_type::nil)
+				return child;
+		}
+
+		return nullptr;
+	});
 }
 
 winpp::gui::object::gui_object_type *winpp::gui::object_group::deepest_hit_target(const point_type &value) const{
@@ -147,16 +161,17 @@ winpp::gui::object::index_and_size_type winpp::gui::object_group::child_index(co
 	if (non_sibling->parent() != this)
 		throw common::invalid_object_exception();
 
-	guard_type guard(lock_);
-	index_and_size_type index = 0u;
+	require_app_();
+	return app_->execute_task<index_and_size_type>([&]{
+		index_and_size_type index = 0u;
+		for (auto child : children_){
+			if (child == non_sibling)
+				return index;
+			++index;
+		}
 
-	for (auto child : children_){
-		if (child == non_sibling)
-			return index;
-		++index;
-	}
-
-	return invalid_index;
+		return invalid_index;
+	});
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::object_group::child_absolute_index(const gui_object_type &object) const{
@@ -186,13 +201,15 @@ bool winpp::gui::object_group::is_offspring(const gui_object_type &object) const
 	if (object.parent() == this)
 		return true;
 
-	guard_type guard(lock_);
-	for (auto child : children_){
-		if (child->is_offspring(object))
-			return true;
-	}
+	require_app_();
+	return app_->execute_task<bool>([&]{
+		for (auto child : children_){
+			if (child->is_offspring(object))
+				return true;
+		}
 
-	return false;
+		return false;
+	});
 }
 
 bool winpp::gui::object_group::is_child(const gui_object_type &object) const{
@@ -201,9 +218,19 @@ bool winpp::gui::object_group::is_child(const gui_object_type &object) const{
 
 void winpp::gui::object_group::destroyed_(){
 	generic_object::destroyed_();
-	guard_type guard(lock_);
-	for (auto child : children_)
-		child->internal_set_parent(nullptr);
+
+	auto count = children_.size();
+	while (count > 0u){//Destroy children
+		if ((*children_.begin())->parent() == this){
+			(*children_.begin())->destroy(force_type::force);
+			if (children_.size() >= count)//Child was not removed from list
+				children_.pop_front();
+		}
+		else//Child presumably already destroyed
+			children_.pop_front();
+
+		count = children_.size();//Update count
+	}
 }
 
 winpp::gui::generic_object::attributes_type winpp::gui::object_group::get_attributes_(){

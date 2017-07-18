@@ -221,6 +221,8 @@ namespace winpp{
 
 			virtual void moved_();
 
+			virtual void require_app_() const;
+
 			virtual attributes_type get_attributes_();
 
 			virtual events_type get_events_();

@@ -33,6 +33,10 @@ winpp::application::object::object_manager_type &winpp::application::object::obj
 	return *object_manager_;
 }
 
+winpp::application::object::factory_type &winpp::application::object::drawing_factory(){
+	return factory_;
+}
+
 bool winpp::application::object::is_exiting() const{
 	return WINPP_IS(states_, state_type::exiting);
 }

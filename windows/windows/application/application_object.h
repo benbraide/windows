@@ -8,8 +8,9 @@
 #include <unordered_map>
 
 #include "../common/exception.h"
-#include "../threading/thread_message_loop.h"
 #include "../wrappers/hwnd_wrapper.h"
+#include "../threading/thread_message_loop.h"
+#include "../drawing/drawing_factory.h"
 
 #define WINPP_UUID	 "{DABED3E8-D8A5-48FC-B80B-B17C167FA9B0}"
 #define WINPP_WUUID	L"{DABED3E8-D8A5-48FC-B80B-B17C167FA9B0}"
@@ -33,6 +34,8 @@ namespace winpp{
 			typedef threading::message_loop base_type;
 			typedef threading::id::value_type dword_type;
 
+			typedef drawing::factory factory_type;
+
 			typedef std::shared_ptr<object> object_ptr_type;
 			typedef std::unordered_map<dword_type, object_ptr_type> list_type;
 
@@ -53,6 +56,8 @@ namespace winpp{
 			virtual void exit();
 
 			virtual object_manager_type &object_manager();
+
+			virtual factory_type &drawing_factory();
 
 			virtual bool is_exiting() const;
 
@@ -81,6 +86,7 @@ namespace winpp{
 
 			state_type states_;
 			object_manager_ptr_type object_manager_;
+			factory_type factory_;
 
 			static list_type list_;
 			static lock_type lock_;

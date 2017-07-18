@@ -444,6 +444,11 @@ void winpp::gui::generic_object::created_(){
 
 void winpp::gui::generic_object::destroyed_(){
 	app_->object_manager().update(application::object_manager::update_object_destroyed, this);
+	if (parent_ != nullptr){//Remove from parent
+		parent_->internal_remove_child(*this, force_type::force);
+		parent_ = nullptr;
+	}
+
 	if (attributes_ != nullptr)
 		attributes_->stop_monitoring();
 }
@@ -469,6 +474,11 @@ void winpp::gui::generic_object::moved_(){
 		for (auto sibling : attributes_->dependent_siblings())//Alert siblings of position change
 			const_cast<gui_object_type *>(sibling)->attributes().trigger(*this);
 	}
+}
+
+void winpp::gui::generic_object::require_app_() const{
+	if (app_ == nullptr)
+		throw common::no_app_exception();
 }
 
 winpp::gui::generic_object::attributes_type winpp::gui::generic_object::get_attributes_(){

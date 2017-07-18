@@ -12,9 +12,6 @@ namespace winpp{
 			typedef std::list<gui_object_type *> list_type;
 			typedef std::unordered_map<unsigned int, list_type> group_list_type;
 
-			typedef std::recursive_mutex lock_type;
-			typedef std::lock_guard<lock_type> guard_type;
-
 			class object_attributes : public gui::object_attributes{
 			public:
 				typedef gui::object_attributes base_type;
@@ -87,7 +84,6 @@ namespace winpp{
 
 			list_type children_;
 			group_list_type group_list_;
-			mutable lock_type lock_;
 		};
 	}
 }

@@ -107,9 +107,12 @@ winpp::window::object &winpp::window::object::destroy(force_type force){
 	if (value_ == nullptr)
 		return *this;
 
-	value_.menu(nullptr);//Prevent destruction of attached menu
-	if (value_.destroy() || force != force_type::dont_force)
-		destroyed_();//Notify
+	require_app_();
+	app_->execute_task([&]{
+		value_.menu(nullptr);//Prevent destruction of attached menu
+		if (!value_.destroy() && force != force_type::dont_force)
+			destroyed_();//Notify
+	});
 
 	return *this;
 }
@@ -180,6 +183,22 @@ winpp::window::object::dword_type winpp::window::object::black_listed_styles(boo
 	return (is_extended ? WS_EX_LEFTSCROLLBAR : (WS_HSCROLL | WS_VSCROLL));
 }
 
+winpp::window::object::drawer_type &winpp::window::object::drawer(){
+	if (drawer_ == nullptr){//Create drawer
+		if (!is_created())
+			throw common::unsupported_exception();
+		drawer_ = std::make_shared<hwnd_drawer_type>(app_->drawing_factory(), value_);
+	}
+
+	return *drawer_;
+}
+
+void winpp::window::object::destroyed_(){
+	tree_base_type::destroyed_();
+	value_ = nullptr;//Reset value
+	drawer_ = nullptr;//Destroy drawer, if any
+}
+
 winpp::gui::generic_object::events_type winpp::window::object::get_events_(){
 	return create_events_<event_tunnel>(*this);
 }
@@ -242,16 +261,18 @@ void winpp::window::object::create_(const create_info_type &info, app_type *app)
 	if (is_created())
 		throw common::unsupported_exception();
 
-	(app_ = ((app == nullptr) ? scope_app_ : app))->object_manager().create(info, value_);
-	if (value_ == nullptr){//Failed to create window
-		if (parent_ != nullptr){//Remove object from parent
-			parent_->internal_remove_child(*this, force_type::force);
-			parent_ = nullptr;
-		}
+	(app_ = ((app == nullptr) ? scope_app_ : app))->execute_task([this, &info]{//Execute in application's thread context
+		app_->object_manager().create(info, value_);
+		if (value_ == nullptr){//Failed to create window
+			if (parent_ != nullptr){//Remove object from parent
+				parent_->internal_remove_child(*this, force_type::force);
+				parent_ = nullptr;
+			}
 
-		if (::GetLastError() != ERROR_SUCCESS)
-			throw common::windows_error();
-	}
-	else//Notify
-		created_();
+			if (::GetLastError() != ERROR_SUCCESS)
+				throw common::windows_error();
+		}
+		else//Notify
+			created_();
+	});
 }
