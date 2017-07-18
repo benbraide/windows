@@ -13,6 +13,8 @@
 #include "../events/event_tunnel.h"
 #include "../gui/gui_object_tree.h"
 
+#include "../drawing/hdc_drawer.h"
+#include "../drawing/hwnd_drawer.h"
 #include "../drawing/drawing_brush.h"
 
 #include "message_handler.h"
@@ -23,11 +25,24 @@ namespace winpp{
 		public:
 			typedef ::WNDPROC procedure_type;
 			typedef ::LRESULT lresult_type;
+			typedef ::HRESULT hresult_type;
 
 			typedef wrappers::msg msg_type;
 			typedef wrappers::hwnd hwnd_type;
 
 			typedef events::object event_object_type;
+
+			typedef drawing::drawer drawer_type;
+			typedef drawing::hdc_drawer hdc_drawer_type;
+			typedef drawing::hwnd_drawer hwnd_drawer_type;
+
+			typedef hwnd_drawer_type::color_type color_type;
+			typedef hwnd_drawer_type::colorf_type colorf_type;
+
+			enum class update_type{
+				dont_update,
+				update,
+			};
 
 			class event_tunnel : public gui::object_tree::event_tunnel{
 			public:
@@ -84,7 +99,7 @@ namespace winpp{
 				events::tunnel<void> hide;
 
 				events::tunnel<void, events::erase_background> erase_background;
-				events::tunnel<void> paint;
+				events::tunnel<void, events::paint> paint;
 
 				events::tunnel<void, events::mouse> mouse_move;
 				events::tunnel<void, events::mouse> mouse_hover;
@@ -120,9 +135,19 @@ namespace winpp{
 
 			virtual lresult_type unrecognized_message(message_object_type &e);
 
+			virtual void drawing_result(hresult_type result);
+
 			virtual procedure_type procedure() const = 0;
 
 			virtual event_tunnel &events() = 0;
+
+			virtual drawer_type &drawer() = 0;
+
+			virtual target &background_color(colorf_type &value, update_type update = update_type::update) = 0;
+
+			virtual target &background_color(color_type &value, update_type update = update_type::update) = 0;
+
+			virtual const colorf_type &background_color() const = 0;
 
 		protected:
 			virtual target *target_parent_() const = 0;

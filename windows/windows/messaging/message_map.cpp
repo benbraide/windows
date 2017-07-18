@@ -30,6 +30,7 @@ winpp::messaging::map::map()
 	list_[WM_MOVE] = list_[WM_MOVING] = std::make_shared<messaging::move_dispatcher>(&target::on_move);
 
 	list_[WM_ERASEBKGND] = std::make_shared<messaging::erase_background_dispatcher>(&target::on_erase_background);
+	list_[WM_PAINT] = std::make_shared<messaging::paint_dispatcher>(&target::on_paint);
 
 	list_[WM_NCMOUSEMOVE] = list_[WM_MOUSEMOVE] = std::make_shared<messaging::object_manager_handling_dispatcher>(&application::object_manager::handle_mouse_move);
 	list_[WM_NCMOUSEHOVER] = list_[WM_MOUSEHOVER] = std::make_shared<messaging::object_manager_handling_dispatcher>(&application::object_manager::handle_mouse_hover);

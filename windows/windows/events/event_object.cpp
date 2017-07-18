@@ -142,13 +142,36 @@ bool winpp::events::move::is_changing() const{
 	return changing_;
 }
 
-winpp::events::erase_background::erase_background(gui_object_type &target, const rect_type &clip)
-	: object(target), clip_(clip){}
+winpp::events::erase_background::erase_background(gui_object_type &target, hdc_type dc)
+	: object(target), dc_(dc){}
 
 winpp::events::erase_background::~erase_background() = default;
 
-const winpp::events::erase_background::rect_type &winpp::events::erase_background::clip() const{
-	return clip_;
+winpp::events::erase_background::hdc_type winpp::events::erase_background::dc() const{
+	return dc_;
+}
+
+winpp::events::erase_background::rect_type winpp::events::erase_background::clip() const{
+	rect_type value;
+	::GetClipBox(dc_, value);
+	return value;
+}
+
+winpp::events::paint::paint(gui_object_type &target, const info_type &begin_info)
+	: object(target), begin_info_(begin_info){}
+
+winpp::events::paint::~paint() = default;
+
+winpp::events::paint::hdc_type winpp::events::paint::dc() const{
+	return begin_info_.hdc;
+}
+
+winpp::events::paint::rect_type winpp::events::paint::clip() const{
+	return begin_info_.rcPaint;
+}
+
+bool winpp::events::paint::erase_background() const{
+	return (begin_info_.fErase != FALSE);
 }
 
 winpp::events::mouse::mouse(gui_object_type &target, uint_type code, wparam_type wparam, gui_object_type *original_target)

@@ -8,9 +8,6 @@
 #include "../wrappers/hwnd_wrapper.h"
 #include "../wrappers/wnd_class_wrapper.h"
 
-#include "../drawing/hdc_drawer.h"
-#include "../drawing/hwnd_drawer.h"
-
 #include "../messaging/message_target.h"
 
 #include "window_styles.h"
@@ -24,6 +21,7 @@ namespace winpp{
 		class object : public gui::object_tree, public messaging::target{
 		public:
 			typedef gui::object_tree tree_base_type;
+			typedef messaging::target message_target_base_type;
 
 			typedef window::styles styles_type;
 			typedef styles_type::info_type styles_info_type;
@@ -57,23 +55,11 @@ namespace winpp{
 			typedef wnd_class_type::instance_type instance_type;
 			typedef hwnd_type::create_info_type create_info_type;
 
-			typedef drawing::drawer drawer_type;
 			typedef std::shared_ptr<drawer_type> drawer_ptr_type;
-
-			typedef drawing::hdc_drawer hdc_drawer_type;
-			typedef drawing::hwnd_drawer hwnd_drawer_type;
-
-			typedef hwnd_drawer_type::color_type color_type;
-			typedef hwnd_drawer_type::colorf_type colorf_type;
 
 			using tree_base_type::outer_size;
 			using tree_base_type::inner_size;
 			using tree_base_type::offset;
-
-			enum class update_type{
-				dont_update,
-				update,
-			};
 
 			class event_tunnel : public messaging::target::event_tunnel{
 			public:
@@ -149,6 +135,8 @@ namespace winpp{
 
 			virtual bool pre_translate(msg_type &msg) override;
 
+			virtual drawer_type &drawer() override;
+
 			virtual styles_type &styles();
 
 			virtual dword_type filter_styles(dword_type value, bool is_extended) const;
@@ -156,8 +144,6 @@ namespace winpp{
 			virtual dword_type white_listed_styles(bool is_extended) const;
 
 			virtual dword_type black_listed_styles(bool is_extended) const;
-
-			virtual drawer_type &drawer();
 
 			virtual object &background_color(colorf_type &value, update_type update = update_type::update);
 
@@ -186,7 +172,11 @@ namespace winpp{
 
 			virtual bool cache_group_(unsigned int value) const override;
 
-			virtual bool on_erase_background(erase_background_message_type &e) override;
+			virtual void on_position(position_message_type &e) override;
+
+			virtual bool on_size(size_message_type &e) override;
+
+			virtual void on_paint(paint_message_type &e) override;
 
 			virtual target *target_parent_() const override;
 

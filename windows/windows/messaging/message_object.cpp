@@ -188,10 +188,34 @@ bool winpp::messaging::move::is_changing() const{
 
 winpp::messaging::erase_background::~erase_background() = default;
 
+winpp::messaging::erase_background::hdc_type winpp::messaging::erase_background::dc() const{
+	return info_.wparam<hdc_type>();
+}
+
 winpp::messaging::erase_background::rect_type winpp::messaging::erase_background::clip() const{
 	rect_type value;
-	::GetClipBox(info_.wparam<hdc_type>(), value);
+	::GetClipBox(dc(), value);
 	return value;
+}
+
+winpp::messaging::paint::~paint(){
+	::EndPaint(info_.owner(), &begin_info_);
+}
+
+winpp::messaging::paint::hdc_type winpp::messaging::paint::dc() const{
+	return begin_info_.hdc;
+}
+
+winpp::messaging::paint::rect_type winpp::messaging::paint::clip() const{
+	return begin_info_.rcPaint;
+}
+
+bool winpp::messaging::paint::erase_background() const{
+	return (begin_info_.fErase != FALSE);
+}
+
+const winpp::messaging::paint::info_type &winpp::messaging::paint::begin_info() const{
+	return begin_info_;
 }
 
 winpp::messaging::mouse::~mouse() = default;

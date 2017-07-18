@@ -22,7 +22,9 @@ namespace winpp{
 
 			virtual ~hwnd_drawer();
 
-			virtual pointer_type value() const override;
+			virtual hwnd_pointer_type operator ->() const override;
+
+			virtual hwnd_pointer_type value() const override;
 
 			virtual bool is_occluded() const;
 

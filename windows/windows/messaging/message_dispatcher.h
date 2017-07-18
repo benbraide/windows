@@ -4,6 +4,7 @@
 #define WINPP_MESSAGE_DISPATCHER_H
 
 #include "message_target.h"
+#include "../common/raii.h"
 
 namespace winpp{
 	namespace application{
@@ -320,6 +321,18 @@ namespace winpp{
 
 			template <typename... args_types>
 			explicit erase_background_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
+		class paint_dispatcher : public typed_dispatcher<void, paint>{
+		public:
+			typedef typed_dispatcher<void, paint> base_type;
+			typedef structures::rect::value_type rect_value_type;
+
+			template <typename... args_types>
+			explicit paint_dispatcher(args_types &&... args)
 				: base_type(std::forward<args_types>(args)...){}
 
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;

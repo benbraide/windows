@@ -244,7 +244,7 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::erase_background_di
 	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
 	ev.skip();
 
-	events::erase_background e(*reinterpret_cast<gui::object *>(&target), ev.clip());
+	events::erase_background e(*reinterpret_cast<gui::object *>(&target), ev.dc());
 	target.events().erase_background(e);
 	if (e.is_prevented())//Handled
 		return TRUE;
@@ -259,6 +259,28 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::erase_background_di
 	}
 
 	return call_(target, ev) ? TRUE : FALSE;
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::paint_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	ev.skip();
+
+	target.drawer()->BeginDraw();
+	try{
+		events::paint e(*reinterpret_cast<gui::object *>(&target), ev.begin_info());
+		target.events().paint(e);
+		if (e.is_prevented())//Handled
+			return 0;
+
+		call_(target, ev);
+	}
+	catch (...){
+		target.drawing_result(target.drawer()->EndDraw());
+		throw;//Forward exception
+	}
+
+	target.drawing_result(target.drawer()->EndDraw());
+	return 0;
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::mouse_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){

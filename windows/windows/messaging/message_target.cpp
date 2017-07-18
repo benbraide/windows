@@ -102,6 +102,8 @@ winpp::messaging::target::lresult_type winpp::messaging::target::unrecognized_me
 	return call_default_(e.info());
 }
 
+void winpp::messaging::target::drawing_result(hresult_type result){}
+
 winpp::messaging::target::lresult_type winpp::messaging::target::call_default_(const msg_type &info){
 	auto default_procedure = procedure();
 	if (default_procedure == nullptr)//Use default procedure

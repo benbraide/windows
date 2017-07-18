@@ -222,9 +222,31 @@ bool winpp::window::object::cache_group_(unsigned int value) const{
 	return (value == non_window_group);
 }
 
-bool winpp::window::object::on_erase_background(erase_background_message_type &e){
-	drawer()->Clear(background_color_);
-	return true;
+void winpp::window::object::on_position(position_message_type &e){
+	if (drawer_ != nullptr && !e.is_changing() && !WINPP_IS(e.flags(), position_message_type::position_type::no_size)){
+		auto size = inner_size();
+		(*dynamic_cast<hwnd_drawer_type *>(drawer_.get()))->Resize(::D2D1::SizeU(
+			size.width(),
+			size.height()
+		));
+	}
+}
+
+bool winpp::window::object::on_size(size_message_type &e){
+	if (drawer_ != nullptr && !e.is_changing()){
+		auto size = inner_size();
+		(*dynamic_cast<hwnd_drawer_type *>(drawer_.get()))->Resize(::D2D1::SizeU(
+			size.width(),
+			size.height()
+		));
+	}
+
+	return message_target_base_type::on_size(e);
+}
+
+void winpp::window::object::on_paint(paint_message_type &e){
+	if (e.erase_background())
+		drawer()->Clear(background_color_);
 }
 
 winpp::messaging::target *winpp::window::object::target_parent_() const{

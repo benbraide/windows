@@ -23,7 +23,11 @@ winpp::drawing::hwnd_drawer::~hwnd_drawer(){
 	}
 }
 
-winpp::drawing::drawer::pointer_type winpp::drawing::hwnd_drawer::value() const{
+winpp::drawing::hwnd_drawer::hwnd_pointer_type winpp::drawing::hwnd_drawer::operator->() const{
+	return value();
+}
+
+winpp::drawing::hwnd_drawer::hwnd_pointer_type winpp::drawing::hwnd_drawer::value() const{
 	return value_;
 }
 

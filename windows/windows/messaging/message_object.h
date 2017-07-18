@@ -253,7 +253,36 @@ namespace winpp{
 
 			virtual ~erase_background();
 
+			virtual hdc_type dc() const;
+
 			virtual rect_type clip() const;
+		};
+
+		class paint : public object{
+		public:
+			typedef ::HDC hdc_type;
+			typedef ::PAINTSTRUCT info_type;
+
+			typedef structures::rect rect_type;
+
+			template <typename... args_type>
+			explicit paint(args_type &&... args)
+				: object(std::forward<args_type>(args)...){
+				::BeginPaint(info_.owner(), &begin_info_);
+			}
+
+			virtual ~paint();
+
+			virtual hdc_type dc() const;
+
+			virtual rect_type clip() const;
+
+			virtual bool erase_background() const;
+
+			virtual const info_type &begin_info() const;
+
+		protected:
+			info_type begin_info_;
 		};
 
 		class mouse : public object{
