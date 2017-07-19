@@ -176,7 +176,9 @@ namespace winpp{
 
 			virtual bool on_size(size_message_type &e) override;
 
-			virtual void on_paint(paint_message_type &e) override;
+			virtual bool on_erase_background(draw_message_type &e) override;
+
+			virtual void on_paint(draw_message_type &e) override;
 
 			virtual target *target_parent_() const override;
 

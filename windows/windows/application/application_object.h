@@ -10,7 +10,9 @@
 #include "../common/exception.h"
 #include "../wrappers/hwnd_wrapper.h"
 #include "../threading/thread_message_loop.h"
+
 #include "../drawing/drawing_factory.h"
+#include "../drawing/hdc_drawer.h"
 
 #define WINPP_UUID	 "{DABED3E8-D8A5-48FC-B80B-B17C167FA9B0}"
 #define WINPP_WUUID	L"{DABED3E8-D8A5-48FC-B80B-B17C167FA9B0}"
@@ -25,6 +27,8 @@ namespace winpp{
 
 		class object : public threading::message_loop{
 		public:
+			typedef ::HRESULT hresult_type;
+
 			typedef object_manager object_manager_type;
 			typedef std::shared_ptr<object_manager_type> object_manager_ptr_type;
 
@@ -35,6 +39,8 @@ namespace winpp{
 			typedef threading::id::value_type dword_type;
 
 			typedef drawing::factory factory_type;
+			typedef drawing::hdc_drawer hdc_drawer_type;
+			typedef std::shared_ptr<hdc_drawer_type> hdc_drawer_ptr_type;
 
 			typedef std::shared_ptr<object> object_ptr_type;
 			typedef std::unordered_map<dword_type, object_ptr_type> list_type;
@@ -58,6 +64,10 @@ namespace winpp{
 			virtual object_manager_type &object_manager();
 
 			virtual factory_type &drawing_factory();
+
+			virtual hdc_drawer_type &drawer();
+
+			virtual void drawing_result(hresult_type result);
 
 			virtual bool is_exiting() const;
 
@@ -87,6 +97,7 @@ namespace winpp{
 			state_type states_;
 			object_manager_ptr_type object_manager_;
 			factory_type factory_;
+			hdc_drawer_ptr_type drawer_;
 
 			static list_type list_;
 			static lock_type lock_;

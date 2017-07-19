@@ -21,7 +21,9 @@ namespace winpp{
 
 			virtual ~hdc_drawer();
 
-			virtual pointer_type value() const override;
+			virtual hdc_pointer_type operator ->() const override;
+
+			virtual hdc_pointer_type value() const override;
 
 			virtual bool bind(hdc_type value, const rect_type &rect);
 

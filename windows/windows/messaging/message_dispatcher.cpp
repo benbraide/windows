@@ -13,19 +13,19 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::unrecognized_dispat
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::nccreate_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::object e(*reinterpret_cast<gui::object *>(&target));
+	events::object e(*dynamic_cast<gui::object *>(&target));
 	target.events().pre_create(e);
 	return (e.is_prevented() || !call_(info, is_sent, target)) ? FALSE : TRUE;
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::create_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::object e(*reinterpret_cast<gui::object *>(&target));
+	events::object e(*dynamic_cast<gui::object *>(&target));
 	target.events().create(e);
 	return (e.is_prevented() || !call_(info, is_sent, target)) ? -1 : 0;
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::destroy_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::object e(*reinterpret_cast<gui::object *>(&target));
+	events::object e(*dynamic_cast<gui::object *>(&target));
 	target.events().destroy(e);
 	call_(info, is_sent, target);
 	return 0;
@@ -33,13 +33,13 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::destroy_dispatcher:
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::ncdestroy_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
 	call_(info, is_sent, target);
-	events::object e(*reinterpret_cast<gui::object *>(&target));
+	events::object e(*dynamic_cast<gui::object *>(&target));
 	target.events().post_destroy(e);
 	return 0;
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::close_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::object e(*reinterpret_cast<gui::object *>(&target));
+	events::object e(*dynamic_cast<gui::object *>(&target));
 	target.events().close(e);
 	if (e.is_prevented())
 		return 0;
@@ -51,12 +51,12 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::close_dispatcher::d
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::mouse_activate_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::mouse_activate e(*reinterpret_cast<gui::object *>(&target), info.lparam());
+	events::mouse_activate e(*dynamic_cast<gui::object *>(&target), info.lparam());
 	target.events().mouse_activate(e);
 	if (e.is_prevented())//Prevent activation
 		return MA_NOACTIVATEANDEAT;
 
-	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	message_object_type ev(info, is_sent, target.procedure(), dynamic_cast<gui::object *>(&target));
 	auto value = call_(target, ev);
 	if (value != mouse_activate_type::nil){//Skip default
 		ev.skip();
@@ -67,12 +67,12 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::mouse_activate_disp
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::ncactivate_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::pre_activate e(*reinterpret_cast<gui::object *>(&target), (info.wparam<::BOOL>() != FALSE));
+	events::pre_activate e(*dynamic_cast<gui::object *>(&target), (info.wparam<::BOOL>() != FALSE));
 	target.events().pre_activate(e);
 	if (e.is_prevented())//Prevent activation
 		return FALSE;
 
-	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	message_object_type ev(info, is_sent, target.procedure(), dynamic_cast<gui::object *>(&target));
 	if (!call_(target, ev)){//Prevent activation
 		ev.skip();
 		return FALSE;
@@ -82,56 +82,56 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::ncactivate_dispatch
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::activate_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::activate e(*reinterpret_cast<gui::object *>(&target), static_cast<events::activate::state>(info.wparam<int>()), info.lparam<::HWND>());
+	events::activate e(*dynamic_cast<gui::object *>(&target), static_cast<events::activate::state>(info.wparam<int>()), info.lparam<::HWND>());
 	target.events().activate(e);
 	call_(info, is_sent, target);
 	return 0;
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::child_activate_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::object e(*reinterpret_cast<gui::object *>(&target));
+	events::object e(*dynamic_cast<gui::object *>(&target));
 	target.events().child_activate(e);
 	call_(info, is_sent, target);
 	return 0;
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::activate_app_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::pre_activate e(*reinterpret_cast<gui::object *>(&target), (info.wparam<::BOOL>() != FALSE));
+	events::pre_activate e(*dynamic_cast<gui::object *>(&target), (info.wparam<::BOOL>() != FALSE));
 	target.events().activate_app(e);
 	call_(info, is_sent, target);
 	return 0;
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::cancel_mode_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::object e(*reinterpret_cast<gui::object *>(&target));
+	events::object e(*dynamic_cast<gui::object *>(&target));
 	target.events().cancel_mode(e);
 	call_(info, is_sent, target);
 	return 0;
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::focus_change_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::focus_change e(*reinterpret_cast<gui::object *>(&target), (info.code() == WM_SETFOCUS));
+	events::focus_change e(*dynamic_cast<gui::object *>(&target), (info.code() == WM_SETFOCUS));
 	target.events().focus_change(e);
 	call_(info, is_sent, target);
 	return 0;
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::enable_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::enable e(*reinterpret_cast<gui::object *>(&target), (info.wparam<::BOOL>() != FALSE));
+	events::enable e(*dynamic_cast<gui::object *>(&target), (info.wparam<::BOOL>() != FALSE));
 	target.events().enable(e);
 	call_(info, is_sent, target);
 	return 0;
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::set_cursor_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::set_cursor e(*reinterpret_cast<gui::object *>(&target), info.lparam());
+	events::set_cursor e(*dynamic_cast<gui::object *>(&target), info.lparam());
 	auto value = target.events().set_cursor(e);
 	if (value != nullptr){//Use cursor
 		::SetCursor(value);
 		return TRUE;
 	}
 
-	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	message_object_type ev(info, is_sent, target.procedure(), dynamic_cast<gui::object *>(&target));
 	ev.skip();
 
 	if ((value = call_(target, ev)) != nullptr){//Use cursor
@@ -183,12 +183,12 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::set_cursor_dispatch
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::hit_test_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::hit_test e(*reinterpret_cast<gui::object *>(&target), WINPP_MAKE_MOUSE_POSITION(info.lparam()));
+	events::hit_test e(*dynamic_cast<gui::object *>(&target), WINPP_MAKE_MOUSE_POSITION(info.lparam()));
 	auto value = target.events().hit_test(e);
 	if (value != hit_target_type::nil)
 		return static_cast<lresult_type>(value);
 
-	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	message_object_type ev(info, is_sent, target.procedure(), dynamic_cast<gui::object *>(&target));
 	if ((value = call_(target, ev)) != hit_target_type::nil)
 		return static_cast<lresult_type>(value);
 
@@ -196,14 +196,14 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::hit_test_dispatcher
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::position_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::position e(*reinterpret_cast<gui::object *>(&target), (info.code() == WM_WINDOWPOSCHANGING), *info.lparam<position::window_pos_type *>());
+	events::position e(*dynamic_cast<gui::object *>(&target), (info.code() == WM_WINDOWPOSCHANGING), *info.lparam<position::window_pos_type *>());
 	target.events().position(e);
 	call_(info, is_sent, target);
 	return 0;
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::size_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::size e(*reinterpret_cast<gui::object *>(&target), (info.code() == WM_SIZING), info.wparam<int>());
+	events::size e(*dynamic_cast<gui::object *>(&target), (info.code() == WM_SIZING), info.wparam<int>());
 	target.events().size(e);
 	if (e.is_prevented()){//Action prevented
 		if (info.code() == WM_SIZING)//Prevent size
@@ -211,7 +211,7 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::size_dispatcher::di
 		return TRUE;
 	}
 
-	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	message_object_type ev(info, is_sent, target.procedure(), dynamic_cast<gui::object *>(&target));
 	if (!call_(target, ev) && info.code() == WM_SIZING){//Prevent size
 		ev.skip();
 		*info.lparam<rect_value_type *>() = rect_value_type{};
@@ -222,18 +222,18 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::size_dispatcher::di
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::move_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::move e(*reinterpret_cast<gui::object *>(&target), (info.code() == WM_MOVING));
+	events::move e(*dynamic_cast<gui::object *>(&target), (info.code() == WM_MOVING));
 	target.events().move(e);
 	if (e.is_prevented()){//Action prevented
 		if (info.code() == WM_MOVING)//Prevent move
-			*info.lparam<rect_value_type *>() = reinterpret_cast<gui::object *>(&target)->outer_rect();
+			*info.lparam<rect_value_type *>() = dynamic_cast<gui::object *>(&target)->outer_rect();
 		return TRUE;
 	}
 
-	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	message_object_type ev(info, is_sent, target.procedure(), dynamic_cast<gui::object *>(&target));
 	if (!call_(target, ev) && info.code() == WM_MOVING){//Prevent move
 		ev.skip();
-		*info.lparam<rect_value_type *>() = reinterpret_cast<gui::object *>(&target)->outer_rect();
+		*info.lparam<rect_value_type *>() = dynamic_cast<gui::object *>(&target)->outer_rect();
 		return TRUE;
 	}
 
@@ -241,45 +241,21 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::move_dispatcher::di
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::erase_background_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
-	ev.skip();
-
-	events::erase_background e(*reinterpret_cast<gui::object *>(&target), ev.dc());
+	events::draw e(*dynamic_cast<gui::object *>(&target), info.code(), info.wparam(), nullptr);
 	target.events().erase_background(e);
 	if (e.is_prevented())//Handled
 		return TRUE;
 
-	events::object bbe(e.target());
-	auto brush = target.events().background_brush(bbe);
-	if (e.is_prevented())//Deferred
-		return FALSE;
-
-	if (brush != nullptr){//Use brush
-		return TRUE;
-	}
-
-	return call_(target, ev) ? TRUE : FALSE;
+	return call_(info, is_sent, target, true) ? TRUE : FALSE;
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::paint_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
-	ev.skip();
+	events::draw e(*dynamic_cast<gui::object *>(&target), info.code(), info.wparam(), nullptr);
+	target.events().paint(e);
+	if (e.is_prevented())//Handled
+		return 0;
 
-	target.drawer()->BeginDraw();
-	try{
-		events::paint e(*reinterpret_cast<gui::object *>(&target), ev.begin_info());
-		target.events().paint(e);
-		if (e.is_prevented())//Handled
-			return 0;
-
-		call_(target, ev);
-	}
-	catch (...){
-		target.drawing_result(target.drawer()->EndDraw());
-		throw;//Forward exception
-	}
-
-	target.drawing_result(target.drawer()->EndDraw());
+	call_(info, is_sent, target, true);
 	return 0;
 }
 
@@ -287,7 +263,7 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::mouse_dispatcher::d
 	info_type retrieved_info{};
 	retrieve_info(info, target, retrieved_info);
 
-	auto gui_target = reinterpret_cast<gui::object *>(&target);
+	auto gui_target = dynamic_cast<gui::object *>(&target);
 	events::mouse e(*gui_target, info.code(), info.wparam(), gui_target);
 	if (retrieved_info.event_object != nullptr)//Fire event
 		(*retrieved_info.event_object)(e);

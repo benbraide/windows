@@ -95,7 +95,7 @@ const winpp::messaging::object::msg_type &winpp::messaging::object::info() const
 }
 
 winpp::messaging::object::gui_object_type *winpp::messaging::object::target() const{
-	return hwnd_type(info_.owner()).data<gui_object_type *>();
+	return application::object::current_app->object_manager().find_window(info_.owner());
 }
 
 winpp::messaging::mouse_activate::~mouse_activate() = default;
@@ -186,36 +186,58 @@ bool winpp::messaging::move::is_changing() const{
 	return (info_.code() == WM_MOVING);
 }
 
-winpp::messaging::erase_background::~erase_background() = default;
-
-winpp::messaging::erase_background::hdc_type winpp::messaging::erase_background::dc() const{
-	return info_.wparam<hdc_type>();
+winpp::messaging::draw::~draw(){
+	if (drawer_ != nullptr){
+		application::object::current_app->drawing_result((*drawer_)->EndDraw());
+		drawer_ = nullptr;
+		switch (info_.code()){
+		case WM_NCPAINT:
+			::ReleaseDC(info_.owner(), dc_);
+			break;
+		case WM_PAINT:
+			::EndPaint(info_.owner(), &paint_struct_);
+			break;
+		default:
+			break;
+		}
+	}
 }
 
-winpp::messaging::erase_background::rect_type winpp::messaging::erase_background::clip() const{
-	rect_type value;
-	::GetClipBox(dc(), value);
-	return value;
+winpp::messaging::draw::drawer_type &winpp::messaging::draw::drawer(){
+	if (drawer_ != nullptr)
+		return *drawer_;//Use already existing drawer
+
+	switch (info_.code()){
+	case WM_NCPAINT:
+		::GetClipBox(dc_ = GetDCEx(info_.owner(), info_.wparam<hrgn_type>(), DCX_WINDOW | DCX_INTERSECTRGN), clip_);
+		break;
+	case WM_PAINT:
+		::BeginPaint(info_.owner(), &paint_struct_);
+		dc_ = paint_struct_.hdc;
+		clip_ = paint_struct_.rcPaint;
+		break;
+	default:
+		break;
+	}
+
+	drawer_ = &application::object::current_app->drawer();
+	(*drawer_)->BindDC(dc_, clip_);
+	(*drawer_)->SetTransform(D2D1::Matrix3x2F::Identity());
+	(*drawer_)->BeginDraw();
+
+	return *drawer_;
 }
 
-winpp::messaging::paint::~paint(){
-	::EndPaint(info_.owner(), &begin_info_);
+winpp::messaging::draw::hdc_type winpp::messaging::draw::dc() const{
+	return dc_;
 }
 
-winpp::messaging::paint::hdc_type winpp::messaging::paint::dc() const{
-	return begin_info_.hdc;
+winpp::messaging::draw::rect_type winpp::messaging::draw::clip() const{
+	return clip_;
 }
 
-winpp::messaging::paint::rect_type winpp::messaging::paint::clip() const{
-	return begin_info_.rcPaint;
-}
-
-bool winpp::messaging::paint::erase_background() const{
-	return (begin_info_.fErase != FALSE);
-}
-
-const winpp::messaging::paint::info_type &winpp::messaging::paint::begin_info() const{
-	return begin_info_;
+bool winpp::messaging::draw::erase_background() const{
+	return (drawer_ != nullptr && info_.code() == WM_PAINT) ? (paint_struct_.fErase != FALSE) : false;
 }
 
 winpp::messaging::mouse::~mouse() = default;

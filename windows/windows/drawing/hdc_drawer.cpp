@@ -21,7 +21,11 @@ winpp::drawing::hdc_drawer::~hdc_drawer(){
 	}
 }
 
-winpp::drawing::drawer::pointer_type winpp::drawing::hdc_drawer::value() const{
+winpp::drawing::hdc_drawer::hdc_pointer_type winpp::drawing::hdc_drawer::operator->() const{
+	return value_;
+}
+
+winpp::drawing::hdc_drawer::hdc_pointer_type winpp::drawing::hdc_drawer::value() const{
 	return value_;
 }
 

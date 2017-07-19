@@ -244,9 +244,14 @@ bool winpp::window::object::on_size(size_message_type &e){
 	return message_target_base_type::on_size(e);
 }
 
-void winpp::window::object::on_paint(paint_message_type &e){
-	if (e.erase_background())
-		drawer()->Clear(background_color_);
+bool winpp::window::object::on_erase_background(draw_message_type &e){
+	e.drawer()->Clear(background_color_);
+	return true;
+}
+
+void winpp::window::object::on_paint(draw_message_type &e){
+	//if (e.erase_background())
+		//e.drawer()->Clear(background_color_);
 }
 
 winpp::messaging::target *winpp::window::object::target_parent_() const{

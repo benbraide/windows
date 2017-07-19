@@ -196,33 +196,25 @@ namespace winpp{
 			bool changing_;
 		};
 
-		class erase_background : public object{
+		class draw : public object{
 		public:
 			typedef ::HDC hdc_type;
-			typedef structures::rect rect_type;
+			typedef ::HRGN hrgn_type;
+			typedef ::HWND hwnd_type;
+			typedef ::PAINTSTRUCT paint_struct_type;
 
-			erase_background(gui_object_type &target, hdc_type dc);
-
-			virtual ~erase_background();
-
-			virtual hdc_type dc() const;
-
-			virtual rect_type clip() const;
-
-		protected:
-			hdc_type dc_;
-		};
-
-		class paint : public object{
-		public:
-			typedef ::HDC hdc_type;
-			typedef ::PAINTSTRUCT info_type;
+			typedef ::UINT uint_type;
+			typedef ::WPARAM wparam_type;
 
 			typedef structures::rect rect_type;
+			typedef drawing::drawer drawer_type;
+			typedef drawing::hdc_drawer hdc_drawer_type;
 
-			paint(gui_object_type &target, const info_type &begin_info);
+			draw(gui_object_type &target, uint_type code, wparam_type wparam, bool *began);
 
-			virtual ~paint();
+			virtual ~draw();
+
+			virtual drawer_type &drawer();
 
 			virtual hdc_type dc() const;
 
@@ -231,7 +223,13 @@ namespace winpp{
 			virtual bool erase_background() const;
 
 		protected:
-			info_type begin_info_;
+			hdc_drawer_type *drawer_;
+			hdc_type dc_;
+			rect_type clip_;
+			paint_struct_type paint_struct_;
+			uint_type code_;
+			wparam_type wparam_;
+			bool *began_;
 		};
 
 		class mouse : public object{

@@ -242,36 +242,31 @@ namespace winpp{
 			virtual bool is_changing() const;
 		};
 
-		class erase_background : public object{
+		class draw : public object{
 		public:
 			typedef ::HDC hdc_type;
-			typedef structures::rect rect_type;
-
-			template <typename... args_type>
-			explicit erase_background(args_type &&... args)
-				: object(std::forward<args_type>(args)...){}
-
-			virtual ~erase_background();
-
-			virtual hdc_type dc() const;
-
-			virtual rect_type clip() const;
-		};
-
-		class paint : public object{
-		public:
-			typedef ::HDC hdc_type;
-			typedef ::PAINTSTRUCT info_type;
+			typedef ::HRGN hrgn_type;
+			typedef ::PAINTSTRUCT paint_struct_type;
 
 			typedef structures::rect rect_type;
+			typedef drawing::drawer drawer_type;
+			typedef drawing::hdc_drawer hdc_drawer_type;
 
 			template <typename... args_type>
-			explicit paint(args_type &&... args)
-				: object(std::forward<args_type>(args)...){
-				::BeginPaint(info_.owner(), &begin_info_);
+			explicit draw(args_type &&... args)
+				: object(std::forward<args_type>(args)...), drawer_(nullptr){
+				switch (info_.code()){
+				case WM_ERASEBKGND:
+					::GetClipBox(dc_ = info_.wparam<hdc_type>(), clip_);
+					break;
+				default:
+					break;
+				}
 			}
 
-			virtual ~paint();
+			virtual ~draw();
+
+			virtual drawer_type &drawer();
 
 			virtual hdc_type dc() const;
 
@@ -279,10 +274,11 @@ namespace winpp{
 
 			virtual bool erase_background() const;
 
-			virtual const info_type &begin_info() const;
-
 		protected:
-			info_type begin_info_;
+			hdc_drawer_type *drawer_;
+			hdc_type dc_;
+			rect_type clip_;
+			paint_struct_type paint_struct_;
 		};
 
 		class mouse : public object{

@@ -32,8 +32,7 @@ namespace winpp{
 			typedef messaging::size size_message_type;
 			typedef messaging::move move_message_type;
 
-			typedef messaging::erase_background erase_background_message_type;
-			typedef messaging::paint paint_message_type;
+			typedef messaging::draw draw_message_type;
 
 			typedef messaging::mouse mouse_message_type;
 			typedef messaging::key key_message_type;
@@ -82,9 +81,9 @@ namespace winpp{
 
 			virtual bool on_move(move_message_type &e);
 
-			virtual bool on_erase_background(erase_background_message_type &e);
+			virtual bool on_erase_background(draw_message_type &e);
 
-			virtual void on_paint(paint_message_type &e);
+			virtual void on_paint(draw_message_type &e);
 
 			virtual void on_mouse_move(mouse_message_type &e);
 

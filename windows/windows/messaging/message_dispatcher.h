@@ -314,9 +314,9 @@ namespace winpp{
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
 		};
 
-		class erase_background_dispatcher : public typed_dispatcher<bool, erase_background>{
+		class erase_background_dispatcher : public typed_dispatcher<bool, draw>{
 		public:
-			typedef typed_dispatcher<bool, erase_background> base_type;
+			typedef typed_dispatcher<bool, draw> base_type;
 			typedef structures::rect::value_type rect_value_type;
 
 			template <typename... args_types>
@@ -326,9 +326,9 @@ namespace winpp{
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
 		};
 
-		class paint_dispatcher : public typed_dispatcher<void, paint>{
+		class paint_dispatcher : public typed_dispatcher<void, draw>{
 		public:
-			typedef typed_dispatcher<void, paint> base_type;
+			typedef typed_dispatcher<void, draw> base_type;
 			typedef structures::rect::value_type rect_value_type;
 
 			template <typename... args_types>

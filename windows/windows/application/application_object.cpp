@@ -5,6 +5,7 @@
 
 winpp::application::object::object()
 	: states_(state_type::nil), object_manager_(std::make_shared<object_manager_type>(*this)){
+	
 	if (current_app != nullptr)
 		throw common::multiple_apps_exception();
 
@@ -26,6 +27,8 @@ int winpp::application::object::run(){
 }
 
 void winpp::application::object::exit(){
+	if (threading::id::current() != id_)
+		throw common::cross_thread_exception();
 	WINPP_SET(states_, state_type::exiting);
 }
 
@@ -34,7 +37,24 @@ winpp::application::object::object_manager_type &winpp::application::object::obj
 }
 
 winpp::application::object::factory_type &winpp::application::object::drawing_factory(){
+	if (threading::id::current() != id_)
+		throw common::cross_thread_exception();
 	return factory_;
+}
+
+winpp::application::object::hdc_drawer_type &winpp::application::object::drawer(){
+	if (threading::id::current() != id_)
+		throw common::cross_thread_exception();
+
+	if (drawer_ == nullptr)//Create drawer
+		drawer_ = std::make_shared<hdc_drawer_type>(factory_);
+
+	return *drawer_;
+}
+
+void winpp::application::object::drawing_result(hresult_type result){
+	if (result == D2DERR_RECREATE_TARGET)//Destroy drawer
+		drawer_ = nullptr;
 }
 
 bool winpp::application::object::is_exiting() const{

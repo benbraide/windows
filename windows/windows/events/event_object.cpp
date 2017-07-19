@@ -142,36 +142,70 @@ bool winpp::events::move::is_changing() const{
 	return changing_;
 }
 
-winpp::events::erase_background::erase_background(gui_object_type &target, hdc_type dc)
-	: object(target), dc_(dc){}
+winpp::events::draw::draw(gui_object_type &target, uint_type code, wparam_type wparam, bool *began)
+	: object(target), code_(code), wparam_(wparam), began_(began){
+	switch (code){
+	case WM_ERASEBKGND:
+		::GetClipBox(dc_ = reinterpret_cast<hdc_type>(wparam), clip_);
+		break;
+	default:
+		break;
+	}
+}
 
-winpp::events::erase_background::~erase_background() = default;
+winpp::events::draw::~draw(){
+	if (drawer_ != nullptr){
+		application::object::current_app->drawing_result((*drawer_)->EndDraw());
+		drawer_ = nullptr;
+		switch (code_){
+		case WM_NCPAINT:
+			::ReleaseDC(static_cast<hwnd_type>(target_->handle()), dc_);
+			break;
+		case WM_PAINT:
+			::EndPaint(static_cast<hwnd_type>(target_->handle()), &paint_struct_);
+			break;
+		default:
+			break;
+		}
+	}
+}
 
-winpp::events::erase_background::hdc_type winpp::events::erase_background::dc() const{
+winpp::events::draw::drawer_type &winpp::events::draw::drawer(){
+	if (drawer_ != nullptr)
+		return *drawer_;//Use already existing drawer
+
+	switch (code_){
+	case WM_NCPAINT:
+		::GetClipBox(dc_ = GetDCEx(static_cast<hwnd_type>(target_->handle()), reinterpret_cast<hrgn_type>(wparam_), DCX_WINDOW | DCX_INTERSECTRGN), clip_);
+		break;
+	case WM_PAINT:
+		::BeginPaint(static_cast<hwnd_type>(target_->handle()), &paint_struct_);
+		dc_ = paint_struct_.hdc;
+		clip_ = paint_struct_.rcPaint;
+		*began_ = true;
+		break;
+	default:
+		break;
+	}
+
+	drawer_ = &application::object::current_app->drawer();
+	(*drawer_)->BindDC(dc_, clip_);
+	(*drawer_)->SetTransform(D2D1::Matrix3x2F::Identity());
+	(*drawer_)->BeginDraw();
+
+	return *drawer_;
+}
+
+winpp::events::draw::hdc_type winpp::events::draw::dc() const{
 	return dc_;
 }
 
-winpp::events::erase_background::rect_type winpp::events::erase_background::clip() const{
-	rect_type value;
-	::GetClipBox(dc_, value);
-	return value;
+winpp::events::draw::rect_type winpp::events::draw::clip() const{
+	return clip_;
 }
 
-winpp::events::paint::paint(gui_object_type &target, const info_type &begin_info)
-	: object(target), begin_info_(begin_info){}
-
-winpp::events::paint::~paint() = default;
-
-winpp::events::paint::hdc_type winpp::events::paint::dc() const{
-	return begin_info_.hdc;
-}
-
-winpp::events::paint::rect_type winpp::events::paint::clip() const{
-	return begin_info_.rcPaint;
-}
-
-bool winpp::events::paint::erase_background() const{
-	return (begin_info_.fErase != FALSE);
+bool winpp::events::draw::erase_background() const{
+	return (drawer_ != nullptr && code_ == WM_PAINT) ? (paint_struct_.fErase != FALSE) : false;
 }
 
 winpp::events::mouse::mouse(gui_object_type &target, uint_type code, wparam_type wparam, gui_object_type *original_target)
