@@ -64,8 +64,11 @@ void winpp::application::object_manager::create(const create_info_type &info, hw
 		info.lpCreateParams
 	);
 
-	if (out == nullptr)//Remove association
+	if (out == nullptr){//Remove association
 		windows_.erase(static_cast<hwnd_value_type>(recent_params_));
+		if (*out_ == last_search_.handle)
+			last_search_ = window_map_type{};
+	}
 
 	out_ = nullptr;
 	recent_params_ = nullptr;
@@ -473,11 +476,15 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 		auto &manager = object::current_app->object_manager();
 		if (manager.recent_params_ != nullptr && reinterpret_cast<create_hook_info_type *>(lparam)->lpcs->lpCreateParams == manager.recent_params_){//Ensure target is valid
 			auto target_hwnd_value = reinterpret_cast<hwnd_value_type>(wparam);
-			manager.windows_[target_hwnd_value] = &static_cast<gui_object_type *>(manager.recent_params_)->query<window_type>();
 			if (manager.replace_procedure_)//Replace window procedure
 				hwnd_type(target_hwnd_value).data<procedure_type>(&object_manager::entry, hwnd_type::data_index_type::procedure);
 
 			*manager.out_ = target_hwnd_value;
+			manager.last_search_ = window_map_type{//Cache search
+				target_hwnd_value,
+				(manager.windows_[target_hwnd_value] = &static_cast<gui_object_type *>(manager.recent_params_)->query<window_type>())
+			};
+
 			manager.recent_params_ = target_hwnd_value;
 			manager.replace_procedure_ = false;
 		}

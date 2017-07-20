@@ -281,6 +281,12 @@ namespace winpp{
 				return (::GetForegroundWindow() == base_type::value_);
 			}
 
+			int compare(const_qualified_type value) const{
+				if (base_type::value_ != value)
+					return (base_type::value_ < value) ? -1 : 1;
+				return 0;
+			}
+
 			template <typename return_type = result_type, typename arg_wparam_type = wparam_type, typename arg_lparam_type = lparam_type>
 			return_type send_message(uint_type msg, const arg_wparam_type &wparam, const arg_lparam_type &lparam) const{
 				if (base_type::value_ == nullptr)
