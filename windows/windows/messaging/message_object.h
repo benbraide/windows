@@ -242,6 +242,19 @@ namespace winpp{
 			virtual bool is_changing() const;
 		};
 
+		class get_min_max_info : public object{
+		public:
+			typedef ::MINMAXINFO info_type;
+
+			template <typename... args_type>
+			explicit get_min_max_info(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~get_min_max_info();
+
+			virtual const info_type &info() const;
+		};
+
 		class draw : public object{
 		public:
 			typedef ::HDC hdc_type;

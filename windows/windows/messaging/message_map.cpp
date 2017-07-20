@@ -29,6 +29,10 @@ winpp::messaging::map::map()
 	list_[WM_SIZE] = list_[WM_SIZING] = std::make_shared<messaging::size_dispatcher>(&target::on_size);
 	list_[WM_MOVE] = list_[WM_MOVING] = std::make_shared<messaging::move_dispatcher>(&target::on_move);
 
+	list_[WM_GETMINMAXINFO] = std::make_shared<messaging::get_min_max_info_dispatcher>(&target::on_get_min_max_info);
+	list_[WM_QUERYOPEN] = std::make_shared<messaging::query_open_dispatcher>(&target::on_query_open);
+	list_[WM_QUERYDRAGICON] = std::make_shared<messaging::query_drag_icon_dispatcher>(&target::on_query_drag_icon);
+
 	list_[WM_ERASEBKGND] = std::make_shared<messaging::erase_background_dispatcher>(&target::on_erase_background);
 	list_[WM_PAINT] = std::make_shared<messaging::paint_dispatcher>(&target::on_paint);
 	list_[WM_PRINT] = std::make_shared<messaging::paint_dispatcher>(&target::on_print);

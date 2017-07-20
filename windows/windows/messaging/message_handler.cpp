@@ -61,6 +61,16 @@ bool winpp::messaging::handler::on_move(move_message_type &e){
 	return true;
 }
 
+void winpp::messaging::handler::on_get_min_max_info(get_min_max_info_type &e){}
+
+bool winpp::messaging::handler::on_query_open(message_object_type &e){
+	return true;
+}
+
+winpp::messaging::handler::hcursor_type winpp::messaging::handler::on_query_drag_icon(message_object_type &e){
+	return nullptr;
+}
+
 bool winpp::messaging::handler::on_erase_background(draw_message_type &e){
 	return false;
 }

@@ -186,6 +186,12 @@ bool winpp::messaging::move::is_changing() const{
 	return (info_.code() == WM_MOVING);
 }
 
+winpp::messaging::get_min_max_info::~get_min_max_info() = default;
+
+const winpp::messaging::get_min_max_info::info_type &winpp::messaging::get_min_max_info::info() const{
+	return *info_.lparam<info_type *>();
+}
+
 winpp::messaging::draw::~draw(){
 	if (drawer_ != nullptr){
 		application::object::current_app->drawing_result((*drawer_)->EndDraw());

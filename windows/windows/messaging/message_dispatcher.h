@@ -316,6 +316,39 @@ namespace winpp{
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
 		};
 
+		class get_min_max_info_dispatcher : public typed_dispatcher<void, get_min_max_info>{
+		public:
+			typedef typed_dispatcher<void, get_min_max_info> base_type;
+
+			template <typename... args_types>
+			explicit get_min_max_info_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
+		class query_open_dispatcher : public typed_dispatcher<bool, object>{
+		public:
+			typedef typed_dispatcher<bool, object> base_type;
+
+			template <typename... args_types>
+			explicit query_open_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
+		class query_drag_icon_dispatcher : public typed_dispatcher<::HCURSOR, object>{
+		public:
+			typedef typed_dispatcher<::HCURSOR, object> base_type;
+
+			template <typename... args_types>
+			explicit query_drag_icon_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
 		class erase_background_dispatcher : public typed_dispatcher<bool, draw>{
 		public:
 			typedef typed_dispatcher<bool, draw> base_type;

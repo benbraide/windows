@@ -32,6 +32,7 @@ namespace winpp{
 			typedef messaging::size size_message_type;
 			typedef messaging::move move_message_type;
 
+			typedef messaging::get_min_max_info get_min_max_info_type;
 			typedef messaging::draw draw_message_type;
 
 			typedef messaging::mouse mouse_message_type;
@@ -80,6 +81,12 @@ namespace winpp{
 			virtual bool on_size(size_message_type &e);
 
 			virtual bool on_move(move_message_type &e);
+
+			virtual void on_get_min_max_info(get_min_max_info_type &e);
+
+			virtual bool on_query_open(message_object_type &e);
+
+			virtual hcursor_type on_query_drag_icon(message_object_type &e);
 
 			virtual bool on_erase_background(draw_message_type &e);
 

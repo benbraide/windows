@@ -89,6 +89,9 @@ namespace winpp{
 				events::tunnel<void, events::size> size;
 				events::tunnel<void, events::move> move;
 
+				events::tunnel<void> enter_size_move;
+				events::tunnel<void> exit_size_move;
+
 				events::tunnel<void> close;
 
 				events::tunnel<void> maximize;
@@ -97,6 +100,9 @@ namespace winpp{
 
 				events::tunnel<void> show;
 				events::tunnel<void> hide;
+
+				events::tunnel<void> query_open;
+				events::tunnel<hcursor_type> query_drag_icon;
 
 				events::tunnel<void, events::draw> erase_background;
 				events::tunnel<void, events::draw> paint;

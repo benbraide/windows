@@ -240,6 +240,39 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::move_dispatcher::di
 	return ev.handle(false).result();
 }
 
+winpp::messaging::dispatcher::lresult_type winpp::messaging::get_min_max_info_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	call_(info, is_sent, target);
+	return 0;
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::query_open_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::object e(*dynamic_cast<gui::object *>(&target));
+	target.events().query_open(e);
+	if (e.is_prevented())//Prevent default
+		return FALSE;
+
+	message_object_type ev(info, is_sent, target.procedure(), dynamic_cast<gui::object *>(&target));
+	if (!call_(target, ev)){//Prevent default
+		ev.skip();
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::query_drag_icon_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	events::object e(*dynamic_cast<gui::object *>(&target));
+	auto value = target.events().query_drag_icon(e);
+	if (value != nullptr || e.is_prevented())//Prevent default
+		return reinterpret_cast<lresult_type>(value);
+
+	message_object_type ev(info, is_sent, target.procedure(), dynamic_cast<gui::object *>(&target));
+	if ((value = call_(target, ev)) != nullptr)
+		return reinterpret_cast<lresult_type>(value);
+
+	return ev.handle(false).result();
+}
+
 winpp::messaging::dispatcher::lresult_type winpp::messaging::erase_background_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
 	events::draw e(*dynamic_cast<gui::object *>(&target), info.code(), info.wparam(), nullptr);
 	target.events().erase_background(e);

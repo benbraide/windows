@@ -250,7 +250,6 @@ bool winpp::window::object::on_erase_background(draw_message_type &e){
 }
 
 void winpp::window::object::on_paint(draw_message_type &e){
-	e.drawer()->FillRectangle({ 0.0f, 0.0f, 50.0f, 50.0f }, e.drawer().default_brush(color_type::named_type::red));
 	if (e.erase_background())
 		e.drawer()->Clear(background_color_);
 }
