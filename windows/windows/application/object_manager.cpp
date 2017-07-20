@@ -366,6 +366,8 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 	case WM_KILLFOCUS://Focus lost
 		manager.object_state_.focused = nullptr;
 		break;
+	default:
+		break;
 	}
 
 	return result;
@@ -379,8 +381,19 @@ winpp::application::object_manager::window_type *winpp::application::object_mana
 	if (windows_.empty())
 		return nullptr;
 
+	if (handle == last_search_.handle)
+		return last_search_.owner;
+
 	auto entry = windows_.find(handle);
-	return (entry == windows_.end()) ? nullptr : entry->second;
+	if (entry == windows_.end())
+		return nullptr;
+
+	last_search_ = window_map_type{//Cache search
+		handle,
+		entry->second
+	};
+
+	return entry->second;
 }
 
 void winpp::application::object_manager::update_(uint_type code, void *args){
@@ -417,6 +430,9 @@ void winpp::application::object_manager::update_object_destroyed_(gui_object_typ
 	auto window_object = dynamic_cast<window_type *>(object);
 	if (window_object != nullptr)//Remove association
 		windows_.erase(static_cast<hwnd_value_type>(window_object->handle()));
+
+	if (object == last_search_.owner)
+		last_search_ = window_map_type{};
 }
 
 winpp::application::object_manager::lresult_type winpp::application::object_manager::nc_mouse_up_(window_type &target, const msg_type &msg, mouse_key_state_type button){
@@ -457,7 +473,6 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 		auto &manager = object::current_app->object_manager();
 		if (manager.recent_params_ != nullptr && reinterpret_cast<create_hook_info_type *>(lparam)->lpcs->lpCreateParams == manager.recent_params_){//Ensure target is valid
 			auto target_hwnd_value = reinterpret_cast<hwnd_value_type>(wparam);
-
 			manager.windows_[target_hwnd_value] = &static_cast<gui_object_type *>(manager.recent_params_)->query<window_type>();
 			if (manager.replace_procedure_)//Replace window procedure
 				hwnd_type(target_hwnd_value).data<procedure_type>(&object_manager::entry, hwnd_type::data_index_type::procedure);

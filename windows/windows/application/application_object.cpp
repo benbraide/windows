@@ -5,7 +5,7 @@
 
 winpp::application::object::object()
 	: states_(state_type::nil), object_manager_(std::make_shared<object_manager_type>(*this)){
-	
+	::CoInitializeEx(nullptr, ::COINIT::COINIT_APARTMENTTHREADED);
 	if (current_app != nullptr)
 		throw common::multiple_apps_exception();
 
@@ -15,6 +15,8 @@ winpp::application::object::object()
 }
 
 winpp::application::object::~object(){
+	::CoUninitialize();
+
 	guard_type guard(lock_);
 	if (!list_.empty())
 		list_.erase(id_);

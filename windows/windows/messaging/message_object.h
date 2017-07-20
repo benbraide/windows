@@ -254,7 +254,7 @@ namespace winpp{
 
 			template <typename... args_type>
 			explicit draw(args_type &&... args)
-				: object(std::forward<args_type>(args)...), drawer_(nullptr){
+				: object(std::forward<args_type>(args)...), drawer_(nullptr), dc_(nullptr){
 				switch (info_.code()){
 				case WM_ERASEBKGND:
 					::GetClipBox(dc_ = info_.wparam<hdc_type>(), clip_);
@@ -278,7 +278,7 @@ namespace winpp{
 			hdc_drawer_type *drawer_;
 			hdc_type dc_;
 			rect_type clip_;
-			paint_struct_type paint_struct_;
+			paint_struct_type paint_struct_{};
 		};
 
 		class mouse : public object{

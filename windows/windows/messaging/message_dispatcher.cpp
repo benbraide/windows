@@ -9,7 +9,7 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::object_manager_hand
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::unrecognized_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	return call_(info, is_sent, target);
+	return call_(info, is_sent, target, true);
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::nccreate_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
@@ -250,12 +250,18 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::erase_background_di
 }
 
 winpp::messaging::dispatcher::lresult_type winpp::messaging::paint_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
-	events::draw e(*dynamic_cast<gui::object *>(&target), info.code(), info.wparam(), nullptr);
+	auto began = false;
+	events::draw e(*dynamic_cast<gui::object *>(&target), info.code(), info.wparam(), &began);
+
 	target.events().paint(e);
-	if (e.is_prevented())//Handled
+	if (began || e.is_prevented())//Handled
 		return 0;
 
-	call_(info, is_sent, target, true);
+	message_object_type ev(info, is_sent, target.procedure(), reinterpret_cast<gui::object *>(&target));
+	call_(target, ev);
+	if (ev.dc() != nullptr)
+		ev.skip();//Prevent default
+
 	return 0;
 }
 

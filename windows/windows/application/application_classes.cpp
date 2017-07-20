@@ -4,7 +4,7 @@
 winpp::application::classes::classes(){
 	::GetClassInfoExW(nullptr, WC_DIALOG, dialog_);
 
-	dialog_.styles(dialog_.styles() | CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS);
+	dialog_.styles(CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS);
 	dialog_.procedure(object_manager::entry);
 	dialog_.name(L"WINPP_DLG_CLS_" WINPP_UUID);
 	dialog_.instance(::GetModuleHandleW(nullptr));

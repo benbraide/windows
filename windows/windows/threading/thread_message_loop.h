@@ -65,14 +65,24 @@ namespace winpp{
 			return_type execute_task_(std::false_type, std::function<return_type()> task){
 				return_type value;
 				if (id_type::current() != id_){
+					std::exception_ptr eptr = nullptr;
 					event_object<false> ready(L"");
+
 					task_stack_.add([&]{
-						value = task();
+						try{
+							value = task();
+						}
+						catch (...){//Intercept exception
+							eptr = std::current_exception();
+						}
 						ready.set();
 					});
 
 					queue_.wake();//Release message loop
 					ready.wait();
+
+					if (eptr != nullptr)//Forward exception
+						std::rethrow_exception(eptr);
 				}
 				else//Same thread
 					value = task();
@@ -83,14 +93,24 @@ namespace winpp{
 			template <typename return_type>
 			return_type execute_task_(std::true_type, std::function<return_type()> task){
 				if (id_type::current() != id_){
+					std::exception_ptr eptr = nullptr;
 					event_object<false> ready(L"");
+
 					task_stack_.add([&]{
-						task();
+						try{
+							task();
+						}
+						catch (...){//Intercept exception
+							eptr = std::current_exception();
+						}
 						ready.set();
 					});
 
 					queue_.wake();//Release message loop
 					ready.wait();
+
+					if (eptr != nullptr)//Forward exception
+						std::rethrow_exception(eptr);
 				}
 				else//Same thread
 					task();

@@ -102,6 +102,11 @@ namespace winpp{
 				lparam_type lparam;
 			};
 
+			struct window_map_type{
+				hwnd_value_type handle;
+				window_type *owner;
+			};
+
 			explicit object_manager(object &app);
 
 			~object_manager();
@@ -190,6 +195,7 @@ namespace winpp{
 			object_list_type list_;
 			object_list_type top_levels_;
 			window_list_type windows_;
+			window_map_type last_search_{};
 			object_state_type object_state_{};
 
 			static classes classes_;

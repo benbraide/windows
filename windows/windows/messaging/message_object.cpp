@@ -222,8 +222,8 @@ winpp::messaging::draw::drawer_type &winpp::messaging::draw::drawer(){
 
 	drawer_ = &application::object::current_app->drawer();
 	(*drawer_)->BindDC(dc_, clip_);
-	(*drawer_)->SetTransform(D2D1::Matrix3x2F::Identity());
 	(*drawer_)->BeginDraw();
+	(*drawer_)->SetTransform(D2D1::Matrix3x2F::Identity());
 
 	return *drawer_;
 }
