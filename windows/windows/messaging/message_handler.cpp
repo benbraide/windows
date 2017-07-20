@@ -67,6 +67,10 @@ bool winpp::messaging::handler::on_erase_background(draw_message_type &e){
 
 void winpp::messaging::handler::on_paint(draw_message_type &e){}
 
+void winpp::messaging::handler::on_print(draw_message_type &e){}
+
+void winpp::messaging::handler::on_print_client(draw_message_type &e){}
+
 void winpp::messaging::handler::on_mouse_move(mouse_message_type &e){
 	bubble_mouse(e);
 }

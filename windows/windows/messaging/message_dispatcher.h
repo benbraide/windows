@@ -257,6 +257,8 @@ namespace winpp{
 			typedef typed_dispatcher<::HCURSOR, set_cursor> base_type;
 			typedef structures::enumerations::hit_target_type hit_target_type;
 
+			typedef ::HCURSOR hcursor_type;
+
 			template <typename... args_types>
 			explicit set_cursor_dispatcher(args_types &&... args)
 				: base_type(std::forward<args_types>(args)...){}
@@ -264,7 +266,7 @@ namespace winpp{
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
 
 		protected:
-			virtual ::HCURSOR retrieve_cursor_(const msg_type &info);
+			virtual hcursor_type retrieve_cursor_(const msg_type &info);
 		};
 
 		class hit_test_dispatcher : public typed_dispatcher<structures::enumerations::hit_target_type, hit_test>{

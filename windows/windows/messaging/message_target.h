@@ -100,6 +100,8 @@ namespace winpp{
 
 				events::tunnel<void, events::draw> erase_background;
 				events::tunnel<void, events::draw> paint;
+				events::tunnel<void, events::draw> print;
+				events::tunnel<void, events::draw> print_client;
 
 				events::tunnel<void, events::mouse> mouse_move;
 				events::tunnel<void, events::mouse> mouse_hover;

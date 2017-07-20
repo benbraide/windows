@@ -85,6 +85,10 @@ namespace winpp{
 
 			virtual void on_paint(draw_message_type &e);
 
+			virtual void on_print(draw_message_type &e);
+
+			virtual void on_print_client(draw_message_type &e);
+
 			virtual void on_mouse_move(mouse_message_type &e);
 
 			virtual void on_mouse_hover(mouse_message_type &e);

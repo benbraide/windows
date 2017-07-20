@@ -462,6 +462,16 @@ namespace winpp{
 				activate_and_eat			= MA_ACTIVATEANDEAT,
 			};
 
+			enum class print_option : unsigned int{
+				nil					= 0u,
+				check_visible		= PRF_CHECKVISIBLE,
+				non_client			= PRF_NONCLIENT,
+				client				= PRF_CLIENT,
+				erase_background	= PRF_ERASEBKGND,
+				children			= PRF_CHILDREN,
+				owned				= PRF_OWNED,
+			};
+
 			WINPP_MAKE_OPERATORS(random_string_char_set);
 			WINPP_MAKE_OPERATORS(key_event_state_type);
 			WINPP_MAKE_OPERATORS(key_state_type);
@@ -470,6 +480,7 @@ namespace winpp{
 			WINPP_MAKE_OPERATORS(position_type);
 			WINPP_MAKE_OPERATORS(placement_type);
 			WINPP_MAKE_OPERATORS(layered_attributes_option);
+			WINPP_MAKE_OPERATORS(print_option);
 		}
 	}
 }

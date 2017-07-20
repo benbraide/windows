@@ -145,7 +145,7 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::set_cursor_dispatch
 	return TRUE;
 }
 
-::HCURSOR winpp::messaging::set_cursor_dispatcher::retrieve_cursor_(const msg_type &info){
+winpp::messaging::set_cursor_dispatcher::hcursor_type winpp::messaging::set_cursor_dispatcher::retrieve_cursor_(const msg_type &info){
 	//Retrieve cursor -- Ref: Wine
 	switch (static_cast<hit_target_type>(info.low_lparam())){
 	case hit_target_type::error://Play beep if applicable
@@ -162,7 +162,7 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::set_cursor_dispatch
 
 		return nullptr;
 	case hit_target_type::client://Use class cursor
-		return reinterpret_cast<::HCURSOR>(::GetClassLongPtrW(info.owner(), GCLP_HCURSOR));
+		return reinterpret_cast<hcursor_type>(::GetClassLongPtrW(info.owner(), GCLP_HCURSOR));
 	case hit_target_type::left:
 	case hit_target_type::right:
 		return ::LoadCursorW(nullptr, IDC_SIZEWE);
@@ -252,8 +252,18 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::erase_background_di
 winpp::messaging::dispatcher::lresult_type winpp::messaging::paint_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
 	auto began = false;
 	events::draw e(*dynamic_cast<gui::object *>(&target), info.code(), info.wparam(), &began);
+	switch (info.code()){
+	case WM_PRINT:
+		target.events().print(e);
+		break;
+	case WM_PRINTCLIENT:
+		target.events().print_client(e);
+		break;
+	default:
+		target.events().paint(e);
+		break;
+	}
 
-	target.events().paint(e);
 	if (began || e.is_prevented())//Handled
 		return 0;
 

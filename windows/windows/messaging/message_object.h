@@ -249,6 +249,8 @@ namespace winpp{
 			typedef ::PAINTSTRUCT paint_struct_type;
 
 			typedef structures::rect rect_type;
+			typedef structures::enumerations::print_option print_option;
+
 			typedef drawing::drawer drawer_type;
 			typedef drawing::hdc_drawer hdc_drawer_type;
 
@@ -257,6 +259,8 @@ namespace winpp{
 				: object(std::forward<args_type>(args)...), drawer_(nullptr), dc_(nullptr){
 				switch (info_.code()){
 				case WM_ERASEBKGND:
+				case WM_PRINT:
+				case WM_PRINTCLIENT:
 					::GetClipBox(dc_ = info_.wparam<hdc_type>(), clip_);
 					break;
 				default:
@@ -273,6 +277,8 @@ namespace winpp{
 			virtual rect_type clip() const;
 
 			virtual bool erase_background() const;
+
+			virtual print_option print_options() const;
 
 		protected:
 			hdc_drawer_type *drawer_;

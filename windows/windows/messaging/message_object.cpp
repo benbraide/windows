@@ -240,6 +240,18 @@ bool winpp::messaging::draw::erase_background() const{
 	return (drawer_ != nullptr && info_.code() == WM_PAINT) ? (paint_struct_.fErase != FALSE) : false;
 }
 
+winpp::messaging::draw::print_option winpp::messaging::draw::print_options() const{
+	switch (info_.code()){
+	case WM_PRINT:
+	case WM_PRINTCLIENT:
+		return static_cast<print_option>(info_.lparam<unsigned int>());
+	default:
+		break;
+	}
+
+	return print_option::nil;
+}
+
 winpp::messaging::mouse::~mouse() = default;
 
 bool winpp::messaging::mouse::is_client() const{
