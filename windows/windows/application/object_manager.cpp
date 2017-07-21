@@ -26,7 +26,7 @@ void winpp::application::object_manager::create_proxy(){
 }
 
 void winpp::application::object_manager::create(const create_info_type &info, hwnd_type &out){
-	if (object::current_app == nullptr || &object::current_app->object_manager() != this)
+	if (object::current_app == nullptr || object::current_app != app_)
 		throw common::no_app_exception();
 
 	out_ = &out;
@@ -63,12 +63,6 @@ void winpp::application::object_manager::create(const create_info_type &info, hw
 		(info.hInstance == nullptr) ? ::GetModuleHandleW(nullptr) : info.hInstance,
 		info.lpCreateParams
 	);
-
-	if (out == nullptr){//Remove association
-		windows_.erase(static_cast<hwnd_value_type>(recent_params_));
-		if (*out_ == last_search_.handle)
-			last_search_ = window_map_type{};
-	}
 
 	out_ = nullptr;
 	recent_params_ = nullptr;
@@ -484,9 +478,6 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 				target_hwnd_value,
 				(manager.windows_[target_hwnd_value] = &static_cast<gui_object_type *>(manager.recent_params_)->query<window_type>())
 			};
-
-			manager.recent_params_ = target_hwnd_value;
-			manager.replace_procedure_ = false;
 		}
 	}
 

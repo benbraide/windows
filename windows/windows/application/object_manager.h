@@ -5,6 +5,7 @@
 
 #include <list>
 
+#include "../common/scoped_index.h"
 #include "../wrappers/hwnd_wrapper.h"
 #include "../wrappers/msg_wrapper.h"
 
@@ -77,6 +78,13 @@ namespace winpp{
 			typedef std::unordered_map<hwnd_value_type, window_type *> window_list_type;
 
 			typedef std::shared_ptr<window_type> window_ptr_type;
+			typedef common::scoped_index_base scoped_index_base_type;
+
+			typedef std::shared_ptr<scoped_index_base_type> scoped_index_base_ptr_type;
+			typedef std::list<scoped_index_base_ptr_type> scoped_index_base_ptr_list_type;
+
+			template <typename key_type>
+			using scoped_index_index_type = common::scoped_index<gui_object_type *, key_type, gui_object_type *>;
 
 			enum class object_mouse_state : unsigned int{
 				nil				= (0 << 0x0000),
@@ -120,6 +128,39 @@ namespace winpp{
 			bool has_top_level() const;
 
 			void update(uint_type code, void *args);
+
+			template <typename key_type>
+			key_type add_index(gui_object_type &value, gui_object_type *scope = nullptr){
+				if (object::current_app == nullptr || object::current_app != app_)
+					throw common::no_app_exception();
+				return get_scoped_index_<key_type>()->add(scope, &value);
+			}
+
+			template <typename key_type>
+			void remove_index(key_type key, gui_object_type *scope = nullptr){
+				if (object::current_app == nullptr || object::current_app != app_)
+					throw common::no_app_exception();
+
+				auto scoped_index = get_scoped_index_<key_type>(false);
+				if (scoped_index != nullptr)
+					scoped_index->remove(scope, key);
+			}
+
+			template <typename key_type>
+			gui_object_type *find_index(key_type key, gui_object_type *scope = nullptr){
+				if (object::current_app == nullptr || object::current_app != app_)
+					throw common::no_app_exception();
+
+				auto scoped_index = get_scoped_index_<key_type>(false);
+				return (scoped_index == nullptr) ? nullptr : scoped_index->find(scope, key);
+			}
+
+			template <typename key_type>
+			scoped_index_index_type<key_type> *find_scoped_index(){
+				if (object::current_app == nullptr || object::current_app != app_)
+					throw common::no_app_exception();
+				return get_scoped_index_<key_type>(false);
+			}
 
 			window_type *find_window(hwnd_value_type handle);
 
@@ -183,6 +224,23 @@ namespace winpp{
 
 			gui_object_type *find_window_in_chain_(gui_object_type *target);
 
+			template <typename key_type>
+			scoped_index_index_type<key_type> *get_scoped_index_(bool create = true){
+				scoped_index_index_type<key_type> *value;
+				for (auto entry : scoped_index_list_){
+					if ((value = dynamic_cast<scoped_index_index_type<key_type> *>(entry.get())) != nullptr)
+						return value;
+				}
+
+				if (!create)
+					return nullptr;
+
+				auto ptr_value = std::make_shared<scoped_index_index_type<key_type>>();
+				scoped_index_list_.push_back(ptr_value);
+
+				return ptr_value.get();
+			}
+
 			static lresult_type CALLBACK hook_(int code, wparam_type wparam, lparam_type lparam);
 
 			object *app_;
@@ -197,6 +255,7 @@ namespace winpp{
 			window_list_type windows_;
 			window_map_type last_search_{};
 			object_state_type object_state_{};
+			scoped_index_base_ptr_list_type scoped_index_list_;
 
 			static classes classes_;
 		};
