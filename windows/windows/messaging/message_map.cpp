@@ -33,6 +33,7 @@ winpp::messaging::map::map()
 	list_[WM_QUERYOPEN] = std::make_shared<messaging::query_open_dispatcher>(&target::on_query_open);
 	list_[WM_QUERYDRAGICON] = std::make_shared<messaging::query_drag_icon_dispatcher>(&target::on_query_drag_icon);
 	list_[WM_STYLECHANGED] = list_[WM_STYLECHANGING] = std::make_shared<messaging::style_dispatcher>(&target::on_style);
+	list_[WM_SHOWWINDOW] = std::make_shared<messaging::show_dispatcher>(&target::on_show);
 
 	list_[WM_ERASEBKGND] = std::make_shared<messaging::erase_background_dispatcher>(&target::on_erase_background);
 	list_[WM_PAINT] = std::make_shared<messaging::paint_dispatcher>(&target::on_paint);

@@ -75,6 +75,10 @@ bool winpp::messaging::handler::on_style(style_message_type &e){
 	return true;
 }
 
+bool winpp::messaging::handler::on_show(show_message_type &e){
+	return true;
+}
+
 bool winpp::messaging::handler::on_erase_background(draw_message_type &e){
 	return false;
 }

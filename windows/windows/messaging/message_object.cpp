@@ -226,6 +226,16 @@ winpp::messaging::style::dword_type winpp::messaging::style::filtered() const{
 	return WINPP_REMOVE_V(WINPP_SET_V(info->styleOld, styles_added), styles_removed);
 }
 
+winpp::messaging::show::~show() = default;
+
+bool winpp::messaging::show::is_hidden() const{
+	return (info_.wparam<bool_type>() == FALSE);
+}
+
+winpp::messaging::show::show_reason_type winpp::messaging::show::reason() const{
+	return static_cast<show_reason_type>(info_.lparam<int>());
+}
+
 winpp::messaging::draw::~draw(){
 	if (drawer_ != nullptr){
 		application::object::current_app->drawing_result((*drawer_)->EndDraw());

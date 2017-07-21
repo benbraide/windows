@@ -296,6 +296,22 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::style_dispatcher::d
 	return ev.handle(false).result();
 }
 
+winpp::messaging::dispatcher::lresult_type winpp::messaging::show_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	message_object_type ev(info, is_sent, target.procedure(), dynamic_cast<gui::object *>(&target));
+	events::object e(*dynamic_cast<gui::object *>(&target));
+	if (ev.is_hidden())
+		target.events().hide(e);
+	else//Show
+		target.events().show(e);
+
+	if (e.is_prevented() || !call_(target, ev)){//Prevent default
+		ev.skip();
+		return 0;
+	}
+
+	return ev.handle(false).result();
+}
+
 winpp::messaging::dispatcher::lresult_type winpp::messaging::erase_background_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
 	events::draw e(*dynamic_cast<gui::object *>(&target), info.code(), info.wparam(), nullptr);
 	target.events().erase_background(e);

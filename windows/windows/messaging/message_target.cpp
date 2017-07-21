@@ -15,12 +15,6 @@ unsigned __int64 winpp::messaging::target::event_tunnel::bind(event_type e, cons
 		return activate.bind_generic(callback);
 	case event_type::close:
 		return close.bind_generic(callback);
-	case event_type::maximize:
-		return maximize.bind_generic(callback);
-	case event_type::minimize:
-		return minimize.bind_generic(callback);
-	case event_type::restore:
-		return restore.bind_generic(callback);
 	case event_type::show:
 		return show.bind_generic(callback);
 	case event_type::hide:
@@ -51,15 +45,6 @@ unsigned __int64 winpp::messaging::target::event_tunnel::bind_(const std::wstrin
 
 	if (e == L"close")
 		return close.bind_generic(callback);
-
-	if (e == L"maximize")
-		return maximize.bind_generic(callback);
-
-	if (e == L"minimize")
-		return minimize.bind_generic(callback);
-
-	if (e == L"restore")
-		return restore.bind_generic(callback);
 
 	if (e == L"show")
 		return show.bind_generic(callback);

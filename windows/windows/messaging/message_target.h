@@ -95,10 +95,6 @@ namespace winpp{
 				events::tunnel<void, events::style> style;
 				events::tunnel<void> close;
 
-				events::tunnel<void> maximize;
-				events::tunnel<void> minimize;
-				events::tunnel<void> restore;
-
 				events::tunnel<void> show;
 				events::tunnel<void> hide;
 

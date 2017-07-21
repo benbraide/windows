@@ -361,6 +361,18 @@ namespace winpp{
 			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
 		};
 
+		class show_dispatcher : public typed_dispatcher<bool, show>{
+		public:
+			typedef typed_dispatcher<bool, show> base_type;
+			typedef structures::rect::value_type rect_value_type;
+
+			template <typename... args_types>
+			explicit show_dispatcher(args_types &&... args)
+				: base_type(std::forward<args_types>(args)...){}
+
+			virtual lresult_type dispatch(const msg_type &info, bool is_sent, target_type &target) override;
+		};
+
 		class erase_background_dispatcher : public typed_dispatcher<bool, draw>{
 		public:
 			typedef typed_dispatcher<bool, draw> base_type;

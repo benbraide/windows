@@ -279,6 +279,22 @@ namespace winpp{
 			virtual dword_type filtered() const;
 		};
 
+		class show : public object{
+		public:
+			typedef ::BOOL bool_type;
+			typedef structures::enumerations::show_reason_type show_reason_type;
+
+			template <typename... args_type>
+			explicit show(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~show();
+
+			virtual bool is_hidden() const;
+
+			virtual show_reason_type reason() const;
+		};
+
 		class draw : public object{
 		public:
 			typedef ::HDC hdc_type;
