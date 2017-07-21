@@ -274,7 +274,7 @@ winpp::gui::object &winpp::gui::generic_object::destroy(force_type force){
 	throw common::unsupported_exception();
 }
 
-winpp::gui::object &winpp::gui::generic_object::show(show_mode mode){
+winpp::gui::object &winpp::gui::generic_object::show(show_mode_type mode){
 	throw common::unsupported_exception();
 }
 

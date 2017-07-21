@@ -374,7 +374,7 @@ namespace winpp{
 				center			= AW_CENTER,
 			};
 
-			enum class show_mode{
+			enum class show_mode_type{
 				hide							= SW_HIDE,
 				normal							= SW_NORMAL,
 				minimized						= SW_SHOWMINIMIZED,
@@ -388,6 +388,14 @@ namespace winpp{
 				restore							= SW_RESTORE,
 				default							= SW_SHOWDEFAULT,
 				force_minimize					= SW_FORCEMINIMIZE,
+			};
+
+			enum class show_reason_type{
+				nil							= 0,
+				parent_minimized			= SW_PARENTCLOSING,
+				other_window_maximized		= SW_OTHERZOOM,
+				parent_restored				= SW_PARENTOPENING,
+				other_window_restored		= SW_OTHERUNZOOM,
 			};
 
 			enum class position_type : ::UINT{

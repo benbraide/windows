@@ -32,7 +32,7 @@ namespace winpp{
 			typedef ::HMENU menu_type;
 
 			typedef structures::enumerations::animation_type animation_type;
-			typedef structures::enumerations::show_mode show_mode;
+			typedef structures::enumerations::show_mode_type show_mode_type;
 			typedef structures::enumerations::position_type position_type;
 			typedef structures::enumerations::data_index_type data_index_type;
 			typedef structures::enumerations::layered_attributes_option layered_attributes_option;
@@ -112,11 +112,11 @@ namespace winpp{
 				return (::OpenIcon(base_type::value_) != FALSE);
 			}
 
-			bool show(show_mode mode){
+			bool show(show_mode_type mode){
 				return (::ShowWindow(base_type::value_, static_cast<int>(mode)) != FALSE);
 			}
 
-			bool show_asyn(show_mode mode){
+			bool show_asyn(show_mode_type mode){
 				return (::ShowWindowAsync(base_type::value_, static_cast<int>(mode)) != FALSE);
 			}
 

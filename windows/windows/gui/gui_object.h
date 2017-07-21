@@ -42,7 +42,7 @@ namespace winpp{
 			typedef structures::enumerations::placement_type placement_type;
 			typedef structures::enumerations::hit_target_type hit_target_type;
 			typedef structures::enumerations::event_type event_type;
-			typedef structures::enumerations::show_mode show_mode;
+			typedef structures::enumerations::show_mode_type show_mode_type;
 
 			typedef std::size_t index_and_size_type;
 
@@ -155,7 +155,7 @@ namespace winpp{
 
 			virtual object &destroy(force_type force = force_type::dont_force) = 0;
 
-			virtual object &show(show_mode mode = show_mode::show) = 0;
+			virtual object &show(show_mode_type mode = show_mode_type::show) = 0;
 
 			virtual object &hide() = 0;
 

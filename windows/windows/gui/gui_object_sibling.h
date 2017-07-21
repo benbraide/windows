@@ -107,7 +107,7 @@ namespace winpp{
 
 			virtual object &destroy(force_type force = force_type::dont_force) override;
 
-			virtual object &show(show_mode mode = show_mode::show) override;
+			virtual object &show(show_mode_type mode = show_mode_type::show) override;
 
 			virtual object &hide() override;
 

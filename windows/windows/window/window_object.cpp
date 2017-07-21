@@ -117,13 +117,13 @@ winpp::window::object &winpp::window::object::destroy(force_type force){
 	return *this;
 }
 
-winpp::window::object &winpp::window::object::show(show_mode mode){
+winpp::window::object &winpp::window::object::show(show_mode_type mode){
 	value_.show(mode);
 	return *this;
 }
 
 winpp::window::object &winpp::window::object::hide(){
-	value_.show(show_mode::hide);
+	value_.show(show_mode_type::hide);
 	return *this;
 }
 

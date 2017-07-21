@@ -204,7 +204,7 @@ winpp::gui::object &winpp::gui::object_sibling::destroy(force_type force){
 	return *this;
 }
 
-winpp::gui::object &winpp::gui::object_sibling::show(show_mode mode){
+winpp::gui::object &winpp::gui::object_sibling::show(show_mode_type mode){
 	object_->show(mode);
 	return *this;
 }
