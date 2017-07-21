@@ -361,8 +361,9 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::mouse_dispatcher::d
 
 	mouse ev(gui_target, resolved_info.code(retrieved_info.code), is_sent, target.procedure(), gui_target);
 	(target.*handler)(ev);//Call handler
+	ev.skip();
 
-	return ev.handle(false).result();
+	return 0;
 }
 
 winpp::messaging::mouse_dispatcher::uint_type winpp::messaging::mouse_dispatcher::non_client_to_client(uint_type code){

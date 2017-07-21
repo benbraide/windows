@@ -126,7 +126,7 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 		::TrackMouseEvent(&track_info);//Notify when mouse leaves window or client area
 	}
 
-	auto result = object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+	object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 		static_cast<hwnd_value_type>(object_state_.moused->handle()),
 		static_cast<uint_type>((object_state_.moused == &target) ? WINPP_WM_MOUSE : WINPP_WM_RAWMOUSE),
 		msg.wparam(),
@@ -155,7 +155,7 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 	}
 
 	object_state_.last_position = mouse_position;
-	return result;
+	return ::CallWindowProcW(target.procedure(), msg.owner(), msg.code(), msg.wparam(), msg.lparam());
 }
 
 winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_hover(window_type &target, const msg_type &msg){
@@ -228,12 +228,13 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 	case WM_NCLBUTTONDOWN:
 	case WM_NCMBUTTONDOWN:
 	case WM_NCRBUTTONDOWN:
-		return target.query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+		target.query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 			static_cast<hwnd_value_type>(target.handle()),
 			WINPP_WM_MOUSE,
 			msg.wparam(),
 			msg.code()
 		}), true);//Send message
+		return ::CallWindowProcW(target.procedure(), msg.owner(), msg.code(), msg.wparam(), msg.lparam());
 	case WM_LBUTTONDOWN:
 		WINPP_SET(object_state_.button, mouse_key_state_type::left_button);
 		break;
@@ -252,12 +253,14 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 		WINPP_SET(object_state_.mouse_state, object_mouse_state::down);
 	}
 
-	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+	object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 		static_cast<hwnd_value_type>(object_state_.moused->handle()),
 		static_cast<uint_type>((object_state_.moused == &target) ? WINPP_WM_MOUSE : WINPP_WM_RAWMOUSE),
 		msg.wparam(),
 		msg.code()
 	}), true);//Send message
+
+	return ::CallWindowProcW(target.procedure(), msg.owner(), msg.code(), msg.wparam(), msg.lparam());
 }
 
 winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_up(window_type &target, const msg_type &msg){
@@ -294,12 +297,14 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 		}
 	}
 
-	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+	object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 		static_cast<hwnd_value_type>(object_state_.moused->handle()),
 		static_cast<uint_type>((object_state_.moused == &target) ? WINPP_WM_MOUSE : WINPP_WM_RAWMOUSE),
 		msg.wparam(),
 		msg.code()
 	}), true);//Send message
+
+	return ::CallWindowProcW(target.procedure(), msg.owner(), msg.code(), msg.wparam(), msg.lparam());
 }
 
 winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_dbl_click(window_type &target, const msg_type &msg){
@@ -307,22 +312,25 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 	case WM_NCLBUTTONDBLCLK:
 	case WM_NCMBUTTONDBLCLK:
 	case WM_NCRBUTTONDBLCLK:
-		return target.query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+		target.query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 			static_cast<hwnd_value_type>(target.handle()),
 			WINPP_WM_MOUSE,
 			msg.wparam(),
 			msg.code()
 		}), true);//Send message
+		return ::CallWindowProcW(target.procedure(), msg.owner(), msg.code(), msg.wparam(), msg.lparam());
 	default:
 		break;
 	}
 
-	return object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+	object_state_.moused->query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 		static_cast<hwnd_value_type>(object_state_.moused->handle()),
 		static_cast<uint_type>((object_state_.moused == &target) ? WINPP_WM_MOUSE : WINPP_WM_RAWMOUSE),
 		msg.wparam(),
 		msg.code()
 	}), true);//Send message
+
+	return ::CallWindowProcW(target.procedure(), msg.owner(), msg.code(), msg.wparam(), msg.lparam());
 }
 
 winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_wheel(window_type &target, const msg_type &msg){
@@ -446,12 +454,14 @@ winpp::application::object_manager::lresult_type winpp::application::object_mana
 		}
 	}
 
-	return target.query<messaging::target>().dispatch(msg_type(msg_type::value_type{
+	target.query<messaging::target>().dispatch(msg_type(msg_type::value_type{
 		static_cast<hwnd_value_type>(target.handle()),
 		WINPP_WM_MOUSE,
 		msg.wparam(),
 		msg.code()
 	}), true);//Send message
+
+	return ::CallWindowProcW(target.procedure(), msg.owner(), msg.code(), msg.wparam(), msg.lparam());
 }
 
 winpp::application::object_manager::gui_object_type *winpp::application::object_manager::find_window_in_chain_(gui_object_type *target){
