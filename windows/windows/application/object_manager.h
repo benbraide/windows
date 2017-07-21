@@ -29,11 +29,15 @@
 #define WINPP_WM_MOUSE				(WINPP_WM_APP_RESERVED_LAST + 0x06)
 #define WINPP_WM_RAWMOUSE			(WINPP_WM_APP_RESERVED_LAST + 0x07)
 
+#define WINPP_MENU_CLS				L"#32768"
+#define WINPP_DLG_CLS				L"#32770"
+
 namespace winpp{
 	namespace application{
 		class object_manager{
 		public:
 			typedef ::WNDPROC procedure_type;
+			typedef ::HMENU hmenu_type;
 
 			typedef ::HHOOK hook_type;
 			typedef ::FLASHWINFO flash_info_type;
@@ -76,6 +80,7 @@ namespace winpp{
 
 			typedef std::list<gui_object_type *> object_list_type;
 			typedef std::unordered_map<hwnd_value_type, window_type *> window_list_type;
+			typedef std::unordered_map<hwnd_value_type, gui_object_type *> menu_list_type;
 
 			typedef std::shared_ptr<window_type> window_ptr_type;
 			typedef common::scoped_index_base scoped_index_base_type;
@@ -85,6 +90,11 @@ namespace winpp{
 
 			template <typename key_type>
 			using scoped_index_index_type = common::scoped_index<gui_object_type *, key_type, gui_object_type *>;
+
+			enum class menu_type{
+				bar,
+				popup
+			};
 
 			enum class object_mouse_state : unsigned int{
 				nil				= (0 << 0x0000),
@@ -124,6 +134,8 @@ namespace winpp{
 			void create_proxy();
 
 			void create(const create_info_type &info, hwnd_type &out);
+
+			hmenu_type create_menu(gui_object_type &owner, menu_type type);
 
 			bool has_top_level() const;
 
@@ -245,6 +257,7 @@ namespace winpp{
 
 			object *app_;
 			window_ptr_type proxy_window_;
+			hook_type hook_handle_;
 
 			void *recent_params_;
 			bool replace_procedure_;
@@ -252,8 +265,11 @@ namespace winpp{
 
 			object_list_type list_;
 			object_list_type top_levels_;
+
+			menu_list_type menus_;
 			window_list_type windows_;
 			window_map_type last_search_{};
+
 			object_state_type object_state_{};
 			scoped_index_base_ptr_list_type scoped_index_list_;
 

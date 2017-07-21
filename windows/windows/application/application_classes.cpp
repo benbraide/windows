@@ -2,7 +2,7 @@
 #include "object_manager.h"
 
 winpp::application::classes::classes(){
-	::GetClassInfoExW(nullptr, WC_DIALOG, dialog_);
+	::GetClassInfoExW(nullptr, WINPP_DLG_CLS, dialog_);
 
 	dialog_.styles(CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS);
 	dialog_.procedure(object_manager::entry);
