@@ -192,6 +192,40 @@ const winpp::messaging::get_min_max_info::info_type &winpp::messaging::get_min_m
 	return *info_.lparam<info_type *>();
 }
 
+winpp::messaging::style::~style(){
+	info_.lparam<info_type *>()->styleNew = filtered();//Use filtered
+}
+
+bool winpp::messaging::style::is_changing() const{
+	return (info_.code() == WM_STYLECHANGING);
+}
+
+bool winpp::messaging::style::is_extended() const{
+	return (static_cast<data_index_type>(info_.wparam<int>()) == data_index_type::extended_styles);
+}
+
+winpp::messaging::style::dword_type winpp::messaging::style::previous() const{
+	return info_.lparam<info_type *>()->styleOld;
+}
+
+winpp::messaging::style::dword_type winpp::messaging::style::current() const{
+	return info_.lparam<info_type *>()->styleNew;
+}
+
+winpp::messaging::style::dword_type winpp::messaging::style::filtered() const{
+	auto info = info_.lparam<info_type *>();
+	if (info->styleNew == info->styleOld)//No filtered
+		return info->styleNew;
+
+	auto &target = this->target()->query<window::object>();
+	auto is_extended = this->is_extended();
+
+	auto styles_removed = target.filter_styles(info->styleOld & ~info->styleNew, is_extended);
+	auto styles_added = target.filter_styles(~info->styleOld & info->styleNew, is_extended);
+
+	return WINPP_REMOVE_V(WINPP_SET_V(info->styleOld, styles_added), styles_removed);
+}
+
 winpp::messaging::draw::~draw(){
 	if (drawer_ != nullptr){
 		application::object::current_app->drawing_result((*drawer_)->EndDraw());

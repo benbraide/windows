@@ -267,8 +267,31 @@ winpp::messaging::dispatcher::lresult_type winpp::messaging::query_drag_icon_dis
 		return reinterpret_cast<lresult_type>(value);
 
 	message_object_type ev(info, is_sent, target.procedure(), dynamic_cast<gui::object *>(&target));
-	if ((value = call_(target, ev)) != nullptr)
+	if ((value = call_(target, ev)) != nullptr){
+		ev.skip();
 		return reinterpret_cast<lresult_type>(value);
+	}
+
+	return ev.handle(false).result();
+}
+
+winpp::messaging::dispatcher::lresult_type winpp::messaging::style_dispatcher::dispatch(const msg_type &info, bool is_sent, target_type &target){
+	auto styles_info = info.lparam<info_type *>();
+	message_object_type ev(info, is_sent, target.procedure(), dynamic_cast<gui::object *>(&target));
+
+	events::style e(*dynamic_cast<gui::object *>(&target), *styles_info, ev.is_changing(), ev.is_extended());
+	target.events().style(e);
+	if (e.is_prevented() && ev.is_changing()){//Prevent default
+		ev.skip();
+		styles_info->styleNew = styles_info->styleOld;
+		return 0;
+	}
+
+	if (!call_(target, ev) && ev.is_changing()){//Prevent default
+		ev.skip();
+		styles_info->styleNew = styles_info->styleOld;
+		return 0;
+	}
 
 	return ev.handle(false).result();
 }

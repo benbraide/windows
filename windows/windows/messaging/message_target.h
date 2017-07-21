@@ -92,6 +92,7 @@ namespace winpp{
 				events::tunnel<void> enter_size_move;
 				events::tunnel<void> exit_size_move;
 
+				events::tunnel<void, events::style> style;
 				events::tunnel<void> close;
 
 				events::tunnel<void> maximize;

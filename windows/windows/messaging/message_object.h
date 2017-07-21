@@ -255,6 +255,30 @@ namespace winpp{
 			virtual const info_type &info() const;
 		};
 
+		class style : public object{
+		public:
+			typedef ::DWORD dword_type;
+			typedef ::STYLESTRUCT info_type;
+
+			typedef structures::enumerations::data_index_type data_index_type;
+
+			template <typename... args_type>
+			explicit style(args_type &&... args)
+				: object(std::forward<args_type>(args)...){}
+
+			virtual ~style();
+
+			virtual bool is_changing() const;
+
+			virtual bool is_extended() const;
+
+			virtual dword_type previous() const;
+
+			virtual dword_type current() const;
+
+			virtual dword_type filtered() const;
+		};
+
 		class draw : public object{
 		public:
 			typedef ::HDC hdc_type;

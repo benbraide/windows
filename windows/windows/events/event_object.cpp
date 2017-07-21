@@ -142,6 +142,38 @@ bool winpp::events::move::is_changing() const{
 	return changing_;
 }
 
+winpp::events::style::style(gui_object_type &target, info_type &info, bool changing, bool extended)
+	: object(target), info_(&info), changing_(changing), extended_(extended){}
+
+winpp::events::style::~style() = default;
+
+bool winpp::events::style::is_changing() const{
+	return changing_;
+}
+
+bool winpp::events::style::is_extended() const{
+	return extended_;
+}
+
+winpp::events::style::dword_type winpp::events::style::previous() const{
+	return info_->styleOld;
+}
+
+winpp::events::style::dword_type winpp::events::style::current() const{
+	return info_->styleNew;
+}
+
+winpp::events::style::dword_type winpp::events::style::filtered() const{
+	if (info_->styleNew == info_->styleOld)//No filtered
+		return info_->styleNew;
+
+	auto &target = target_->query<window::object>();
+	auto styles_removed = target.filter_styles(info_->styleOld & ~info_->styleNew, extended_);
+	auto styles_added = target.filter_styles(~info_->styleOld & info_->styleNew, extended_);
+
+	return WINPP_REMOVE_V(WINPP_SET_V(info_->styleOld, styles_added), styles_removed);
+}
+
 winpp::events::draw::draw(gui_object_type &target, uint_type code, wparam_type wparam, bool *began)
 	: object(target), code_(code), wparam_(wparam), began_(began){
 	switch (code){

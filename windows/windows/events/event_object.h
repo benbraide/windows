@@ -196,6 +196,33 @@ namespace winpp{
 			bool changing_;
 		};
 
+		class style : public object{
+		public:
+			typedef ::DWORD dword_type;
+			typedef ::STYLESTRUCT info_type;
+
+			typedef structures::enumerations::data_index_type data_index_type;
+
+			style(gui_object_type &target, info_type &info, bool changing, bool extended);
+
+			virtual ~style();
+
+			virtual bool is_changing() const;
+
+			virtual bool is_extended() const;
+
+			virtual dword_type previous() const;
+
+			virtual dword_type current() const;
+
+			virtual dword_type filtered() const;
+
+		protected:
+			info_type *info_;
+			bool changing_;
+			bool extended_;
+		};
+
 		class draw : public object{
 		public:
 			typedef ::HDC hdc_type;
