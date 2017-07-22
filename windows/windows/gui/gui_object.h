@@ -153,6 +153,8 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const = 0;
 
+			virtual object &update_state() = 0;
+
 			virtual object &destroy(force_type force = force_type::dont_force) = 0;
 
 			virtual object &show(show_mode_type mode = show_mode_type::show) = 0;

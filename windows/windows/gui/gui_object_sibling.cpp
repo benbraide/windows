@@ -199,6 +199,11 @@ winpp::gui::object::point_type winpp::gui::object_sibling::convert_from_screen(c
 	return object_->convert_from_screen(value);
 }
 
+winpp::gui::object &winpp::gui::object_sibling::update_state(){
+	object_->update_state();
+	return *this;
+}
+
 winpp::gui::object &winpp::gui::object_sibling::destroy(force_type force){
 	object_->destroy(force);
 	return *this;

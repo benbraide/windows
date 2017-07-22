@@ -134,6 +134,8 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const override;
 
+			virtual object &update_state() override;
+
 			virtual object &destroy(force_type force = force_type::dont_force) override;
 
 			virtual object &show(show_mode_type mode = show_mode_type::show) override;
@@ -213,6 +215,8 @@ namespace winpp{
 			virtual procedure_type procedure() const override;
 
 		protected:
+			virtual index_and_size_type insert_into_parent_(gui_object_type &parent, index_and_size_type index);
+
 			virtual void created_();
 
 			virtual void destroyed_();

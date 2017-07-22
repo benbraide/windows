@@ -146,13 +146,13 @@ const winpp::gui::object &winpp::gui::generic_object::traverse_ancestors(object_
 
 winpp::gui::object::index_and_size_type winpp::gui::generic_object::internal_insert_into_parent(gui_object_type &object){
 	if (!object.is_sibling())
-		return object.internal_insert_child(*this);
+		return insert_into_parent_(object, invalid_index);
 
 	auto parent = object.parent();
 	if (parent == nullptr)//Parent required
 		throw common::invalid_object_exception();
 
-	return parent->internal_insert_child(*this, object.proposed_index());
+	return insert_into_parent_(*parent, object.proposed_index());
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::generic_object::internal_insert_child(gui_object_type &child, index_and_size_type before){
@@ -268,6 +268,10 @@ winpp::gui::object::rect_type winpp::gui::generic_object::convert_to_screen(cons
 
 winpp::gui::object::point_type winpp::gui::generic_object::convert_from_screen(const point_type &value) const{
 	return value;
+}
+
+winpp::gui::object &winpp::gui::generic_object::update_state(){
+	throw common::unsupported_exception();
 }
 
 winpp::gui::object &winpp::gui::generic_object::destroy(force_type force){
@@ -436,6 +440,10 @@ bool winpp::gui::generic_object::is_control() const{
 
 winpp::gui::object::procedure_type winpp::gui::generic_object::procedure() const{
 	throw common::unsupported_exception();
+}
+
+winpp::gui::object::index_and_size_type winpp::gui::generic_object::insert_into_parent_(gui_object_type &parent, index_and_size_type index){
+	return parent.internal_insert_child(*this, index);
 }
 
 void winpp::gui::generic_object::created_(){

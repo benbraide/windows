@@ -105,6 +105,8 @@ namespace winpp{
 
 			virtual rect_type convert_from_screen(const rect_type &value) const override;
 
+			virtual object &update_state() override;
+
 			virtual object &destroy(force_type force = force_type::dont_force) override;
 
 			virtual object &show(show_mode_type mode = show_mode_type::show) override;
