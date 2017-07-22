@@ -35,6 +35,9 @@ void winpp::window::message::create(app_type &app, const std::wstring &caption){
 }
 
 void winpp::window::message::create_(const std::wstring &caption, app_type *app){
+	if (is_created())
+		throw common::unsupported_exception();
+
 	object::create_(create_info_type{
 		static_cast<gui_object_type *>(this),		//Params
 		nullptr,									//Instance

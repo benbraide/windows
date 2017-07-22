@@ -39,10 +39,14 @@ namespace winpp{
 			}
 
 			virtual void create(const std::wstring &caption, const point_type &offset, const size_type &size){
+				if (is_created())
+					throw common::unsupported_exception();
 				base_type::create_(caption, offset, size, 0u, 0u, nullptr, nullptr);
 			}
 
 			virtual void create(app_type &app, const std::wstring &caption, const point_type &offset, const size_type &size){
+				if (is_created())
+					throw common::unsupported_exception();
 				base_type::create_(caption, offset, size, 0u, 0u, nullptr, &app);
 			}
 		};

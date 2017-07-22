@@ -73,6 +73,8 @@ namespace winpp{
 
 			virtual const object *non_sibling() const = 0;
 
+			virtual object *owner() const = 0;
+
 			virtual object *parent() const = 0;
 
 			virtual object *ancestor(index_and_size_type index) const = 0;
@@ -167,7 +169,7 @@ namespace winpp{
 
 			virtual event_tunnel &events() = 0;
 
-			virtual unsigned int group() const = 0;
+			virtual unsigned int object_group() const = 0;
 
 			virtual index_and_size_type proposed_index() const = 0;
 
@@ -220,6 +222,8 @@ namespace winpp{
 			virtual bool is_menu() const = 0;
 
 			virtual bool is_menu_item() const = 0;
+
+			virtual bool is_menu_group() const = 0;
 
 			virtual bool is_non_window() const = 0;
 

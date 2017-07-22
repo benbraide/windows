@@ -52,6 +52,12 @@ namespace winpp{
 				: exception("Argument is invalid"){}
 		};
 
+		class internal_error_exception : public std::exception{
+		public:
+			internal_error_exception()
+				: exception("Internal error"){}
+		};
+
 		class windows_error : public std::exception{
 		public:
 			typedef ::DWORD dword_type;

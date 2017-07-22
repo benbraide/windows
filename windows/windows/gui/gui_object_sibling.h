@@ -25,6 +25,8 @@ namespace winpp{
 
 			virtual const object *non_sibling() const override;
 
+			virtual object *owner() const override;
+
 			virtual object *parent() const override;
 
 			virtual object *ancestor(index_and_size_type index) const override;
@@ -119,7 +121,7 @@ namespace winpp{
 
 			virtual event_tunnel &events() override;
 
-			virtual unsigned int group() const override;
+			virtual unsigned int object_group() const override;
 
 			virtual index_and_size_type proposed_index() const override;
 
@@ -172,6 +174,8 @@ namespace winpp{
 			virtual bool is_menu() const override;
 
 			virtual bool is_menu_item() const override;
+
+			virtual bool is_menu_group() const override;
 
 			virtual bool is_non_window() const override;
 

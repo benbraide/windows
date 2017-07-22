@@ -9,6 +9,18 @@ winpp::gui::object_attributes::~object_attributes(){
 		stop_monitoring();
 }
 
+unsigned __int64 winpp::gui::object_attributes::id() const{
+	return (std::any_cast<const uint64_callback_type &>(get_callback_(key_type::id)))();
+}
+
+std::wstring winpp::gui::object_attributes::name() const{
+	return (std::any_cast<const string_callback_type &>(get_callback_(key_type::id)))();
+}
+
+std::wstring winpp::gui::object_attributes::value() const{
+	return (std::any_cast<const string_callback_type &>(get_callback_(key_type::id)))();
+}
+
 winpp::gui::object_attributes &winpp::gui::object_attributes::trigger(unsigned __int64 types){
 	guard_type guard(lock_);
 	trigger_(types);
@@ -285,6 +297,38 @@ const winpp::gui::object_attributes::object_list_type &winpp::gui::object_attrib
 
 const winpp::gui::object_attributes::object_list_type &winpp::gui::object_attributes::dependent_siblings() const{
 	return dependent_siblings_;
+}
+
+void winpp::gui::object_attributes::internal_set_uint64_callback(key_type key, uint64_callback_type callback){
+	switch (key){
+	case key_type::id:
+		break;
+	default:
+		throw common::invalid_arg_exception();
+		break;
+	}
+
+	value_callback_list_[key] = callback;
+}
+
+void winpp::gui::object_attributes::internal_set_string_callback(key_type key, string_callback_type callback){
+	switch (key){
+	case key_type::name:
+	case key_type::value:
+		break;
+	default:
+		throw common::invalid_arg_exception();
+		break;
+	}
+
+	value_callback_list_[key] = callback;
+}
+
+const std::any &winpp::gui::object_attributes::get_callback_(key_type key) const{
+	auto entry = value_callback_list_.find(key);
+	if (entry == value_callback_list_.end())
+		throw common::unsupported_exception();
+	return entry->second;
 }
 
 winpp::gui::object_attributes &winpp::gui::object_attributes::trigger_(unsigned __int64 types){

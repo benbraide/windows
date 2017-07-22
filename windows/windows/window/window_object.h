@@ -123,7 +123,7 @@ namespace winpp{
 
 			virtual event_tunnel &events() override;
 
-			virtual unsigned int group() const override;
+			virtual unsigned int object_group() const override;
 
 			virtual bool is_created() const override;
 

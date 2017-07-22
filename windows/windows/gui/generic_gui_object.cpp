@@ -71,6 +71,10 @@ winpp::gui::object *winpp::gui::generic_object::non_sibling(){
 	return this;
 }
 
+winpp::gui::object *winpp::gui::generic_object::owner() const{
+	return parent_;
+}
+
 const winpp::gui::object *winpp::gui::generic_object::non_sibling() const{
 	return this;
 }
@@ -250,12 +254,10 @@ winpp::structures::enumerations::hit_target_type winpp::gui::generic_object::hit
 
 winpp::gui::object::gui_object_type *winpp::gui::generic_object::hit_target(const point_type &value) const{
 	throw common::unsupported_exception();
-	return (hit_test(value) == hit_target_type::nil) ? nullptr : const_cast<generic_object *>(this);
 }
 
 winpp::gui::object::gui_object_type *winpp::gui::generic_object::deepest_hit_target(const point_type &value) const{
 	throw common::unsupported_exception();
-	return hit_target(value);
 }
 
 winpp::gui::object::point_type winpp::gui::generic_object::convert_to_screen(const point_type &value) const{
@@ -270,8 +272,12 @@ winpp::gui::object::point_type winpp::gui::generic_object::convert_from_screen(c
 	return value;
 }
 
+winpp::gui::object::rect_type winpp::gui::generic_object::convert_from_screen(const rect_type &value) const{
+	return value;
+}
+
 winpp::gui::object &winpp::gui::generic_object::update_state(){
-	throw common::unsupported_exception();
+	return *this;
 }
 
 winpp::gui::object &winpp::gui::generic_object::destroy(force_type force){
@@ -290,10 +296,6 @@ bool winpp::gui::generic_object::is_hidden() const{
 	throw common::unsupported_exception();
 }
 
-winpp::gui::object::rect_type winpp::gui::generic_object::convert_from_screen(const rect_type &value) const{
-	return value;
-}
-
 winpp::gui::object::gui_attributes_type &winpp::gui::generic_object::attributes(){
 	return *get_attributes_();
 }
@@ -302,7 +304,7 @@ winpp::gui::generic_object::event_tunnel &winpp::gui::generic_object::events(){
 	return *get_events_();
 }
 
-unsigned int winpp::gui::generic_object::group() const{
+unsigned int winpp::gui::generic_object::object_group() const{
 	return default_group;
 }
 
@@ -377,7 +379,7 @@ bool winpp::gui::generic_object::has_parent() const{
 }
 
 bool winpp::gui::generic_object::is_group(unsigned int value) const{
-	return (group() == value);
+	return (object_group() == value);
 }
 
 bool winpp::gui::generic_object::is_offspring(const gui_object_type &object) const{
@@ -415,6 +417,10 @@ bool winpp::gui::generic_object::is_menu() const{
 }
 
 bool winpp::gui::generic_object::is_menu_item() const{
+	return false;
+}
+
+bool winpp::gui::generic_object::is_menu_group() const{
 	return false;
 }
 

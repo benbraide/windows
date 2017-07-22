@@ -22,6 +22,10 @@ winpp::gui::object *winpp::gui::object_sibling::non_sibling(){
 	return object_->non_sibling();
 }
 
+winpp::gui::object *winpp::gui::object_sibling::owner() const{
+	return object_->owner();
+}
+
 const winpp::gui::object *winpp::gui::object_sibling::non_sibling() const{
 	return object_->non_sibling();
 }
@@ -235,8 +239,8 @@ winpp::gui::object::event_tunnel &winpp::gui::object_sibling::events(){
 	return object_->events();
 }
 
-unsigned int winpp::gui::object_sibling::group() const{
-	return object_->group();
+unsigned int winpp::gui::object_sibling::object_group() const{
+	return object_->object_group();
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::object_sibling::proposed_index() const{
@@ -341,6 +345,10 @@ bool winpp::gui::object_sibling::is_menu() const{
 
 bool winpp::gui::object_sibling::is_menu_item() const{
 	return object_->is_menu_item();
+}
+
+bool winpp::gui::object_sibling::is_menu_group() const{
+	return object_->is_menu_group();
 }
 
 bool winpp::gui::object_sibling::is_non_window() const{

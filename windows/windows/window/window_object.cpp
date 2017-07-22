@@ -135,7 +135,7 @@ winpp::window::object::event_tunnel &winpp::window::object::events(){
 	return *dynamic_cast<event_tunnel *>(get_events_().get());
 }
 
-unsigned int winpp::window::object::group() const{
+unsigned int winpp::window::object::object_group() const{
 	return window_group;
 }
 

@@ -480,6 +480,35 @@ namespace winpp{
 				owned				= PRF_OWNED,
 			};
 
+			enum class menu_state_type : unsigned int{
+				nil				= 0,
+				disabled		= MFS_DISABLED,
+				checked			= MFS_CHECKED,
+				highlighted		= MFS_HILITE,
+				is_default		= MFS_DEFAULT,
+			};
+
+			enum class menu_popup_track_option : unsigned int{
+				nil					= 0,
+				left_align			= TPM_LEFTALIGN,
+				right_align			= TPM_RIGHTALIGN,
+				center_align		= TPM_CENTERALIGN,
+				top_align			= TPM_TOPALIGN,
+				bottom_align		= TPM_BOTTOMALIGN,
+				vcenter_align		= TPM_VCENTERALIGN,
+				dont_notify			= TPM_NONOTIFY,
+				return_cmd			= TPM_RETURNCMD,
+				left_button			= TPM_LEFTBUTTON,
+				right_button		= TPM_RIGHTBUTTON,
+				no_animation		= TPM_NOANIMATION,
+				hor_pos_animation	= TPM_HORPOSANIMATION,
+				hor_neg_animation	= TPM_HORNEGANIMATION,
+				ver_pos_animation	= TPM_VERPOSANIMATION,
+				ver_neg_animation	= TPM_VERNEGANIMATION,
+				recursive			= TPM_RECURSE,
+				right_to_left		= TPM_LAYOUTRTL,
+			};
+
 			WINPP_MAKE_OPERATORS(random_string_char_set);
 			WINPP_MAKE_OPERATORS(key_event_state_type);
 			WINPP_MAKE_OPERATORS(key_state_type);
@@ -489,6 +518,8 @@ namespace winpp{
 			WINPP_MAKE_OPERATORS(placement_type);
 			WINPP_MAKE_OPERATORS(layered_attributes_option);
 			WINPP_MAKE_OPERATORS(print_option);
+			WINPP_MAKE_OPERATORS(menu_state_type);
+			WINPP_MAKE_OPERATORS(menu_popup_track_option);
 		}
 	}
 }

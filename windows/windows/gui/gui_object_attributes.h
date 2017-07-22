@@ -3,9 +3,11 @@
 #ifndef WINPP_GUI_OBJECT_ATTRIBUTES_H
 #define WINPP_GUI_OBJECT_ATTRIBUTES_H
 
+#include <any>
 #include <mutex>
 #include <functional>
 #include <unordered_map>
+#include <string>
 #include <list>
 
 #include "../structures/rect_structure.h"
@@ -26,17 +28,34 @@ namespace winpp{
 			typedef std::function<void(unsigned __int64)> callback_type;
 			typedef std::function<void(const object &)> sibling_callback_type;
 
+			typedef std::function<unsigned __int64()> uint64_callback_type;
+			typedef std::function<std::wstring()> string_callback_type;
+
 			typedef std::unordered_map<unsigned __int64, callback_type> callback_list_type;
 			typedef std::unordered_map<const object *, sibling_callback_type> sibling_callback_list_type;
 
 			typedef std::list<const object *> object_list_type;
-
+			
 			typedef std::mutex lock_type;
 			typedef std::lock_guard<lock_type> guard_type;
+
+			enum class key_type{
+				id,
+				name,
+				value,
+			};
+
+			typedef std::unordered_map<key_type, std::any> value_callback_list_type;
 
 			explicit object_attributes(object &object);
 
 			virtual ~object_attributes();
+
+			unsigned __int64 id() const;
+
+			std::wstring name() const;
+
+			std::wstring value() const;
 
 			object_attributes &trigger(unsigned __int64 types);
 
@@ -84,6 +103,10 @@ namespace winpp{
 
 			const object_list_type &dependent_siblings() const;
 
+			void internal_set_uint64_callback(key_type key, uint64_callback_type callback);
+
+			void internal_set_string_callback(key_type key, string_callback_type callback);
+
 			static const unsigned __int64 type_nil				= (0ull << 0x0000);
 			static const unsigned __int64 type_parent_size		= (1ull << 0x0000);
 			static const unsigned __int64 type_siblings_size	= (1ull << 0x0001);
@@ -91,6 +114,8 @@ namespace winpp{
 			static const unsigned __int64 last_pow				= 0x0002;
 
 		protected:
+			const std::any &get_callback_(key_type key) const;
+
 			virtual object_attributes &trigger_(unsigned __int64 types);
 
 			virtual object_attributes &trigger_(const object &sibling);
@@ -108,10 +133,15 @@ namespace winpp{
 			object *object_;
 			unsigned __int64 active_;
 			unsigned __int64 disabled_;
+
+			value_callback_list_type value_callback_list_;
+
 			callback_list_type callback_list_;
 			sibling_callback_list_type sibling_callback_list_;
+
 			object_list_type dependent_children_;
 			object_list_type dependent_siblings_;
+
 			mutable lock_type lock_;
 		};
 	}
