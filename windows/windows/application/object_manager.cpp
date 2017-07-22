@@ -67,8 +67,6 @@ void winpp::application::object_manager::create(const create_info_type &info, hw
 		(info.hInstance == nullptr) ? ::GetModuleHandleW(nullptr) : info.hInstance,
 		info.lpCreateParams
 	);
-
-	out_ = nullptr;
 }
 
 winpp::application::object_manager::hmenu_type winpp::application::object_manager::create_menu(gui_object_type &owner, menu_type type){
@@ -504,7 +502,8 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 		if (manager.recent_params_ == nullptr)//Not monitoring event
 			return ::CallNextHookEx(nullptr, code, wparam, lparam);
 
-		if (reinterpret_cast<create_hook_info_type *>(lparam)->lpcs->lpCreateParams == manager.recent_params_){//Ensure target is valid
+		auto create_info = reinterpret_cast<create_hook_info_type *>(lparam)->lpcs;
+		if (create_info->lpCreateParams == manager.recent_params_){//Ensure target is valid
 			auto target_hwnd_value = reinterpret_cast<hwnd_value_type>(wparam);
 			if (manager.replace_procedure_)//Replace window procedure
 				hwnd_type(target_hwnd_value).data<procedure_type>(&object_manager::entry, hwnd_type::data_index_type::procedure);
@@ -515,11 +514,12 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 				(manager.windows_[target_hwnd_value] = &static_cast<gui_object_type *>(manager.recent_params_)->query<window_type>())
 			};
 
+			manager.out_ = nullptr;
 			manager.recent_params_ = nullptr;
 		}
-		else if (manager.out_ == nullptr){//Menu created
-			manager.recent_params_ = nullptr;
+		else if (manager.out_ == nullptr && reinterpret_cast<::ULONG_PTR>(create_info->lpszClass) == WINPP_MENU_ATOM){//Menu created
 			manager.menus_[reinterpret_cast<hwnd_value_type>(wparam)] = static_cast<gui_object_type *>(manager.recent_params_);
+			manager.recent_params_ = nullptr;
 		}
 	}
 	else if (code == HCBT_DESTROYWND){//Window destroyed
