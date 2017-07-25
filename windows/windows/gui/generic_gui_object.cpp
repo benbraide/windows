@@ -149,6 +149,9 @@ const winpp::gui::object &winpp::gui::generic_object::traverse_ancestors(object_
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::generic_object::internal_insert_into_parent(gui_object_type &object){
+	if (parent_ != nullptr)//Parent required
+		throw common::unsupported_exception();
+
 	if (!object.is_sibling())
 		return insert_into_parent_(object, invalid_index);
 

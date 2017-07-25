@@ -116,7 +116,7 @@ winpp::gui::object::index_and_size_type winpp::gui::object_group::internal_inser
 }
 
 winpp::gui::object &winpp::gui::object_group::internal_remove_child(gui_object_type &child, force_type force){
-	if (child.is_parent(*this))
+	if (!child.is_parent(*this))
 		throw common::invalid_object_exception();
 
 	require_app_();

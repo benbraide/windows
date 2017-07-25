@@ -15,6 +15,8 @@ namespace winpp{
 			typedef ::HMENU hmenu_type;
 
 			virtual operator hmenu_type() const;
+
+			virtual bool is_popup() const;
 		};
 	}
 }

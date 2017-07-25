@@ -263,6 +263,42 @@ namespace winpp{
 				return dynamic_cast<const target_type *>(non_sibling());
 			}
 
+			template <typename target_type>
+			bool is_type() const{
+				return (try_query<target_type>() != nullptr);
+			}
+
+			template <typename target_type>
+			target_type &get_type(){
+				auto value = find_type<target_type>();
+				if (value == nullptr)
+					throw common::cast_exception();
+				return *value;
+			}
+
+			template <typename target_type>
+			const target_type &get_type() const{
+				auto value = find_type<target_type>();
+				if (value == nullptr)
+					throw common::cast_exception();
+				return *value;
+			}
+
+			template <typename target_type>
+			target_type *find_type(){
+				auto value = try_query<target_type>();
+				if (value != nullptr)//Is type
+					return value;
+
+				auto parent = this->parent();
+				return (parent == nullptr) ? nullptr : parent->find_type<target_type>();
+			}
+
+			template <typename target_type>
+			const target_type *find_type() const{
+				return const_cast<object *>(this)->find_type<target_type>();
+			}
+
 			static const unsigned int default_group			= 0x0000u;
 			static const unsigned int menu_group			= 0x0001u;
 			static const unsigned int menu_item_group		= 0x0002u;

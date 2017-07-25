@@ -308,7 +308,16 @@ void winpp::window::object::create_(const create_info_type &info, app_type *app)
 	if (is_created())
 		throw common::unsupported_exception();
 
-	(app_ = ((app == nullptr) ? scope_app_ : app))->execute_task([this, &info]{//Execute in application's thread context
+	if (app == nullptr){//Use applicable app
+		if (app_type::current_app == nullptr)
+			app_ = scope_app_;//Use scope
+		else//Use active app
+			app_ = app_type::current_app;
+	}
+	else//Use app
+		app_ = app;
+
+	app_->execute_task([&]{//Execute in application's thread context
 		app_->object_manager().create(info, value_);
 		if (value_ == nullptr){//Failed to create window
 			if (parent_ != nullptr){//Remove object from parent
@@ -316,7 +325,10 @@ void winpp::window::object::create_(const create_info_type &info, app_type *app)
 				parent_ = nullptr;
 			}
 
-			if (::GetLastError() != ERROR_SUCCESS)
+			app_ = nullptr;
+			if (::GetLastError() == ERROR_SUCCESS)
+				throw common::internal_error_exception();
+			else//Windows error
 				throw common::windows_error();
 		}
 		else//Notify
