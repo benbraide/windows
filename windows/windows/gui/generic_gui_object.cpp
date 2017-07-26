@@ -64,7 +64,7 @@ winpp::gui::object::app_type *winpp::gui::generic_object::scope_app() const{
 }
 
 void *winpp::gui::generic_object::handle() const{
-	throw common::unsupported_exception();
+	return nullptr;
 }
 
 winpp::gui::object *winpp::gui::generic_object::non_sibling(){
@@ -452,7 +452,9 @@ winpp::gui::object::procedure_type winpp::gui::generic_object::procedure() const
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::generic_object::insert_into_parent_(gui_object_type &parent, index_and_size_type index){
-	return parent.internal_insert_child(*this, index);
+	if ((index = parent.internal_insert_child(*this, index)) != invalid_index)
+		parent_ = &parent;
+	return index;
 }
 
 void winpp::gui::generic_object::created_(){

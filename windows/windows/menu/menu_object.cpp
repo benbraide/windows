@@ -51,8 +51,10 @@ winpp::menu::object &winpp::menu::object::destroy(force_type force){
 
 	require_app_();
 	app_->execute_task([&]{
-		if (::DestroyMenu(value_) != FALSE || force == force_type::force)
+		if (::DestroyMenu(value_) != FALSE || force == force_type::force){
+			value_ = nullptr;
 			destroyed_();
+		}
 	});
 
 	return *this;
@@ -85,19 +87,16 @@ void winpp::menu::object::create(app_type &app){
 	if (is_created())
 		throw common::unsupported_exception();
 
-	app.execute_task([&]{
+	(app_ = &app)->execute_task([&]{
 		if ((value_ = app_->object_manager().create_menu(*this, application::object_manager::menu_type::popup)) == nullptr){
-			parent_->internal_remove_child(*this);
-			parent_ = nullptr;
 			app_ = nullptr;
-
 			if (::GetLastError() == ERROR_SUCCESS)
 				throw common::internal_error_exception();
 			else//Windows error
 				throw common::windows_error();
 		}
 		else//Success
-			app_ = &app;
+			created_();
 	});
 }
 
@@ -128,8 +127,10 @@ void winpp::menu::object::create(gui_object_type &parent){
 			else//Windows error
 				throw common::windows_error();
 		}
-		else if (type == application::object_manager::menu_type::bar)
+		
+		if (type == application::object_manager::menu_type::bar)
 			::SetMenu(parent_->query<window::object>(), value_);
+		created_();
 	});
 }
 

@@ -250,7 +250,6 @@ namespace winpp{
 
 			object *app_;
 			window_ptr_type proxy_window_;
-			hook_type hook_handle_;
 
 			void *recent_params_;
 			bool replace_procedure_;

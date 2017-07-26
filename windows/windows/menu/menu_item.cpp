@@ -14,10 +14,6 @@ winpp::menu::item::~item(){
 	destroy(force_type::force);
 }
 
-void *winpp::menu::item::handle() const{
-	return reinterpret_cast<void *>(static_cast<ulong_ptr_type>(id_));
-}
-
 winpp::gui::object::index_and_size_type winpp::menu::item::internal_insert_child(gui_object_type &child, index_and_size_type before){
 	require_app_();
 	app_->execute_task([&]{

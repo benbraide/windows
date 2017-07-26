@@ -4,14 +4,9 @@
 #include "../window/message_window.h"
 
 winpp::application::object_manager::object_manager(object &app)
-	: app_(&app), recent_params_(nullptr), replace_procedure_(false){
-	hook_handle_ = ::SetWindowsHookExW(WH_CBT, hook_, nullptr, app_->id());//Install hook to intercept certain events
-}
+	: app_(&app), recent_params_(nullptr), replace_procedure_(false){}
 
-winpp::application::object_manager::~object_manager(){
-	if (hook_handle_ != nullptr)
-		::UnhookWindowsHookEx(hook_handle_);//Uninstall hook
-}
+winpp::application::object_manager::~object_manager() = default;
 
 winpp::application::object &winpp::application::object_manager::app(){
 	return *app_;
@@ -39,9 +34,9 @@ void winpp::application::object_manager::create(const create_info_type &info, hw
 	out_ = &out;
 	recent_params_ = info.lpCreateParams;
 
-	if (hook_handle_ == nullptr){//No hook installed
+	auto hook_handle = ::SetWindowsHookExW(WH_CBT, hook_, nullptr, app_->id());//Install hook to intercept certain events
+	if (hook_handle == nullptr){//Failed to install hook
 		out = nullptr;
-		::SetLastError(ERROR_INTERNAL_ERROR);
 		return;
 	}
 
@@ -55,30 +50,34 @@ void winpp::application::object_manager::create(const create_info_type &info, hw
 		replace_procedure_ = true;
 	}
 
-	out = ::CreateWindowExW(
-		info.dwExStyle,
-		class_name,
-		info.lpszName,
-		static_cast<dword_type>(info.style),
-		info.x,
-		info.y,
-		info.cx,
-		info.cy,
-		info.hwndParent,
-		info.hMenu,
-		(info.hInstance == nullptr) ? ::GetModuleHandleW(nullptr) : info.hInstance,
-		info.lpCreateParams
-	);
+	try{//Inside try-block -- Always uninstall hook
+		out = ::CreateWindowExW(
+			info.dwExStyle,
+			class_name,
+			info.lpszName,
+			static_cast<dword_type>(info.style),
+			info.x,
+			info.y,
+			info.cx,
+			info.cy,
+			info.hwndParent,
+			info.hMenu,
+			(info.hInstance == nullptr) ? ::GetModuleHandleW(nullptr) : info.hInstance,
+			info.lpCreateParams
+		);
+	}
+	catch (...){
+		::UnhookWindowsHookEx(hook_handle);//Uninstall hook
+		throw;//Forward exception
+	}
+
+	::UnhookWindowsHookEx(hook_handle);//Uninstall hook
 }
 
 winpp::application::object_manager::hmenu_type winpp::application::object_manager::create_menu(gui_object_type &owner, menu_type type){
 	if (object::current_app == nullptr || object::current_app != app_)
 		throw common::no_app_exception();
-
-	out_ = nullptr;
-	recent_params_ = &owner;
-
-	return (type == menu_type::bar) ? ::CreateMenu() : ::CreatePopupMenu();
+	return ((type == menu_type::bar) ? ::CreateMenu() : ::CreatePopupMenu());
 }
 
 bool winpp::application::object_manager::has_top_level() const{
@@ -522,18 +521,6 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 			manager.out_ = nullptr;
 			manager.recent_params_ = nullptr;
 		}
-		else if (manager.out_ == nullptr && reinterpret_cast<::ULONG_PTR>(create_info->lpszClass) == WINPP_MENU_ATOM){//Menu created
-			manager.objects_with_handle_[reinterpret_cast<hwnd_value_type>(wparam)] = static_cast<gui_object_type *>(manager.recent_params_);
-			manager.recent_params_ = nullptr;
-		}
-	}
-	else if (code == HCBT_DESTROYWND){//Window destroyed
-		if (object::current_app == nullptr)//App not initialized
-			return ::CallNextHookEx(nullptr, code, wparam, lparam);
-
-		auto &manager = object::current_app->object_manager();
-		if (!manager.objects_with_handle_.empty())//Remove menu from list if applicable
-			manager.objects_with_handle_.erase(reinterpret_cast<hwnd_value_type>(wparam));
 	}
 
 	return ::CallNextHookEx(nullptr, code, wparam, lparam);

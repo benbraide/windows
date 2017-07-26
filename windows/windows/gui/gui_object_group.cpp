@@ -217,8 +217,6 @@ bool winpp::gui::object_group::is_child(const gui_object_type &object) const{
 }
 
 void winpp::gui::object_group::destroyed_(){
-	generic_object::destroyed_();
-
 	auto count = children_.size();
 	while (count > 0u){//Destroy children
 		if ((*children_.begin())->parent() == this){
@@ -231,6 +229,8 @@ void winpp::gui::object_group::destroyed_(){
 
 		count = children_.size();//Update count
 	}
+
+	generic_object::destroyed_();
 }
 
 winpp::gui::generic_object::attributes_type winpp::gui::object_group::get_attributes_(){

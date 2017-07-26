@@ -7,7 +7,7 @@ winpp::gui::object *winpp::gui::object_tree::child_at_absolute_index(index_and_s
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::object_tree::child_absolute_index(const gui_object_type &object) const{
-	return child_absolute_index(object);
+	return child_index(object);
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::object_tree::absolute_index(index_and_size_type index) const{

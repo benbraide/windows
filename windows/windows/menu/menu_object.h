@@ -10,6 +10,10 @@
 #include "../gui/gui_object_tree.h"
 
 namespace winpp{
+	namespace application{
+		class object_manager;
+	}
+
 	namespace menu{
 		class object : public gui::object_tree{
 		public:
@@ -59,6 +63,8 @@ namespace winpp{
 			virtual void create(gui_object_type &parent);
 
 		protected:
+			friend class application::object_manager;
+
 			virtual index_and_size_type insert_into_parent_(gui_object_type &parent, index_and_size_type index) override;
 
 			hmenu_type value_;

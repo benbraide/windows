@@ -1,3 +1,4 @@
+#include "menu/menu_object.h"
 #include "window/frame_window.h"
 
 int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, int show_type){
@@ -7,6 +8,9 @@ int WINAPI wWinMain(::HINSTANCE app_instance, ::HINSTANCE, ::LPWSTR cmd_line, in
 
 	winpp::window::framed_top_level ftl(L"Framed Top-Level Window", point_type{ 10 }, size_type{ 600, 400 });
 	ftl.show(static_cast<winpp::structures::enumerations::show_mode_type>(show_type));
+
+	winpp::menu::object mo(ftl);
+	winpp::menu::item mi(mo, L"First");
 
 	auto value = winpp::application::object::get().run();
 	winpp::application::object::get().exit();
