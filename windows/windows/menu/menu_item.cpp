@@ -97,6 +97,25 @@ winpp::menu::item &winpp::menu::item::update_state(){
 }
 
 winpp::menu::item &winpp::menu::item::destroy(force_type force){
+	if (parent_ == nullptr)
+		return *this;
+
+	require_app_();
+	app_->execute_task([&]{
+		auto &menu_parent = parent_->get_type<menu_object_type>();
+		if (::RemoveMenu(menu_parent, static_cast<uint_type>(absolute_index_in_parent()), TRUE) != FALSE || force == force_type::force){
+			app_->object_manager().remove_index(id_, &menu_parent);
+
+			parent_->internal_remove_child(*this);
+			parent_ = nullptr;
+
+			app_ = nullptr;
+			id_ = invalid_id;
+
+			destroyed_();
+		}
+	});
+
 	return *this;
 }
 
@@ -262,6 +281,8 @@ void winpp::menu::item::create_(gui_object_type &parent, const std::wstring &lab
 		};
 
 		if (::InsertMenuItemW(menu_parent, static_cast<uint_type>(absolute_index_in_parent()), TRUE, &info) == FALSE){//Failed to insert item
+			app_->object_manager().remove_index(id_, &menu_parent);
+
 			parent_->internal_remove_child(*this);
 			parent_ = nullptr;
 
@@ -294,13 +315,13 @@ winpp::menu::item::uint_type winpp::menu::item::get_types_() const{
 }
 
 void winpp::menu::item::set_info_(const info_type &info){
-	::SetMenuItemInfoW(static_cast<hmenu_type>(parent_->handle()), static_cast<uint_type>(absolute_index_in_parent()), TRUE, &info);
 	auto &menu_parent = parent_->get_type<menu_object_type>();
+	::SetMenuItemInfoW(menu_parent, static_cast<uint_type>(absolute_index_in_parent()), TRUE, &info);
 	if (!menu_parent.is_popup())//Update view
 		::DrawMenuBar(menu_parent.parent()->query<window::object>());
 }
 
 void winpp::menu::item::get_info_(info_type &info) const{
 	info.cbSize = sizeof(info_type);
-	::GetMenuItemInfoW(static_cast<hmenu_type>(parent_->handle()), static_cast<uint_type>(absolute_index_in_parent()), TRUE, &info);
+	::GetMenuItemInfoW(parent_->get_type<menu_object_type>(), static_cast<uint_type>(absolute_index_in_parent()), TRUE, &info);
 }

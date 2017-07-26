@@ -84,13 +84,13 @@ namespace winpp{
 					remove_value(entry.first, value);
 			}
 
-			value_type find(const scope_type &scope, key_type key) const{
+			value_type find(const scope_type &scope, key_type key){
 				index_iterator_type index;
 				return find_(scope, key, nullptr, index) ? index->second : value_type();
 			}
 
 		private:
-			bool find_(const scope_type &scope, const key_type &key, scoped_index_iterator_type *scoped, index_iterator_type &index) const{
+			bool find_(const scope_type &scope, const key_type &key, scoped_index_iterator_type *scoped, index_iterator_type &index){
 				if (scoped_index_.empty())
 					return false;
 
