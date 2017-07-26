@@ -126,8 +126,8 @@ bool winpp::application::object::is_stopped_() const{
 }
 
 bool winpp::application::object::is_pre_processed_(){
-	auto target = object_manager_->find_window(cache_.owner());
-	return (target == nullptr) ? false : target->pre_translate(cache_);
+	auto target = object_manager_->find_object(cache_.owner());
+	return (target == nullptr) ? false : target->query<window::object>().pre_translate(cache_);
 }
 
 winpp::application::object::list_type winpp::application::object::list_;

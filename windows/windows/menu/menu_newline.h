@@ -20,9 +20,7 @@ namespace winpp{
 			virtual bool is_group() const override;
 
 		protected:
-			virtual index_and_size_type post_insert_(gui_object_type &object, index_and_size_type index);
-
-			virtual void post_remove_(gui_object_type &object);
+			virtual bool pre_insert_(gui_object_type &object, index_and_size_type &index) override;
 		};
 
 		class bordered_newline : public newline{

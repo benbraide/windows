@@ -80,8 +80,7 @@ namespace winpp{
 			typedef messaging::map messaging_map_type;
 
 			typedef std::list<gui_object_type *> object_list_type;
-			typedef std::unordered_map<hwnd_value_type, window_type *> window_list_type;
-			typedef std::unordered_map<hwnd_value_type, gui_object_type *> menu_list_type;
+			typedef std::unordered_map<void *, gui_object_type *> objects_with_handle_list_type;
 
 			typedef std::shared_ptr<window_type> window_ptr_type;
 			typedef common::scoped_index_base scoped_index_base_type;
@@ -121,9 +120,9 @@ namespace winpp{
 				lparam_type lparam;
 			};
 
-			struct window_map_type{
-				hwnd_value_type handle;
-				window_type *owner;
+			struct object_map_type{
+				void *handle;
+				gui_object_type *owner;
 			};
 
 			explicit object_manager(object &app);
@@ -140,7 +139,9 @@ namespace winpp{
 
 			bool has_top_level() const;
 
-			void update(uint_type code, void *args);
+			void object_created(gui_object_type &value);
+
+			void object_destroyed(gui_object_type &value);
 
 			template <typename key_type>
 			key_type add_index(gui_object_type &value, gui_object_type *scope = nullptr){
@@ -175,7 +176,7 @@ namespace winpp{
 				return get_scoped_index_<key_type>(false);
 			}
 
-			window_type *find_window(hwnd_value_type handle);
+			gui_object_type *find_object(void *handle);
 
 			lresult_type handle_mouse_move(window_type &target, const msg_type &msg);
 
@@ -221,17 +222,8 @@ namespace winpp{
 			static messaging_map_type messaging_map;
 			static size_type drag_threshold;
 
-			static const uint_type update_object_created		= 0x00000001u;
-			static const uint_type update_object_destroyed		= 0x00000002u;
-
 		private:
-			window_type *find_window_(hwnd_value_type handle);
-
-			void update_(uint_type code, void *args);
-
-			void update_object_created_(gui_object_type *object);
-
-			void update_object_destroyed_(gui_object_type *object);
+			gui_object_type *find_object_(void *handle);
 
 			lresult_type nc_mouse_up_(window_type &target, const msg_type &msg, mouse_key_state_type button);
 
@@ -267,9 +259,8 @@ namespace winpp{
 			object_list_type list_;
 			object_list_type top_levels_;
 
-			menu_list_type menus_;
-			window_list_type windows_;
-			window_map_type last_search_{};
+			objects_with_handle_list_type objects_with_handle_;
+			object_map_type last_search_{};
 
 			object_state_type object_state_{};
 			scoped_index_base_ptr_list_type scoped_index_list_;

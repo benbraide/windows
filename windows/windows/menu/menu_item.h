@@ -55,6 +55,8 @@ namespace winpp{
 
 			virtual void create(gui_object_type &parent, const std::wstring &label, menu_state_type states = menu_state_type::nil);
 
+			virtual word_type id() const;
+
 			menu_object_type *sub() const;
 
 			virtual item &states(menu_state_type value);
@@ -88,6 +90,8 @@ namespace winpp{
 			static const word_type invalid_id = 0;
 
 		protected:
+			virtual index_and_size_type insert_into_parent_(gui_object_type &parent, index_and_size_type index) override;
+
 			virtual attributes_type get_attributes_() override;
 
 			virtual void create_(gui_object_type &parent, const std::wstring &label, menu_state_type states);

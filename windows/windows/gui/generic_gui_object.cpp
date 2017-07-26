@@ -149,7 +149,7 @@ const winpp::gui::object &winpp::gui::generic_object::traverse_ancestors(object_
 }
 
 winpp::gui::object::index_and_size_type winpp::gui::generic_object::internal_insert_into_parent(gui_object_type &object){
-	if (parent_ != nullptr)//Parent required
+	if (parent_ != nullptr)//Already has parent
 		throw common::unsupported_exception();
 
 	if (!object.is_sibling())
@@ -456,16 +456,17 @@ winpp::gui::object::index_and_size_type winpp::gui::generic_object::insert_into_
 }
 
 void winpp::gui::generic_object::created_(){
-	app_->object_manager().update(application::object_manager::update_object_created, this);
+	app_->object_manager().object_created(*this);
 }
 
 void winpp::gui::generic_object::destroyed_(){
-	app_->object_manager().update(application::object_manager::update_object_destroyed, this);
+	app_->object_manager().object_destroyed(*this);
 	if (parent_ != nullptr){//Remove from parent
 		parent_->internal_remove_child(*this, force_type::force);
 		parent_ = nullptr;
 	}
 
+	app_ = nullptr;
 	if (attributes_ != nullptr)
 		attributes_->stop_monitoring();
 }

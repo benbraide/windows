@@ -29,6 +29,15 @@ namespace winpp{
 			virtual bool is_menu_group() const override;
 
 			virtual void create(gui_object_type &parent);
+
+		protected:
+			virtual index_and_size_type insert_into_parent_(gui_object_type &parent, index_and_size_type index) override;
+
+			virtual bool pre_insert_(gui_object_type &object, index_and_size_type &index) override;
+
+			virtual index_and_size_type post_insert_(gui_object_type &object, index_and_size_type index) override;
+
+			virtual void post_remove_(gui_object_type &object) override;
 		};
 	}
 }

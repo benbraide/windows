@@ -95,7 +95,7 @@ const winpp::messaging::object::msg_type &winpp::messaging::object::info() const
 }
 
 winpp::messaging::object::gui_object_type *winpp::messaging::object::target() const{
-	return application::object::current_app->object_manager().find_window(info_.owner());
+	return application::object::current_app->object_manager().find_object(info_.owner());
 }
 
 winpp::messaging::mouse_activate::~mouse_activate() = default;

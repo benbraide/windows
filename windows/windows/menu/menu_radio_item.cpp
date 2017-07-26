@@ -33,3 +33,9 @@ winpp::menu::radio_item &winpp::menu::radio_item::check(){
 winpp::menu::radio_item &winpp::menu::radio_item::uncheck(){
 	throw common::unsupported_exception();
 }
+
+winpp::gui::object::index_and_size_type winpp::menu::radio_item::insert_into_parent_(gui_object_type &parent, index_and_size_type index){
+	if (!parent.is_type<group>() || parent.is_type<newline>())
+		throw common::invalid_arg_exception();
+	return base_type::insert_into_parent_(parent, index);
+}

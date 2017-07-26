@@ -51,15 +51,8 @@ winpp::menu::object &winpp::menu::object::destroy(force_type force){
 
 	require_app_();
 	app_->execute_task([&]{
-		if (::DestroyMenu(value_) != FALSE || force == force_type::force){
-			if (parent_ != nullptr){//Remove from parent
-				parent_->internal_remove_child(*this);
-				parent_ = nullptr;
-			}
-			
-			app_ = nullptr;
+		if (::DestroyMenu(value_) != FALSE || force == force_type::force)
 			destroyed_();
-		}
 	});
 
 	return *this;
@@ -112,20 +105,14 @@ void winpp::menu::object::create(gui_object_type &parent){
 	if (is_created())
 		throw common::unsupported_exception();
 
-	application::object_manager::menu_type type;
-	if (parent.is_type<item>()){
-		if (!parent.is_type<separator>() && !parent.is_type<check_item>())
-			type = application::object_manager::menu_type::popup;
-		else//Invalid parent
-			throw common::invalid_arg_exception();
-	}
-	else if (parent.is_type<window::object>())
-		type = application::object_manager::menu_type::bar;
-	else//Invalid parent
-		throw common::invalid_arg_exception();
-
 	if (internal_insert_into_parent(parent) == invalid_index)//Internal error
 		throw common::internal_error_exception();
+
+	application::object_manager::menu_type type;
+	if (parent_->is_type<item>())
+		type = application::object_manager::menu_type::popup;
+	else//menu bar
+		type = application::object_manager::menu_type::bar;
 
 	if ((app_ = parent_->app()) == nullptr)//App is required
 		throw common::no_app_exception();
@@ -144,4 +131,10 @@ void winpp::menu::object::create(gui_object_type &parent){
 		else if (type == application::object_manager::menu_type::bar)
 			::SetMenu(parent_->query<window::object>(), value_);
 	});
+}
+
+winpp::gui::object::index_and_size_type winpp::menu::object::insert_into_parent_(gui_object_type &parent, index_and_size_type index){
+	if ((parent.is_type<separator>() || parent.is_type<check_item>()) && !parent.is_type<item>() && !parent.is_type<window::object>())
+		throw common::invalid_arg_exception();
+	return base_type::insert_into_parent_(parent, index);
 }

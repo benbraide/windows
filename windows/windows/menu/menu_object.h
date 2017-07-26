@@ -59,6 +59,8 @@ namespace winpp{
 			virtual void create(gui_object_type &parent);
 
 		protected:
+			virtual index_and_size_type insert_into_parent_(gui_object_type &parent, index_and_size_type index) override;
+
 			hmenu_type value_;
 		};
 	}

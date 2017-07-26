@@ -18,6 +18,9 @@ namespace winpp{
 			virtual radio_item &check();
 
 			virtual radio_item &uncheck();
+
+		protected:
+			virtual index_and_size_type insert_into_parent_(gui_object_type &parent, index_and_size_type index) override;
 		};
 	}
 }

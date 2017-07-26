@@ -1,4 +1,6 @@
 #include "object_manager.h"
+
+#include "../menu/menu_object.h"
 #include "../window/message_window.h"
 
 winpp::application::object_manager::object_manager(object &app)
@@ -83,16 +85,56 @@ bool winpp::application::object_manager::has_top_level() const{
 	return !top_levels_.empty();
 }
 
-void winpp::application::object_manager::update(uint_type code, void *args){
-	app_->execute_task([=]{
-		update_(code, args);
-	});
-}
-
-winpp::application::object_manager::window_type *winpp::application::object_manager::find_window(hwnd_value_type handle){
+void winpp::application::object_manager::object_created(gui_object_type &value){
 	if (object::current_app == nullptr || object::current_app != app_)
 		throw common::no_app_exception();
-	return find_window_(handle);
+
+	list_.push_back(&value);
+	if (value.is_window() && value.is_top_level())
+		top_levels_.push_back(&value);
+
+	if (!value.is_group()){
+		auto handle = value.handle();
+		if (handle != nullptr)//Set association
+			objects_with_handle_[handle] = &value;
+	}
+}
+
+void winpp::application::object_manager::object_destroyed(gui_object_type &value){
+	if (object::current_app == nullptr || object::current_app != app_)
+		throw common::no_app_exception();
+
+	if (list_.empty())
+		return;
+
+	auto entry = std::find(list_.begin(), list_.end(), &value);
+	if (entry != list_.end())//Remove from list
+		list_.erase(entry);
+
+	entry = std::find(top_levels_.begin(), top_levels_.end(), &value);
+	if (entry != top_levels_.end())//Remove from list
+		top_levels_.erase(entry);
+
+	auto handle = value.handle();
+	if (handle != nullptr)//Remove association
+		objects_with_handle_.erase(handle);
+
+	auto window_object = dynamic_cast<window_type *>(&value);
+	if (window_object != nullptr)//Remove association
+		objects_with_handle_.erase(static_cast<hwnd_value_type>(window_object->handle()));
+
+	if (&value == last_search_.owner)
+		last_search_ = object_map_type{};
+
+	auto menu_item = value.try_query<menu::item>();
+	if (menu_item != nullptr && menu_item->id() != menu::item::invalid_id)//Remove ID entry
+		remove_index(menu_item->id(), &menu_item->parent()->get_type<menu::object>());
+}
+
+winpp::application::object_manager::gui_object_type * winpp::application::object_manager::find_object(void *handle){
+	if (object::current_app == nullptr || object::current_app != app_)
+		throw common::no_app_exception();
+	return find_object_(handle);
 }
 
 winpp::application::object_manager::lresult_type winpp::application::object_manager::handle_mouse_move(window_type &target, const msg_type &msg){
@@ -374,14 +416,16 @@ winpp::application::object_manager::uint_type winpp::application::object_manager
 
 winpp::application::object_manager::lresult_type CALLBACK winpp::application::object_manager::entry(hwnd_value_type window_handle, uint_type msg, wparam_type wparam, lparam_type lparam){
 	auto &manager = object::current_app->object_manager();
-	auto target = manager.find_window_(window_handle);
+	auto target = manager.find_object_(window_handle);
 	if (target == nullptr)//Unidentified handle
 		return ::DefWindowProcW(window_handle, msg, wparam, lparam);
 
-	auto result = target->dispatch(msg_type({ window_handle, msg, wparam, lparam }), false);
+	auto &window_target = target->query<window_type>();
+	auto result = window_target.dispatch(msg_type({ window_handle, msg, wparam, lparam }), false);
+
 	switch (msg){
 	case WM_NCDESTROY:
-		target->destroyed_();
+		window_target.destroyed_();
 		break;
 	case WM_SETFOCUS://Focus acquired
 		manager.object_state_.focused = target;
@@ -400,62 +444,23 @@ winpp::application::object_manager::messaging_map_type winpp::application::objec
 
 winpp::application::object_manager::size_type winpp::application::object_manager::drag_threshold{ ::GetSystemMetrics(SM_CXDRAG), ::GetSystemMetrics(SM_CYDRAG) };
 
-winpp::application::object_manager::window_type *winpp::application::object_manager::find_window_(hwnd_value_type handle){
-	if (windows_.empty())
+winpp::application::object_manager::gui_object_type * winpp::application::object_manager::find_object_(void *handle){
+	if (objects_with_handle_.empty())
 		return nullptr;
 
 	if (handle == last_search_.handle)
 		return last_search_.owner;
 
-	auto entry = windows_.find(handle);
-	if (entry == windows_.end())
+	auto entry = objects_with_handle_.find(handle);
+	if (entry == objects_with_handle_.end())
 		return nullptr;
 
-	last_search_ = window_map_type{//Cache search
+	last_search_ = object_map_type{//Cache search
 		handle,
 		entry->second
 	};
 
-	return entry->second;
-}
-
-void winpp::application::object_manager::update_(uint_type code, void *args){
-	switch (code){
-	case update_object_created:
-		update_object_created_(static_cast<gui_object_type *>(args));
-		break;
-	case update_object_destroyed:
-		update_object_destroyed_(static_cast<gui_object_type *>(args));
-		break;
-	default:
-		break;
-	}
-}
-
-void winpp::application::object_manager::update_object_created_(gui_object_type *object){
-	list_.push_back(object);
-	if (object->is_top_level())
-		top_levels_.push_back(object);
-}
-
-void winpp::application::object_manager::update_object_destroyed_(gui_object_type *object){
-	if (object == nullptr || list_.empty())
-		return;
-
-	auto entry = std::find(list_.begin(), list_.end(), object);
-	if (entry != list_.end())//Remove from list
-		list_.erase(entry);
-
-	entry = std::find(top_levels_.begin(), top_levels_.end(), object);
-	if (entry != top_levels_.end())//Remove from list
-		top_levels_.erase(entry);
-
-	auto window_object = dynamic_cast<window_type *>(object);
-	if (window_object != nullptr)//Remove association
-		windows_.erase(static_cast<hwnd_value_type>(window_object->handle()));
-
-	if (object == last_search_.owner)
-		last_search_ = window_map_type{};
+	return last_search_.owner;
 }
 
 winpp::application::object_manager::lresult_type winpp::application::object_manager::nc_mouse_up_(window_type &target, const msg_type &msg, mouse_key_state_type button){
@@ -509,16 +514,16 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 				hwnd_type(target_hwnd_value).data<procedure_type>(&object_manager::entry, hwnd_type::data_index_type::procedure);
 
 			*manager.out_ = target_hwnd_value;
-			manager.last_search_ = window_map_type{//Cache search
+			manager.last_search_ = object_map_type{//Cache search
 				target_hwnd_value,
-				(manager.windows_[target_hwnd_value] = &static_cast<gui_object_type *>(manager.recent_params_)->query<window_type>())
+				(manager.objects_with_handle_[target_hwnd_value] = static_cast<gui_object_type *>(manager.recent_params_))
 			};
 
 			manager.out_ = nullptr;
 			manager.recent_params_ = nullptr;
 		}
 		else if (manager.out_ == nullptr && reinterpret_cast<::ULONG_PTR>(create_info->lpszClass) == WINPP_MENU_ATOM){//Menu created
-			manager.menus_[reinterpret_cast<hwnd_value_type>(wparam)] = static_cast<gui_object_type *>(manager.recent_params_);
+			manager.objects_with_handle_[reinterpret_cast<hwnd_value_type>(wparam)] = static_cast<gui_object_type *>(manager.recent_params_);
 			manager.recent_params_ = nullptr;
 		}
 	}
@@ -527,8 +532,8 @@ winpp::application::object_manager::lresult_type CALLBACK winpp::application::ob
 			return ::CallNextHookEx(nullptr, code, wparam, lparam);
 
 		auto &manager = object::current_app->object_manager();
-		if (!manager.menus_.empty())//Remove menu from list if applicable
-			manager.menus_.erase(reinterpret_cast<hwnd_value_type>(wparam));
+		if (!manager.objects_with_handle_.empty())//Remove menu from list if applicable
+			manager.objects_with_handle_.erase(reinterpret_cast<hwnd_value_type>(wparam));
 	}
 
 	return ::CallNextHookEx(nullptr, code, wparam, lparam);

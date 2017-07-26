@@ -81,7 +81,13 @@ winpp::menu::item &winpp::menu::item::update_state(){
 		info_type info{};
 		get_info_(info);
 
-		if (parent_->is_type<newline>() && index_in_parent() == 0u){//New line
+		auto is_newline_parent = ((parent_ == nullptr) ? false : parent_->is_type<newline>());
+		if (!is_newline_parent && parent_ != nullptr && parent_->is_type<group>()){//Try grandparent
+			auto grand_parent = parent_->parent();
+			is_newline_parent = ((grand_parent == nullptr) ? false : grand_parent->is_type<newline>());
+		}
+
+		if (is_newline_parent && index_in_parent() == 0u){//New line
 			if (parent_->is_type<bordered_newline>())
 				WINPP_SET(info.fType, MFT_MENUBARBREAK);
 			else//No border
@@ -105,13 +111,7 @@ winpp::menu::item &winpp::menu::item::destroy(force_type force){
 		auto &menu_parent = parent_->get_type<menu_object_type>();
 		if (::RemoveMenu(menu_parent, static_cast<uint_type>(absolute_index_in_parent()), TRUE) != FALSE || force == force_type::force){
 			app_->object_manager().remove_index(id_, &menu_parent);
-
-			parent_->internal_remove_child(*this);
-			parent_ = nullptr;
-
-			app_ = nullptr;
 			id_ = invalid_id;
-
 			destroyed_();
 		}
 	});
@@ -133,6 +133,10 @@ bool winpp::menu::item::is_menu_item() const{
 
 void winpp::menu::item::create(gui_object_type &parent, const std::wstring &label, menu_state_type states){
 	create_(parent, label, states);
+}
+
+winpp::menu::item::word_type winpp::menu::item::id() const{
+	return id_;
 }
 
 winpp::menu::item::menu_object_type *winpp::menu::item::sub() const{
@@ -223,6 +227,12 @@ bool winpp::menu::item::is_action() const{
 
 bool winpp::menu::item::is_separator() const{
 	return false;
+}
+
+winpp::gui::object::index_and_size_type winpp::menu::item::insert_into_parent_(gui_object_type &parent, index_and_size_type index){
+	if (!parent.is_type<menu_object_type>())
+		throw common::invalid_arg_exception();
+	return base_type::insert_into_parent_(parent, index);
 }
 
 winpp::gui::generic_object::attributes_type winpp::menu::item::get_attributes_(){
